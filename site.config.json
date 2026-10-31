@@ -1,0 +1,21 @@
+{
+  "businessName": "BMG Oran",
+  "businessNameAr": "بي إم جي وهران",
+  "brandMark": "BMG",
+  "demoContact": true,
+  "repository": "",
+  "branch": "main",
+  "siteUrl": "https://YOUR-PROJECT.pages.dev",
+  "whatsappNumber": "",
+  "phoneDisplay": "+213 00 00 00 00",
+  "phoneHref": "",
+  "email": "contact@example.com",
+  "addressFr": "Adresse de votre magasin — à remplacer",
+  "addressAr": "عنوان متجرك — يُرجى تغييره",
+  "cityFr": "Oran",
+  "cityAr": "وهران",
+  "openingHoursFr": "Sam. – Jeu. · 9h00 – 18h00",
+  "openingHoursAr": "السبت – الخميس · 9:00 – 18:00",
+  "facebookUrl": "",
+  "instagramUrl": ""
+}

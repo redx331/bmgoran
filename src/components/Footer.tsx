@@ -1,0 +1,97 @@
+import { buildWhatsAppUrl, getWhatsAppStatus, SITE } from '../config/business';
+import { CATEGORIES, getCategoryName } from '../data/categories';
+import { useI18n } from '../i18n/I18nProvider';
+import { Link } from '../lib/router';
+import { hasDemoData } from '../lib/demo';
+import { Icon } from './Icon';
+
+export function Footer() {
+  const { t, locale } = useI18n();
+  const whatsapp = getWhatsAppStatus();
+  const businessName = locale === 'ar' ? SITE.businessNameAr : SITE.businessName;
+  const address = locale === 'ar' ? SITE.addressAr : SITE.addressFr;
+  const hours = locale === 'ar' ? SITE.openingHoursAr : SITE.openingHoursFr;
+  const whatsappUrl = whatsapp.configured
+    ? buildWhatsAppUrl(whatsapp.number, locale === 'ar' ? 'مرحبًا، لدي سؤال.' : 'Bonjour, j’ai une question.')
+    : null;
+
+  return (
+    <footer className="site-footer">
+      <div className="container footer-grid">
+        <div className="footer-brand">
+          <Link to="/" className="brand brand--footer">
+            <span className="brand__mark" aria-hidden="true">
+              {SITE.brandMark}
+            </span>
+            <span className="brand__text">
+              <span className="brand__name">{businessName}</span>
+              <span className="brand__tagline">{t('header.tagline')}</span>
+            </span>
+          </Link>
+          <p>{t('footer.about')}</p>
+          {hasDemoData() && (
+            <p className="footer-demo-tag">
+              <Icon name="alert" size={15} />
+              {t('footer.demoNote')}
+            </p>
+          )}
+        </div>
+
+        <div className="footer-column">
+          <h2>{t('footer.shop')}</h2>
+          <Link to="/shop">{t('footer.allProducts')}</Link>
+          {CATEGORIES.map((category) => (
+            <Link key={category.id} to={`/shop?category=${category.id}`}>
+              {getCategoryName(category.id, locale)}
+            </Link>
+          ))}
+        </div>
+
+        <div className="footer-column">
+          <h2>{t('footer.info')}</h2>
+          <Link to="/delivery">{t('footer.deliveryRates')}</Link>
+          <Link to="/contact">{t('nav.contact')}</Link>
+          <Link to="/contact">{t('footer.privacy')}</Link>
+          <Link to="/shop">{t('footer.whatsappOrder')}</Link>
+        </div>
+
+        <div className="footer-column footer-contact">
+          <h2>{t('footer.contact')}</h2>
+          <p>
+            <Icon name="pin" size={16} />
+            <span>
+              {address}
+              <br />
+              {locale === 'ar' ? SITE.cityAr : SITE.cityFr}
+            </span>
+          </p>
+          <p>
+            <Icon name="phone" size={16} />
+            <span dir="ltr">{SITE.phoneDisplay}</span>
+          </p>
+          <p>
+            <Icon name="mail" size={16} />
+            <span dir="ltr">{SITE.email}</span>
+          </p>
+          <p>
+            <Icon name="clock" size={16} />
+            <span>{hours}</span>
+          </p>
+          {whatsappUrl && (
+            <a className="footer-whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              <Icon name="whatsapp" size={16} />
+              {t('footer.whatsappOrder')}
+            </a>
+          )}
+        </div>
+      </div>
+
+      <div className="container footer-bottom">
+        <p>
+          © {new Date().getFullYear()} {businessName}. {t('footer.rights')}
+        </p>
+        <p>{t('footer.noDatabase')}</p>
+      </div>
+    </footer>
+  );
+}
