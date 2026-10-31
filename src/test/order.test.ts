@@ -356,6 +356,27 @@ describe('WhatsApp order message', () => {
     expect(new URL(url as string).searchParams.get('text')).toBe(message);
   });
 
+  it('includes the commune in the WhatsApp message when provided', () => {
+    const message = buildOrderMessage({
+      reference: 'ORD-2026-0003-COMM',
+      product,
+      quantity: 1,
+      totals,
+      firstName: 'Ahmed',
+      lastName: 'Mansour',
+      phone: '0550123456',
+      wilayaName: 'Oran',
+      wilayaCode: '31',
+      commune: 'Gdyel',
+      deliveryMethod: 'home',
+      isExampleRate: false,
+      locale: 'fr',
+      link: 'https://example.pages.dev/product/led-headlights',
+    });
+
+    expect(message).toContain('Oran (31) · Gdyel');
+  });
+
   it('keeps an ampersand, question mark, hash and emoji intact through encoding', () => {
     const message = 'Produit & accessoire ? #1 🔧\nLigne 2';
     const url = buildWhatsAppUrl('213550123456', message);

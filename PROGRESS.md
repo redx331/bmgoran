@@ -74,8 +74,13 @@ npm run og
 - [x] Immediate `<html lang="" dir="">` initialization via `public/locale-init.js` to eliminate layout flash.
 - [x] Layout built with CSS logical properties (`margin-inline`, `padding-inline`, `start`, `end`).
 
-### 3. Checkout & Algerian Delivery (58 Wilayas)
+### 3. Checkout & Algerian Delivery (58 Wilayas + Communes)
 - [x] Dual delivery methods: **Domicile** (home delivery) & **Stop-Desk** (depot pickup).
+- [x] **Dynamic City / Commune Selector**:
+  - Automatically loads the exact communes/cities for the selected wilaya (e.g. Oran -> Gdyel, Es Senia, Bir El Djir, Arzew...).
+  - Full dataset covering all 58 Algerian wilayas in both French and Arabic (`src/data/communes.ts`).
+  - Includes an "Autre commune (préciser) / أخرى" fallback input for any unlisted village or locality.
+  - Communes are seamlessly included in the generated WhatsApp message (e.g. `Wilaya: Oran (31) · Gdyel`).
 - [x] Live subtotal, delivery quote, and total calculation.
 - [x] **Safety guard**: Missing delivery rates block checkout explicitly; missing rates are never treated as 0 DZD.
 - [x] Form validation: Name length, Algerian phone number syntax (`05/06/07...` or `+213...`), wilaya selection, delivery method selection.

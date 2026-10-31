@@ -87,6 +87,22 @@ describe('checkout with the shipped placeholder configuration', () => {
     expect(screen.getByRole('link', { name: 'Voir les autres produits' })).toBeInTheDocument();
   });
 
+  it('populates communes when a wilaya is selected', async () => {
+    const user = userEvent.setup();
+    renderApp({ path: '/checkout/led-headlights', locale: 'fr' });
+
+    const communeSelect = screen.getByRole('combobox', { name: /commune/i });
+    expect(communeSelect).toBeDisabled();
+
+    await user.selectOptions(screen.getByRole('combobox', { name: /Wilaya/ }), '31');
+    expect(communeSelect).not.toBeDisabled();
+    expect(within(communeSelect).getByRole('option', { name: 'Gdyel' })).toBeInTheDocument();
+    expect(within(communeSelect).getByRole('option', { name: 'Oran' })).toBeInTheDocument();
+
+    await user.selectOptions(communeSelect, 'Gdyel');
+    expect(communeSelect).toHaveValue('Gdyel');
+  });
+
   it('shows a not-found state for an unknown checkout slug', () => {
     renderApp({ path: '/checkout/unknown-part', locale: 'fr' });
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Produit introuvable');

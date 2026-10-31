@@ -11,6 +11,7 @@ export interface OrderFormValues {
   lastName: string;
   phone: string;
   wilayaCode: string;
+  commune?: string;
   deliveryMethod: DeliveryMethod | '';
   quantity: number;
   consent: boolean;
@@ -233,6 +234,7 @@ export interface OrderMessageInput {
   phone: string;
   wilayaName: string;
   wilayaCode: string;
+  commune?: string;
   deliveryMethod: DeliveryMethod;
   isExampleRate: boolean;
   locale: Locale;
@@ -299,7 +301,9 @@ export function buildOrderMessage(input: OrderMessageInput): string {
     '',
     `${labels.customer}: ${input.firstName.trim()} ${input.lastName.trim()}`,
     `${labels.phone}: ${normalizePhone(input.phone)}`,
-    `${labels.wilaya}: ${input.wilayaName} (${input.wilayaCode})`,
+    `${labels.wilaya}: ${input.wilayaName} (${input.wilayaCode})${
+      input.commune?.trim() ? ` · ${input.commune.trim()}` : ''
+    }`,
     `${labels.delivery}: ${methodLabel}`,
     `${labels.shipping}: ${shippingText}`,
     '',

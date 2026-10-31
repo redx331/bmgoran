@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   buildWhatsAppUrl,
   getWhatsAppStatus,
@@ -7,6 +7,7 @@ import {
 } from '../config/business';
 import { WILAYAS } from '../config/shipping';
 import { getCategoryName } from '../data/categories';
+import { getCommunesForWilaya, formatCommuneName } from '../data/communes';
 import {
   getProductBySlug,
   getProductName,
@@ -72,6 +73,8 @@ export function CheckoutPage({ slug }: { slug: string }) {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [wilayaCode, setWilayaCode] = useState('');
+  const [commune, setCommune] = useState('');
+  const [customCommune, setCustomCommune] = useState('');
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod | ''>('');
   const [consent, setConsent] = useState(false);
   const [attempted, setAttempted] = useState(false);
@@ -95,11 +98,18 @@ export function CheckoutPage({ slug }: { slug: string }) {
       ? calculateTotals(product.price, validQuantity, shipping.quote.amount)
       : null;
 
+  const availableCommunes = useMemo(
+    () => (wilayaCode ? getCommunesForWilaya(wilayaCode) : []),
+    [wilayaCode],
+  );
+  const resolvedCommune = commune === '__other__' ? customCommune.trim() : commune;
+
   const values: OrderFormValues = {
     firstName,
     lastName,
     phone,
     wilayaCode,
+    commune: resolvedCommune,
     deliveryMethod,
     quantity,
     consent,
@@ -115,7 +125,7 @@ export function CheckoutPage({ slug }: { slug: string }) {
   useEffect(() => {
     setSubmitted(null);
     setCopied(false);
-  }, [firstName, lastName, phone, wilayaCode, deliveryMethod, quantity, consent]);
+  }, [firstName, lastName, phone, wilayaCode, commune, customCommune, deliveryMethod, quantity, consent]);
 
   usePageMeta({
     title: product ? `${t('checkout.title')} — ${name}` : t('checkout.title'),
@@ -135,6 +145,8 @@ export function CheckoutPage({ slug }: { slug: string }) {
 
   const handleWilayaChange = (code: string) => {
     setWilayaCode(code);
+    setCommune('');
+    setCustomCommune('');
   };
 
   const methodQuote = (method: DeliveryMethod) => {
@@ -183,6 +195,7 @@ export function CheckoutPage({ slug }: { slug: string }) {
       phone,
       wilayaName: wilayaName(currentShipping.quote.wilaya, locale),
       wilayaCode: currentShipping.quote.wilaya.code,
+      commune: resolvedCommune,
       deliveryMethod: currentShipping.quote.method,
       isExampleRate: currentShipping.quote.isExample,
       locale,
@@ -450,6 +463,50 @@ export function CheckoutPage({ slug }: { slug: string }) {
                 </select>
                 <FieldError error={wilayaError} id="checkout-wilaya-error" />
               </div>
+
+              <div className="field">
+                <label htmlFor="checkout-commune">
+                  {t('checkout.commune')}
+                </label>
+                <select
+                  id="checkout-commune"
+                  name="commune"
+                  value={commune}
+                  onChange={(event) => setCommune(event.target.value)}
+                  disabled={!wilayaCode}
+                >
+                  <option value="">
+                    {wilayaCode
+                      ? t('checkout.communePlaceholder')
+                      : t('checkout.communeSelectWilayaFirst')}
+                  </option>
+                  {availableCommunes.map((c) => {
+                    const label = formatCommuneName(c, locale);
+                    return (
+                      <option key={c.nameFr} value={label}>
+                        {label}
+                      </option>
+                    );
+                  })}
+                  {wilayaCode ? <option value="__other__">{t('checkout.communeOther')}</option> : null}
+                </select>
+              </div>
+
+              {commune === '__other__' && (
+                <div className="field">
+                  <label htmlFor="checkout-commune-custom">
+                    {t('checkout.communeCustomLabel')}
+                  </label>
+                  <input
+                    id="checkout-commune-custom"
+                    type="text"
+                    value={customCommune}
+                    onChange={(event) => setCustomCommune(event.target.value)}
+                    placeholder={t('checkout.communeCustomPlaceholder')}
+                    autoComplete="address-level2"
+                  />
+                </div>
+              )}
 
               <div className={`field${deliveryError ? ' is-invalid' : ''}`}>
                 <span className="field-label" id="delivery-label">
