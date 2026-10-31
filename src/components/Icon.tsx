@@ -29,6 +29,7 @@ export type IconName =
   | 'instagram'
   | 'package'
   | 'wrench'
+  | 'download'
   | 'external';
 
 const paths: Record<IconName, ReactNode> = {
@@ -190,6 +191,12 @@ const paths: Record<IconName, ReactNode> = {
   ),
   wrench: (
     <path d="M14.5 6a4.5 4.5 0 0 0-6 5.5L3.5 16.5a2 2 0 1 0 3 3l5-5A4.5 4.5 0 0 0 17 8.5l-2.5 2.5-2-2L14.5 6Z" />
+  ),
+  download: (
+    <>
+      <path d="M12 4v11m0 0 3.5-3.5M12 15l-3.5-3.5" />
+      <path d="M4 19h16" />
+    </>
   ),
   external: (
     <>

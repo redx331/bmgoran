@@ -669,6 +669,24 @@
   line-height: 1.45;
 }
 
+.admin-login__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-block: 16px 14px;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.admin-login__divider::before,
+.admin-login__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
 .admin-help {
   margin-top: 18px;
   padding-top: 14px;

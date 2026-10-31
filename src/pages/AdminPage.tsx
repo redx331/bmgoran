@@ -4,7 +4,7 @@ import { ProductList } from '../components/admin/ProductList';
 import { Icon } from '../components/Icon';
 import { SITE } from '../config/business';
 import type { CategoryId, Product, Specification } from '../data/products';
-import { filterByCategory, searchProducts } from '../data/products';
+import { filterByCategory, searchProducts, PRODUCTS } from '../data/products';
 import {
   createEmptyProduct,
   emptySpecification,
@@ -98,6 +98,7 @@ export function AdminPage() {
   );
   const [loginError, setLoginError] = useState('');
 
+  const [isLocalMode, setIsLocalMode] = useState(false);
   const [products, setProducts] = useState<Product[] | null>(null);
   const [draft, setDraft] = useState<Product | null>(null);
   const [originalSlug, setOriginalSlug] = useState<string | null>(null);
@@ -168,6 +169,7 @@ export function AdminPage() {
   function disconnect() {
     revokePreviews(Object.keys(previewsRef.current));
     removeStored(ADMIN_TOKEN_KEY);
+    setIsLocalMode(false);
     setToken('');
     setTokenInput('');
     setLogin('');
@@ -182,6 +184,29 @@ export function AdminPage() {
     setNotice(null);
     setPhase('login');
   }
+
+  const startLocalMode = useCallback(() => {
+    setIsLocalMode(true);
+    setRepo('Mode local (sans GitHub)');
+    setLogin('local');
+    setProducts(PRODUCTS);
+    setPhase('ready');
+    setNotice({
+      kind: 'info',
+      text: 'Mode local actif : vous pouvez tester l’ajout de produits, modifier les prix et prévisualiser les photos sans jeton GitHub.',
+    });
+  }, []);
+
+  const exportJson = useCallback(() => {
+    if (!products) return;
+    const blob = new Blob([productsToJson(products)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'products.json';
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [products]);
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -359,7 +384,7 @@ export function AdminPage() {
   }
 
   async function handleSave() {
-    if (!token || !products || !draft) return;
+    if ((!token && !isLocalMode) || !products || !draft) return;
     const prepared = prepareProduct(draft);
     const nextErrors = validateProduct(prepared, products, originalSlug);
     setErrors(nextErrors);
@@ -375,6 +400,24 @@ export function AdminPage() {
     setNotice(null);
     try {
       const nextProducts = upsertProduct(products, prepared, originalSlug);
+
+      if (isLocalMode) {
+        setProducts(nextProducts);
+        setDraft(prepared);
+        setOriginalSlug(prepared.slug);
+        setPendingImages([]);
+        setRemovedImages([]);
+        setErrors({});
+        setDirty(false);
+        setDeleteArmed(false);
+        setSlugLocked(true);
+        setNotice({
+          kind: 'success',
+          text: 'Modifications enregistrées en mémoire locale. Cliquez sur « Exporter products.json » pour enregistrer le fichier dans votre projet.',
+        });
+        return;
+      }
+
       const changes: FileChange[] = [
         { path: 'src/data/products.json', content: productsToJson(nextProducts) },
       ];
@@ -435,11 +478,29 @@ export function AdminPage() {
   }
 
   async function handleDelete() {
-    if (!token || !products || !draft || !originalSlug) return;
+    if ((!token && !isLocalMode) || !products || !draft || !originalSlug) return;
     setBusy(true);
     setNotice(null);
     try {
       const nextProducts = removeProduct(products, originalSlug);
+
+      if (isLocalMode) {
+        revokePreviews(draft.images);
+        setProducts(nextProducts);
+        setDraft(null);
+        setOriginalSlug(null);
+        setPendingImages([]);
+        setRemovedImages([]);
+        setErrors({});
+        setDirty(false);
+        setDeleteArmed(false);
+        setNotice({
+          kind: 'success',
+          text: `« ${draft.nameFr} » a été supprimé en mémoire locale. Exportez products.json pour conserver ce changement.`,
+        });
+        return;
+      }
+
       const pendingPaths = new Set(pendingImages.map((image) => image.path));
       const imagePaths = new Set([
         ...draft.images.filter((image) => !pendingPaths.has(image)),
@@ -481,13 +542,25 @@ export function AdminPage() {
   }
 
   async function reloadCatalogue() {
-    if (!token || !repo) return;
+    if (!isLocalMode && (!token || !repo)) return;
     if (!confirmDiscard()) return;
     clearPending();
     setRemovedImages([]);
     setBusy(true);
     setNotice(null);
     try {
+      if (isLocalMode) {
+        setProducts(PRODUCTS);
+        if (draft && originalSlug) {
+          const fresh = PRODUCTS.find((product) => product.slug === originalSlug);
+          setDraft(fresh ?? null);
+          if (!fresh) setOriginalSlug(null);
+        }
+        setDirty(false);
+        setNotice({ kind: 'info', text: 'Catalogue local réinitialisé.' });
+        return;
+      }
+
       const snapshot = await loadCatalogue(token, repo, BRANCH);
       setProducts(snapshot.products);
       if (draft && originalSlug) {
@@ -589,6 +662,18 @@ export function AdminPage() {
               </button>
             </form>
 
+            <div className="admin-login__divider">
+              <span>ou</span>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn--ghost btn--block"
+              onClick={startLocalMode}
+            >
+              Tester en mode local (sans jeton GitHub)
+            </button>
+
             <details className="admin-help">
               <summary>Comment créer le jeton ?</summary>
               <ol>
@@ -644,6 +729,17 @@ export function AdminPage() {
               {repo} · {BRANCH}
             </span>
             {login ? <span className="admin-bar__user">@{login}</span> : null}
+            {isLocalMode && (
+              <button
+                type="button"
+                className="btn btn--secondary btn--sm"
+                onClick={exportJson}
+                title="Télécharger le fichier products.json mis à jour"
+              >
+                <Icon name="download" size={14} />
+                Exporter JSON
+              </button>
+            )}
             <button
               type="button"
               className="btn btn--ghost btn--sm"

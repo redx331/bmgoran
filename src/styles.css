@@ -3159,6 +3159,16 @@ ol {
   font-size: 9.5px;
 }
 
+.footer-admin-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.footer-admin-link:hover {
+  color: var(--text);
+}
+
 /* --------------------------------------------------------------------------
    Responsive layout
    -------------------------------------------------------------------------- */

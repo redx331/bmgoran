@@ -88,15 +88,20 @@ npm run og
 - [x] Blocks checkout with warning if WhatsApp number is unconfigured in `site.config.json`.
 
 ### 5. In-Browser Admin Panel (`/admin`)
-- [x] Authenticates directly with GitHub Personal Access Token (stored in `sessionStorage`).
-- [x] Loads `src/data/products.json` directly from GitHub repository.
-- [x] Create, edit, and delete products with auto-generated slugs.
-- [x] Client-side image processing: WebP conversion, thumbnail generation, automatic social OG card creation via HTML Canvas.
+- [x] Accessible at `/admin` (and via the discreet "Administration" footer link).
+- [x] **Local Mode & GitHub Mode**:
+  - **Local Mode (One-Click)**: Allows testing the admin panel without a GitHub token, editing products, changing prices, uploading photos, previewing Canvas-generated OG cards, and downloading the updated `products.json` file.
+  - **GitHub Mode**: Authenticates directly with a GitHub Personal Access Token (stored safely in `sessionStorage`).
+- [x] Loads catalogue directly from GitHub repository (or local fallback).
+- [x] Create, edit, and delete products with auto-generated or custom slugs.
+- [x] Price control in Algerian Dinars (DA) with validation.
+- [x] Client-side image processing: automatic 1200×900 4:3 WebP resizing and compression via HTML Canvas.
+- [x] Automatic social OG card generator: draws a branded 1200×630 card with product name, price, brand mark, and image.
 - [x] Atomic commits to GitHub default branch via GitHub Git Trees & Commits API.
 - [x] Fully covered by unit and integration tests (`admin-catalogue.test.ts`, `admin-github.test.ts`, `admin-page.test.tsx`).
 
 ### 6. Testing & Quality Assurance
-- [x] **12 test suites, 140 tests** (139 passing, 1 skipped static-build sentinel).
+- [x] **12 test suites, 141 tests** (140 passing, 1 skipped static-build sentinel).
 - [x] Unit tests for order math, validation, catalogue helpers, shipping lookup, and GitHub API.
 - [x] Integration tests for storefront routing, deep links, checkout flow, missing rate safety, and admin workflows.
 - [x] Strict TypeScript typing (`tsc --noEmit` clean).

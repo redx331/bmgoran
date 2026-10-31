@@ -90,7 +90,11 @@ export function Footer() {
         <p>
           © {new Date().getFullYear()} {businessName}. {t('footer.rights')}
         </p>
-        <p>{t('footer.noDatabase')}</p>
+        <p>
+          <Link to="/admin" className="footer-admin-link">Administration</Link>
+          {' · '}
+          {t('footer.noDatabase')}
+        </p>
       </div>
     </footer>
   );

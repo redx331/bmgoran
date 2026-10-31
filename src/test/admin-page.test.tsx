@@ -91,6 +91,19 @@ describe('admin login', () => {
     expect(window.sessionStorage.getItem(ADMIN_TOKEN_KEY)).toBeNull();
     expect(screen.getByLabelText('Jeton GitHub')).toBeInTheDocument();
   });
+
+  it('allows testing in local mode without a GitHub token', async () => {
+    const user = userEvent.setup();
+    renderApp({ path: '/admin', locale: 'fr' });
+
+    const localBtn = screen.getByRole('button', { name: /tester en mode local/i });
+    expect(localBtn).toBeInTheDocument();
+    await user.click(localBtn);
+
+    expect(await screen.findByRole('heading', { name: 'Produits' })).toBeInTheDocument();
+    expect(screen.getByText(/mode local actif/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /exporter json/i })).toBeInTheDocument();
+  });
 });
 
 describe('admin editor', () => {
