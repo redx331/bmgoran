@@ -2,6 +2,8 @@
 
 > **Purpose of this file**: This document tracks the complete development progress, architectural decisions, current state, and upcoming tasks for the BMG Oran bilingual auto/moto parts storefront. **Any AI assistant resuming this project should read this document first to get full context without redundant exploration.**
 
+> **Last updated**: 2026-10-31 at 21:22 (UTC+1) — Session 2 wrap-up.
+
 ---
 
 ## 📌 Project Overview
@@ -12,6 +14,7 @@
 - **Order Channel**: WhatsApp handoff (`wa.me` links with structured, localized order details).
 - **Admin System**: Serverless in-browser CMS (`/admin`) that commits directly to GitHub via GitHub REST API and user's Personal Access Token.
 - **Repository Path**: `d:\softwares\OpenBot\autoparts-store`
+- **User OS**: Windows (PowerShell). Use `;` not `&&` to chain commands.
 
 ---
 
@@ -20,6 +23,9 @@
 ```bash
 # Development server (http://localhost:5173)
 npm run dev
+
+# Development server accessible on LAN (e.g. phone on same WiFi)
+npm run dev -- --host
 
 # Full test suite (Vitest + React Testing Library)
 npm test
@@ -50,6 +56,7 @@ npm run og
 | **Business Logic** | `src/config/business.ts` | Loaded config, WhatsApp URL builders, formatters |
 | **Shipping Rules** | `src/config/shipping.ts` | All 58 Algerian wilayas, home/desk delivery rates |
 | **Catalogue** | `src/data/products.json`, `src/data/products.ts` | Product schema, categories, typed query helpers |
+| **Communes** | `src/data/communes.ts` | All communes/cities for every wilaya (FR + AR names) with `getCommunesForWilaya()` and `formatCommuneName()` |
 | **i18n** | `src/i18n/translations.ts`, `src/i18n/I18nProvider.tsx` | Complete FR (LTR) and AR (RTL) dictionaries |
 | **Router & Nav** | `src/lib/router.tsx`, `src/App.tsx` | Lightweight custom hash/history router with deep linking |
 | **Order & WA** | `src/lib/order.ts`, `src/lib/shipping.ts` | Order validation, live totals, WhatsApp message encoding |
@@ -59,11 +66,26 @@ npm run og
 
 ---
 
+## 📜 Git History (most recent first)
+
+```
+838119c feat(checkout): add dynamic commune/city selector for all 58 wilayas
+9fcdb16 feat(admin): add local sandbox mode and footer administration link
+82bd174 feat: complete storefront, admin cms, test suites and progress documentation
+```
+
+- **Branch**: `main` (only branch)
+- **Remote**: ⚠️ **No remote configured yet.** The repo is local only. User needs to create a GitHub repo and `git remote add origin`.
+- **Git config** (local scope only): `user.name "BMG Oran Dev"`, `user.email "dev@bmg-oran.local"`
+- **Working tree**: Clean (no uncommitted changes as of last session end).
+
+---
+
 ## ✅ Completed & Verified Features
 
 ### 1. Storefront & Customer UX
 - [x] **Home Page (`HomePage.tsx`)**: Hero, category grid, featured products, 3-step ordering process explainer, trust badges.
-- [x] **Shop Page (`ShopPage.tsx`)**: Search (title, brand, part number, keywords), category tabs, query string persistence in URL (`/shop?q=...&category=...`).
+- [x] **Shop Page (`ShopPage.tsx`)**: Search (title, brand, part number, keywords), category tabs, query string persistence in URL (`/shop?q=&category=...`).
 - [x] **Product Details (`ProductPage.tsx`)**: Dedicated permanent URLs (`/product/:slug`), multi-image gallery with keyboard navigation, stock badge, part numbers, full specs table, quantity stepper.
 - [x] **Static Prerendering**: `scripts/postbuild.mjs` generates standalone HTML files for each product with custom `<title>`, description, canonical URL, and Open Graph tags.
 - [x] **Information Pages**: `/delivery` (explanation of 58 wilayas, desk vs domicile), `/contact` (hours, map/address, phone, email, socials), `/404` custom not found page.
@@ -87,7 +109,7 @@ npm run og
 - [x] Privacy notice: Explains that data stays on customer's device and is transmitted solely through WhatsApp.
 
 ### 4. WhatsApp Order Pipeline
-- [x] Generates complete localized message with order reference, product details, quantity, prices, customer name, phone, wilaya, delivery method, and exact total.
+- [x] Generates complete localized message with order reference, product details, quantity, prices, customer name, phone, wilaya, commune, delivery method, and exact total.
 - [x] One-click WhatsApp launch (`https://wa.me/<number>?text=...`).
 - [x] Copy text fallback button for desktop or blocked popups.
 - [x] Blocks checkout with warning if WhatsApp number is unconfigured in `site.config.json`.
@@ -106,22 +128,104 @@ npm run og
 - [x] Fully covered by unit and integration tests (`admin-catalogue.test.ts`, `admin-github.test.ts`, `admin-page.test.tsx`).
 
 ### 6. Testing & Quality Assurance
-- [x] **12 test suites, 141 tests** (140 passing, 1 skipped static-build sentinel).
+- [x] **12 test suites, 142 tests passing, 1 skipped** (static-build sentinel).
 - [x] Unit tests for order math, validation, catalogue helpers, shipping lookup, and GitHub API.
-- [x] Integration tests for storefront routing, deep links, checkout flow, missing rate safety, and admin workflows.
+- [x] Integration tests for storefront routing, deep links, checkout flow, commune selector, missing rate safety, and admin workflows.
 - [x] Strict TypeScript typing (`tsc --noEmit` clean).
+- [x] Build passes clean: `npm run build` completes successfully (~179ms Vite build + postbuild prerendering).
+- [x] Verify passes: `npm run verify` shows 5 expected warnings (all for pre-launch placeholder values).
+
+---
+
+## 🔧 Development Session Log
+
+### Session 1 (Previous AI — "open code")
+Built the entire foundation:
+- Full React 19 + TypeScript + Vite 8 project scaffold.
+- All 8 pages: Home, Shop, Product, Checkout, Delivery, Contact, Admin, 404.
+- Custom lightweight router (`src/lib/router.tsx`).
+- 58 wilayas with shipping rates (`src/config/shipping.ts`).
+- WhatsApp order message builder (`src/lib/order.ts`).
+- Admin panel with GitHub API integration.
+- Complete FR/AR translations.
+- Static prerendering with OG cards.
+- Full test suite (12 files, 130+ tests).
+
+### Session 2 (Antigravity AI — 2026-10-31)
+Picked up from Session 1, added:
+
+1. **`PROGRESS.md` handoff document** — This file. Created to allow seamless AI-to-AI handoff.
+
+2. **Git repository initialized** — `main` branch, 3 commits (see Git History above).
+   - Git config set with local scope only.
+
+3. **Admin Panel Local Mode** — Commit `9fcdb16`:
+   - Files modified: `AdminPage.tsx`, `Icon.tsx`, `Footer.tsx`, `admin.css`, `styles.css`, `admin-page.test.tsx`.
+   - Added `isLocalMode` state, `startLocalMode()`, `exportJson()`.
+   - Added `download` icon to Icon component.
+   - Added discreet "Administration" link in the footer.
+   - Added `.admin-login__divider` styles (or/divider between GitHub login and local mode).
+   - Added `.footer-admin-link` styles.
+   - Added test for local mode button and flow.
+
+4. **Dynamic Commune/City Selector** — Commit `838119c`:
+   - **New file**: `src/data/communes.ts` — Complete dataset of communes for all 58 wilayas (French + Arabic names).
+   - Modified: `CheckoutPage.tsx` — Added `commune`, `customCommune` state, `availableCommunes` memo, commune `<select>` with custom input fallback.
+   - Modified: `src/lib/order.ts` — Added `commune?` field to `OrderFormValues` and `OrderMessageInput`, included in WhatsApp message.
+   - Modified: `src/i18n/translations.ts` — Added 6 new translation keys for commune UI (both FR and AR).
+   - Added tests: `checkout.test.tsx` (communes populate when wilaya selected), `order.test.ts` (commune appears in WhatsApp message).
+
+5. **Dev Server Setup**:
+   - Started with `npm run dev -- --host` for LAN access.
+   - Accessible at `http://localhost:5173/` and on LAN via `http://<local-ip>:5173/`.
+   - Explained to user: LAN link works for devices on same WiFi; for external sharing, see Deployment section below.
+
+6. **User Guidance Provided**:
+   - How to access the admin panel (`/admin` or footer link).
+   - How to share locally on LAN vs externally (tunneling/deployment).
+
+---
+
+## 🌐 Sharing & Deployment Options
+
+The user asked how to share the site with a friend who isn't on the same WiFi. Here are the options discussed:
+
+### Quick Temporary Share (for testing/demo)
+```powershell
+# Option A: Cloudflare Tunnel (free, no signup needed for quick share)
+winget install Cloudflare.cloudflared
+cloudflared tunnel --url http://localhost:5173
+# Prints a public URL like https://random-words.trycloudflare.com
+
+# Option B: ngrok (free tier, requires signup at ngrok.com)
+winget install ngrok.ngrok
+ngrok http 5173
+# Prints a public URL like https://xxxx.ngrok-free.app
+```
+
+### Production Deployment (recommended — what the project is designed for)
+1. Create a GitHub repository (public or private).
+2. Add remote: `git remote add origin https://github.com/<owner>/<repo>.git`
+3. Push: `git push -u origin main`
+4. Connect the repo to **Cloudflare Pages**:
+   - Build command: `npm run build`
+   - Build output directory: `dist`
+   - Environment: Node 20+
+5. Gets a permanent `*.pages.dev` URL (or custom domain).
+6. Update `siteUrl` in `site.config.json` with the final URL.
+7. Update `repository` in `site.config.json` with `owner/repo` so the admin CMS can commit.
 
 ---
 
 ## ⏳ Pending / Next Steps for Incoming AI
 
-### 1. Pre-Launch Configuration (Business Data)
+### 1. Pre-Launch Configuration (Business Data — requires user input)
 - [ ] Set real `whatsappNumber` in `site.config.json` (e.g. `213XXXXXXXXX` without `+` or spaces).
 - [ ] Set real `siteUrl` in `site.config.json` once Cloudflare Pages subdomain or custom domain is chosen.
 - [ ] Set real phone, address, and social links in `site.config.json`, then switch `demoContact` to `false`.
 - [ ] Connect GitHub repository in `site.config.json` (`"repository": "owner/repo"`).
 
-### 2. Shipping Rates
+### 2. Shipping Rates (requires user input)
 - [ ] Update `src/config/shipping.ts` with real quotes from the shop's chosen courier partner (e.g., Yalidine, ZR Express, Procolis, Kazitour).
 - [ ] Set `SHIPPING_RATES_ARE_EXAMPLES = false` once verified.
 
@@ -130,19 +234,53 @@ npm run og
 - [ ] Replace demo SVG product images in `public/images/products/` with real photos.
 - [ ] Run `npm run og` to regenerate high-resolution social sharing cards.
 
-### 4. Optional Enhancements
-- [ ] Multi-item shopping cart (if the client requests ordering multiple different parts simultaneously; currently single-product checkout with quantity stepper).
-- [ ] Wilaya search/filter autocomplete dropdown in checkout for faster selection on mobile.
-- [ ] Vehicle selector / compatibility filter (Brand -> Model -> Year) if catalogue grows past 50+ items.
+### 4. Deployment
+- [ ] Create GitHub repository and push code (see Deployment section above).
+- [ ] Connect to Cloudflare Pages for automatic deployment.
+- [ ] Update `siteUrl` and `repository` in `site.config.json` after deployment.
+
+### 5. Optional Feature Enhancements
+- [ ] **Multi-item shopping cart** — Currently the checkout only handles one product at a time with a quantity stepper. Adding a cart would let customers order multiple different parts in one WhatsApp message.
+- [ ] **Wilaya search/filter autocomplete** — Type-ahead dropdown in checkout for faster selection on mobile (58 wilayas is long to scroll).
+- [ ] **Vehicle selector / compatibility filter** — Brand → Model → Year to help customers find the right part (useful when catalogue grows past 50+ items).
+- [ ] **Product image zoom / lightbox** — Pinch-to-zoom on product gallery images.
+- [ ] **Recently viewed products** — `localStorage`-based section on home or shop page.
+
+---
+
+## ⚠️ Important Constraints & Invariants
+
+These rules must **never** be violated:
+
+1. **PROGRESS.md must be kept updated** — The user explicitly requested this as the handoff mechanism for AI-to-AI continuity. Update it after every significant change.
+2. **Bilingual parity** — Every UI string must exist in both French and Arabic in `src/i18n/translations.ts`.
+3. **RTL testing** — Layout changes must work with CSS logical properties and `dir="rtl"`.
+4. **Tests must pass** — Run `npm test` after every code change; all 142+ tests must pass.
+5. **Build must be clean** — Run `npm run build` (includes `tsc --noEmit`) to verify TypeScript and static generation.
+6. **Zero backend** — The entire site must remain fully static with no server-side code.
+7. **Admin panel is French-only** — The admin area (`src/admin.css`, `AdminPage.tsx`) is intentionally LTR/French only.
+8. **Never treat missing shipping rates as free** — A `null` rate blocks checkout; this is a safety invariant tested explicitly.
+9. **User's OS**: Windows. Shell: PowerShell. Use `;` to chain commands (not `&&`). Path style: backslash in Windows commands, forward slash in code.
+
+---
+
+## 🐛 Known Issues & Gotchas
+
+1. **LF/CRLF warnings on Windows**: Every `git add` produces CRLF warnings. These are harmless and can be ignored (or silenced with `git config core.autocrlf true`).
+2. **`npm run verify` shows 5 warnings**: These are all expected placeholder warnings for pre-launch configuration values (WhatsApp number, site URL, etc.). They will disappear once real values are set.
+3. **`edit_file` precision**: When using edit_file, always read the actual file content first. Target strings must match exactly including whitespace — don't guess.
 
 ---
 
 ## 📋 Handoff Guide for the Next AI Assistant
 
 When continuing work on this project:
-1. **Always read `PROGRESS.md` first.**
-2. Run `npm test` to ensure all existing test suites pass.
+1. **Always read `PROGRESS.md` first** (this file).
+2. Run `npm test` to ensure all existing test suites pass before making changes.
 3. Check `site.config.json` and `src/data/products.json` before modifying catalogue or business config.
 4. When writing UI changes, always maintain **both** French and Arabic strings in `src/i18n/translations.ts` and test RTL layout (`dir="rtl"`).
 5. When modifying pages or routes, run `npm run build` to verify that `scripts/postbuild.mjs` runs without errors.
-6. Keep this `PROGRESS.md` updated with any newly completed features, architectural changes, or pending tasks.
+6. **PowerShell note**: Use `;` to chain commands (e.g. `Set-Location d:\softwares\OpenBot\autoparts-store; npm test`), **not** `&&`.
+7. The dev server can be started with `npm run dev` (localhost only) or `npm run dev -- --host` (LAN accessible).
+8. The admin panel is at `/admin` — it has a local sandbox mode that works without GitHub credentials.
+9. **Keep this `PROGRESS.md` updated** with any newly completed features, architectural changes, or pending tasks.
