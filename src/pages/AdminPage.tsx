@@ -25,6 +25,15 @@ import {
   type FileChange,
 } from '../lib/admin/github';
 import { buildOgImage, prepareProductImage } from '../lib/admin/image';
+import {
+  clearLocalData,
+  deleteLocalImage,
+  loadLocalImages,
+  loadLocalProducts,
+  putLocalImage,
+  saveLocalProducts,
+} from '../lib/admin/local';
+import { createZip, type ZipEntry } from '../lib/admin/zip';
 import { formatPrice } from '../lib/format';
 import { usePageMeta } from '../lib/seo';
 import '../admin.css';
@@ -76,6 +85,59 @@ function errorMessage(error: unknown): string {
 
 function hostOf(url: string): string {
   return url.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+}
+
+function collectImagePaths(products: Product[]): string[] {
+  return Array.from(new Set(products.flatMap((product) => product.images)));
+}
+
+async function fetchImageBlob(path: string): Promise<Blob | null> {
+  try {
+    const response = await fetch(path, { cache: 'no-store' });
+    if (!response.ok) return null;
+    return await response.blob();
+  } catch {
+    return null;
+  }
+}
+
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.rel = 'noopener';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function bundleReadme(productCount: number, imageCount: number, generatedAt: Date): string {
+  return [
+    'BMG Oran — catalogue exporté depuis le mode local de l’administration',
+    '',
+    `Date : ${generatedAt.toLocaleString('fr-FR')}`,
+    `Produits : ${productCount}`,
+    `Photos : ${imageCount}`,
+    '',
+    'Contenu du dossier :',
+    '  src/data/products.json      → catalogue complet (noms, prix, descriptions, stocks)',
+    '  public/images/products/     → photos des produits (JPEG 1200 × 900, SVG de démo conservés)',
+    '  public/og/                  → images de partage (PNG 1200 × 630)',
+    '',
+    'Comment publier :',
+    '  1. Décompressez ce dossier à la racine du projet, en remplaçant les fichiers existants.',
+    '  2. Vérifiez les changements : git status',
+    '  3. git add src/data/products.json public/images/products public/og',
+    '  4. git commit -m "Catalogue : mise à jour depuis l’administration locale"',
+    '  5. git push',
+    '',
+    'Cloudflare Pages republie le site automatiquement après le push (1 à 2 minutes).',
+    'Les photos ajoutées en mode local restent dans ce navigateur tant que vous ne videz pas',
+    'les données du site ; conservez ce fichier ZIP comme sauvegarde.',
+    '',
+  ].join('\n');
 }
 
 export function AdminPage() {
@@ -185,28 +247,102 @@ export function AdminPage() {
     setPhase('login');
   }
 
-  const startLocalMode = useCallback(() => {
-    setIsLocalMode(true);
-    setRepo('Mode local (sans GitHub)');
-    setLogin('local');
-    setProducts(PRODUCTS);
-    setPhase('ready');
-    setNotice({
-      kind: 'info',
-      text: 'Mode local actif : vous pouvez tester l’ajout de produits, modifier les prix et prévisualiser les photos sans jeton GitHub.',
+  const hydrateLocalPreviews = useCallback(async (items: Product[]) => {
+    const paths = collectImagePaths(items);
+    const blobs = await loadLocalImages(paths);
+    if (blobs.size === 0) return;
+    setPreviews((current) => {
+      const next = { ...current };
+      for (const [path, blob] of blobs) {
+        if (!next[path]) next[path] = URL.createObjectURL(blob);
+      }
+      return next;
     });
   }, []);
 
-  const exportJson = useCallback(() => {
-    if (!products) return;
-    const blob = new Blob([productsToJson(products)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'products.json';
-    link.click();
-    URL.revokeObjectURL(url);
-  }, [products]);
+  const startLocalMode = useCallback(() => {
+    const stored = loadLocalProducts(PRODUCTS);
+    setIsLocalMode(true);
+    setRepo('Mode local (sans GitHub)');
+    setLogin('local');
+    setProducts(stored.products);
+    setPhase('ready');
+    setNotice({
+      kind: 'info',
+      text: stored.restored
+        ? `Mode local actif : catalogue restauré depuis ce navigateur${
+            stored.savedAt
+              ? ` (enregistré le ${new Date(stored.savedAt).toLocaleString('fr-FR')})`
+              : ''
+          }.`
+        : 'Mode local actif : vos modifications et vos photos sont enregistrées dans ce navigateur, puis exportables en dossier ZIP.',
+    });
+    void hydrateLocalPreviews(stored.products);
+  }, [hydrateLocalPreviews]);
+
+  const exportBundle = useCallback(async () => {
+    if (!products || !isLocalMode) return;
+    setBusy(true);
+    setNotice({
+      kind: 'info',
+      text: 'Préparation du dossier ZIP (photos et images de partage)…',
+    });
+    try {
+      const paths = collectImagePaths(products);
+      const saved = await loadLocalImages(paths);
+      const images = new Map<string, Blob>(saved);
+      for (const image of pendingImages) images.set(image.path, image.blob);
+
+      const entries: ZipEntry[] = [
+        { path: 'src/data/products.json', data: productsToJson(products) },
+      ];
+
+      let missing = 0;
+      for (const path of paths) {
+        let blob = images.get(path) ?? null;
+        if (!blob) {
+          blob = await fetchImageBlob(path);
+          if (blob) images.set(path, blob);
+        }
+        if (blob) entries.push({ path: `public${path}`, data: blob });
+        else missing += 1;
+      }
+
+      for (const product of products) {
+        const firstImage = product.images[0];
+        const ogBlob = await buildOgImage({
+          name: product.nameFr,
+          price: formatPrice(product.price, 'fr'),
+          brand: SITE.businessName,
+          mark: SITE.brandMark,
+          domain: hostOf(SITE.siteUrl),
+          demo: product.isDemo,
+          image: firstImage ? images.get(firstImage) ?? firstImage : null,
+        });
+        entries.push({ path: `public/og/${product.slug}.png`, data: ogBlob });
+      }
+
+      const generatedAt = new Date();
+      entries.push({
+        path: 'LISEZ-MOI.txt',
+        data: bundleReadme(products.length, paths.length - missing, generatedAt),
+      });
+
+      const zip = await createZip(entries);
+      downloadBlob(zip, `bmg-oran-catalogue-${generatedAt.toISOString().slice(0, 10)}.zip`);
+      setNotice({
+        kind: missing > 0 ? 'info' : 'success',
+        text:
+          missing > 0
+            ? `Dossier ZIP téléchargé. ${missing} photo(s) n’ont pas pu être lues et sont absentes de l’archive.`
+            : `Dossier ZIP téléchargé : ${products.length} produit(s), ${paths.length} photo(s) et les images de partage. Décompressez-le à la racine du projet puis commitez.`,
+      });
+    } catch (error) {
+      setNotice({ kind: 'error', text: errorMessage(error) });
+    } finally {
+      setBusy(false);
+    }
+  }, [isLocalMode, pendingImages, products]);
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -402,6 +538,20 @@ export function AdminPage() {
       const nextProducts = upsertProduct(products, prepared, originalSlug);
 
       if (isLocalMode) {
+        if (!saveLocalProducts(nextProducts)) {
+          setNotice({
+            kind: 'error',
+            text: 'Impossible d’enregistrer dans ce navigateur : stockage plein ou désactivé. Exportez le ZIP pour conserver vos modifications.',
+          });
+          return;
+        }
+
+        const [imageWrites, imageDeletes] = await Promise.all([
+          Promise.all(pendingImages.map((image) => putLocalImage(image.path, image.blob))),
+          Promise.all(removedImages.map((path) => deleteLocalImage(path))),
+        ]);
+        const imagesSaved = imageWrites.every(Boolean) && imageDeletes.every(Boolean);
+
         setProducts(nextProducts);
         setDraft(prepared);
         setOriginalSlug(prepared.slug);
@@ -412,8 +562,10 @@ export function AdminPage() {
         setDeleteArmed(false);
         setSlugLocked(true);
         setNotice({
-          kind: 'success',
-          text: 'Modifications enregistrées en mémoire locale. Cliquez sur « Exporter products.json » pour enregistrer le fichier dans votre projet.',
+          kind: imagesSaved ? 'success' : 'info',
+          text: imagesSaved
+            ? 'Enregistré dans ce navigateur. Utilisez « Exporter le ZIP » pour ajouter ces fichiers au projet.'
+            : 'Catalogue enregistré, mais certaines photos n’ont pas pu être stockées dans le navigateur. Exportez le ZIP pour les conserver.',
         });
         return;
       }
@@ -485,7 +637,17 @@ export function AdminPage() {
       const nextProducts = removeProduct(products, originalSlug);
 
       if (isLocalMode) {
-        revokePreviews(draft.images);
+        if (!saveLocalProducts(nextProducts)) {
+          setNotice({
+            kind: 'error',
+            text: 'Impossible de mettre à jour le stockage du navigateur : stockage plein ou désactivé.',
+          });
+          return;
+        }
+
+        const imagePaths = Array.from(new Set([...draft.images, ...removedImages]));
+        await Promise.all(imagePaths.map((path) => deleteLocalImage(path)));
+        revokePreviews(imagePaths);
         setProducts(nextProducts);
         setDraft(null);
         setOriginalSlug(null);
@@ -496,7 +658,7 @@ export function AdminPage() {
         setDeleteArmed(false);
         setNotice({
           kind: 'success',
-          text: `« ${draft.nameFr} » a été supprimé en mémoire locale. Exportez products.json pour conserver ce changement.`,
+          text: `« ${draft.nameFr} » a été supprimé. Le catalogue local a été mis à jour ; exportez le ZIP pour publier ce changement.`,
         });
         return;
       }
@@ -550,14 +712,21 @@ export function AdminPage() {
     setNotice(null);
     try {
       if (isLocalMode) {
-        setProducts(PRODUCTS);
+        const stored = loadLocalProducts(PRODUCTS);
+        setProducts(stored.products);
         if (draft && originalSlug) {
-          const fresh = PRODUCTS.find((product) => product.slug === originalSlug);
+          const fresh = stored.products.find((product) => product.slug === originalSlug);
           setDraft(fresh ?? null);
           if (!fresh) setOriginalSlug(null);
         }
         setDirty(false);
-        setNotice({ kind: 'info', text: 'Catalogue local réinitialisé.' });
+        setNotice({
+          kind: 'info',
+          text: stored.restored
+            ? 'Catalogue local rechargé depuis ce navigateur.'
+            : 'Aucun catalogue local enregistré : le catalogue d’origine est affiché.',
+        });
+        void hydrateLocalPreviews(stored.products);
         return;
       }
 
@@ -572,6 +741,35 @@ export function AdminPage() {
       setNotice({ kind: 'info', text: 'Catalogue rechargé depuis GitHub.' });
     } catch (error) {
       setNotice({ kind: 'error', text: errorMessage(error) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function resetLocalData() {
+    if (!isLocalMode) return;
+    const confirmed = window.confirm(
+      'Supprimer le catalogue et les photos enregistrés dans ce navigateur ? Pensez à exporter le ZIP avant : cette action est irréversible.',
+    );
+    if (!confirmed) return;
+
+    setBusy(true);
+    setNotice(null);
+    try {
+      await clearLocalData();
+      revokePreviews(Object.keys(previewsRef.current));
+      setProducts(PRODUCTS);
+      setDraft(null);
+      setOriginalSlug(null);
+      setPendingImages([]);
+      setRemovedImages([]);
+      setErrors({});
+      setDirty(false);
+      setDeleteArmed(false);
+      setNotice({
+        kind: 'info',
+        text: 'Stockage local réinitialisé : le catalogue et les photos d’origine sont restaurés.',
+      });
     } finally {
       setBusy(false);
     }
@@ -671,8 +869,12 @@ export function AdminPage() {
               className="btn btn--ghost btn--block"
               onClick={startLocalMode}
             >
-              Tester en mode local (sans jeton GitHub)
+              Tester en mode local (sauvegarde dans ce navigateur)
             </button>
+            <p className="field-hint admin-login__hint">
+              Sans compte : vos produits, prix et photos sont enregistrés dans ce navigateur, puis
+              exportables en dossier ZIP prêt à publier.
+            </p>
 
             <details className="admin-help">
               <summary>Comment créer le jeton ?</summary>
@@ -730,15 +932,27 @@ export function AdminPage() {
             </span>
             {login ? <span className="admin-bar__user">@{login}</span> : null}
             {isLocalMode && (
-              <button
-                type="button"
-                className="btn btn--secondary btn--sm"
-                onClick={exportJson}
-                title="Télécharger le fichier products.json mis à jour"
-              >
-                <Icon name="download" size={14} />
-                Exporter JSON
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="btn btn--secondary btn--sm"
+                  onClick={() => void exportBundle()}
+                  disabled={busy}
+                  title="Télécharger un dossier ZIP prêt à déposer dans le projet"
+                >
+                  <Icon name="download" size={14} />
+                  Exporter le ZIP
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost btn--sm"
+                  onClick={() => void resetLocalData()}
+                  disabled={busy}
+                  title="Supprimer le catalogue et les photos enregistrés dans ce navigateur"
+                >
+                  Réinitialiser
+                </button>
+              </>
             )}
             <button
               type="button"

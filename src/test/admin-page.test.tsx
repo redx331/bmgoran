@@ -9,6 +9,8 @@ import {
   verifyAccess,
 } from '../lib/admin/github';
 import { buildOgImage } from '../lib/admin/image';
+import { saveLocalProducts } from '../lib/admin/local';
+import { createZip } from '../lib/admin/zip';
 import { ADMIN_REPO_KEY, ADMIN_TOKEN_KEY } from '../pages/AdminPage';
 import { renderApp } from './render';
 
@@ -27,6 +29,10 @@ vi.mock('../lib/admin/image', () => ({
   prepareProductImage: vi.fn(),
 }));
 
+vi.mock('../lib/admin/zip', () => ({
+  createZip: vi.fn(),
+}));
+
 const SAMPLE = PRODUCTS.slice(0, 2);
 
 function signIn() {
@@ -41,6 +47,7 @@ beforeEach(() => {
   vi.mocked(loadCatalogue).mockReset();
   vi.mocked(commitChanges).mockReset();
   vi.mocked(buildOgImage).mockReset();
+  vi.mocked(createZip).mockReset();
 });
 
 describe('admin login', () => {
@@ -102,7 +109,87 @@ describe('admin login', () => {
 
     expect(await screen.findByRole('heading', { name: 'Produits' })).toBeInTheDocument();
     expect(screen.getByText(/mode local actif/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /exporter json/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /exporter le zip/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /réinitialiser/i })).toBeInTheDocument();
+  });
+});
+
+describe('admin local persistence', () => {
+  async function openLocal() {
+    const user = userEvent.setup();
+    renderApp({ path: '/admin', locale: 'fr' });
+    await user.click(screen.getByRole('button', { name: /tester en mode local/i }));
+    await screen.findByRole('heading', { name: 'Produits' });
+    return user;
+  }
+
+  it('persists a price change in localStorage', async () => {
+    const user = await openLocal();
+    await user.click(
+      screen.getByRole('button', { name: (name) => name.includes(PRODUCTS[0]!.nameFr) }),
+    );
+
+    const price = screen.getByLabelText(/prix en dinars/i);
+    await user.clear(price);
+    await user.type(price, '9876');
+    await user.click(screen.getByRole('button', { name: /enregistrer les modifications/i }));
+
+    expect(await screen.findByText(/enregistré dans ce navigateur/i)).toBeInTheDocument();
+    const raw = window.localStorage.getItem('bmg.admin.local.products');
+    expect(raw).not.toBeNull();
+    const stored = JSON.parse(raw!) as { version: number; products: Product[] };
+    expect(stored.version).toBe(1);
+    expect(
+      stored.products.find((product) => product.slug === PRODUCTS[0]!.slug)?.price,
+    ).toBe(9876);
+  });
+
+  it('restores the saved catalogue when local mode is reopened', async () => {
+    saveLocalProducts([{ ...PRODUCTS[0]!, price: 12345 }, ...PRODUCTS.slice(1)]);
+    const user = await openLocal();
+
+    expect(await screen.findByText(/catalogue restauré/i)).toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', { name: (name) => name.includes(PRODUCTS[0]!.nameFr) }),
+    );
+    expect(screen.getByLabelText(/prix en dinars/i)).toHaveValue(12345);
+  });
+
+  it('clears the saved catalogue after confirmation', async () => {
+    saveLocalProducts([{ ...PRODUCTS[0]!, price: 12345 }]);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const user = await openLocal();
+
+    await user.click(screen.getByRole('button', { name: /réinitialiser/i }));
+
+    expect(await screen.findByText(/stockage local réinitialisé/i)).toBeInTheDocument();
+    expect(window.localStorage.getItem('bmg.admin.local.products')).toBeNull();
+  });
+
+  it('exports a ZIP with the catalogue, photos, social images and instructions', async () => {
+    vi.mocked(buildOgImage).mockResolvedValue(new Blob(['og']));
+    vi.mocked(createZip).mockResolvedValue(new Blob(['zip'], { type: 'application/zip' }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: true, blob: async () => new Blob(['photo']) })),
+    );
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+    const user = await openLocal();
+    await user.click(screen.getByRole('button', { name: /exporter le zip/i }));
+
+    expect(await screen.findByText(/dossier zip téléchargé/i)).toBeInTheDocument();
+    expect(click).toHaveBeenCalled();
+    expect(vi.mocked(createZip)).toHaveBeenCalledTimes(1);
+
+    const entries = vi.mocked(createZip).mock.calls[0]![0];
+    expect(entries.some((entry) => entry.path === 'src/data/products.json')).toBe(true);
+    expect(entries.some((entry) => entry.path === 'LISEZ-MOI.txt')).toBe(true);
+    expect(entries.some((entry) => entry.path === `public/og/${PRODUCTS[0]!.slug}.png`)).toBe(true);
+    expect(
+      entries.filter((entry) => entry.path.startsWith('public/images/products/')).length,
+    ).toBeGreaterThan(0);
+    expect(vi.mocked(buildOgImage)).toHaveBeenCalledTimes(PRODUCTS.length);
   });
 });
 

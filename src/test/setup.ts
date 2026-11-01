@@ -7,6 +7,7 @@ afterEach(() => {
   window.localStorage.clear();
   window.sessionStorage.clear();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   document.documentElement.lang = 'fr';
   document.documentElement.dir = 'ltr';
   document.title = '';
@@ -39,4 +40,17 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   }),
+});
+
+// jsdom does not implement object URLs; the admin uses them for previews and downloads.
+Object.defineProperty(URL, 'createObjectURL', {
+  configurable: true,
+  writable: true,
+  value: vi.fn(() => 'blob:test'),
+});
+
+Object.defineProperty(URL, 'revokeObjectURL', {
+  configurable: true,
+  writable: true,
+  value: vi.fn(),
 });

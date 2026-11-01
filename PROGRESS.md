@@ -2,7 +2,7 @@
 
 > **Purpose of this file**: This document tracks the complete development progress, architectural decisions, current state, and upcoming tasks for the BMG Oran bilingual auto/moto parts storefront. **Any AI assistant resuming this project should read this document first to get full context without redundant exploration.**
 
-> **Last updated**: 2026-10-31 at 21:22 (UTC+1) — Session 2 wrap-up.
+> **Last updated**: 2026-11-01 — Session 3 (local admin persistence + ZIP export).
 
 ---
 
@@ -60,7 +60,7 @@ npm run og
 | **i18n** | `src/i18n/translations.ts`, `src/i18n/I18nProvider.tsx` | Complete FR (LTR) and AR (RTL) dictionaries |
 | **Router & Nav** | `src/lib/router.tsx`, `src/App.tsx` | Lightweight custom hash/history router with deep linking |
 | **Order & WA** | `src/lib/order.ts`, `src/lib/shipping.ts` | Order validation, live totals, WhatsApp message encoding |
-| **Admin CMS** | `src/pages/AdminPage.tsx`, `src/lib/admin/` | GitHub-backed static CMS (catalogue, github api, image processing) |
+| **Admin CMS** | `src/pages/AdminPage.tsx`, `src/lib/admin/` | GitHub-backed static CMS (catalogue, github api, image processing), plus browser-local persistence (`local.ts`) and ZIP export (`zip.ts`) |
 | **Static Build** | `scripts/postbuild.mjs`, `scripts/verify-build.mjs` | Prerenders HTML for each product, `_redirects`, sitemap |
 | **Styles** | `src/styles.css`, `src/admin.css` | Design system, CSS logical properties for RTL, dark automotive aesthetic |
 
@@ -69,6 +69,7 @@ npm run og
 ## 📜 Git History (most recent first)
 
 ```
+d6a841e docs: update PROGRESS.md with full session 2 history and deployment guide
 838119c feat(checkout): add dynamic commune/city selector for all 58 wilayas
 9fcdb16 feat(admin): add local sandbox mode and footer administration link
 82bd174 feat: complete storefront, admin cms, test suites and progress documentation
@@ -117,18 +118,18 @@ npm run og
 ### 5. In-Browser Admin Panel (`/admin`)
 - [x] Accessible at `/admin` (and via the discreet "Administration" footer link).
 - [x] **Local Mode & GitHub Mode**:
-  - **Local Mode (One-Click)**: Allows testing the admin panel without a GitHub token, editing products, changing prices, uploading photos, previewing Canvas-generated OG cards, and downloading the updated `products.json` file.
+  - **Local Mode (One-Click)**: Works without a GitHub token. Products, prices and uploaded photos are persisted in the browser (`localStorage` for the catalogue, IndexedDB for photos), restored on reload, and exportable as a **ready-to-commit ZIP** containing `src/data/products.json`, `public/images/products/*`, `public/og/*` and a French `LISEZ-MOI.txt`. A separate “Réinitialiser” action clears the local copy after confirmation.
   - **GitHub Mode**: Authenticates directly with a GitHub Personal Access Token (stored safely in `sessionStorage`).
 - [x] Loads catalogue directly from GitHub repository (or local fallback).
 - [x] Create, edit, and delete products with auto-generated or custom slugs.
 - [x] Price control in Algerian Dinars (DA) with validation.
-- [x] Client-side image processing: automatic 1200×900 4:3 WebP resizing and compression via HTML Canvas.
+- [x] Client-side image processing: automatic 1200×900 4:3 JPEG resizing and compression via HTML Canvas.
 - [x] Automatic social OG card generator: draws a branded 1200×630 card with product name, price, brand mark, and image.
 - [x] Atomic commits to GitHub default branch via GitHub Git Trees & Commits API.
-- [x] Fully covered by unit and integration tests (`admin-catalogue.test.ts`, `admin-github.test.ts`, `admin-page.test.tsx`).
+- [x] Fully covered by unit and integration tests (`admin-catalogue.test.ts`, `admin-github.test.ts`, `admin-local.test.ts`, `admin-zip.test.ts`, `admin-page.test.tsx`).
 
 ### 6. Testing & Quality Assurance
-- [x] **12 test suites, 142 tests passing, 1 skipped** (static-build sentinel).
+- [x] **14 test suites, 155 tests passing, 1 skipped** (static-build sentinel).
 - [x] Unit tests for order math, validation, catalogue helpers, shipping lookup, and GitHub API.
 - [x] Integration tests for storefront routing, deep links, checkout flow, commune selector, missing rate safety, and admin workflows.
 - [x] Strict TypeScript typing (`tsc --noEmit` clean).
@@ -183,6 +184,42 @@ Picked up from Session 1, added:
 6. **User Guidance Provided**:
    - How to access the admin panel (`/admin` or footer link).
    - How to share locally on LAN vs externally (tunneling/deployment).
+
+### Session 3 (AI — 2026-11-01)
+
+Made the local admin sandbox a real, reload-safe editor:
+
+1. **Local persistence** — new `src/lib/admin/local.ts`:
+   - Catalogue stored in `localStorage` under `bmg.admin.local.products` with a versioned envelope (`version: 1`, `savedAt`, `products`).
+   - Uploaded photos stored as blobs in IndexedDB (`bmg-admin`, store `images`, keyed by future repository path).
+   - Corrupt/outdated payloads are discarded automatically; unavailable storage falls back gracefully.
+   - `clearLocalData()` wipes both stores for the “Réinitialiser” action.
+
+2. **Admin wiring** — `src/pages/AdminPage.tsx`:
+   - “Tester en mode local” restores the saved catalogue and hydrates saved photo previews.
+   - Local save persists the catalogue, writes new photos and deletes removed ones.
+   - Local delete updates the saved catalogue and removes its photos.
+   - “Recharger” reloads the saved local state instead of resetting to the demo catalogue.
+   - New confirmed “Réinitialiser” action clears the browser copy.
+   - Replaced the JSON-only export with a **ZIP bundle** export.
+
+3. **ZIP export** — new `src/lib/admin/zip.ts`:
+   - Store-method ZIP writer (no dependency) with CRC32 and UTF-8 paths.
+   - Archive mirrors the repo: `src/data/products.json`, `public/images/products/*`, `public/og/*` (OG cards regenerated in-browser) and `LISEZ-MOI.txt` with publish instructions.
+   - Missing photos are reported instead of silently breaking the export.
+
+4. **Tests** — new `admin-local.test.ts` and `admin-zip.test.ts`; updated `admin-page.test.tsx` for persistence, restore, reset and ZIP export.
+   - Suite: **14 files, 155 passed + 1 skipped**.
+   - `npm run typecheck`, `npm run build`, `npm test` and `npm run verify` all pass (5 expected pre-launch warnings).
+
+5. **Real-browser QA** — preview build in Chromium:
+   - Changed a price 3 500 → 4 321 DA, uploaded an extra photo, saved, reloaded: both the price and the photo preview were restored from `localStorage` / IndexedDB.
+   - Exported the ZIP (4.37 MB): 8 products, 17 photos, 8 OG cards, `products.json` with the edited price, and `LISEZ-MOI.txt`.
+   - “Réinitialiser” cleared `localStorage` and the IndexedDB image store and restored the original catalogue.
+
+6. **Files touched**:
+   - New: `src/lib/admin/local.ts`, `src/lib/admin/zip.ts`, `src/test/admin-local.test.ts`, `src/test/admin-zip.test.ts`.
+   - Modified: `src/pages/AdminPage.tsx`, `src/admin.css`, `src/test/admin-page.test.tsx`, `src/test/setup.ts`, `PROGRESS.md`.
 
 ---
 
@@ -255,7 +292,7 @@ These rules must **never** be violated:
 1. **PROGRESS.md must be kept updated** — The user explicitly requested this as the handoff mechanism for AI-to-AI continuity. Update it after every significant change.
 2. **Bilingual parity** — Every UI string must exist in both French and Arabic in `src/i18n/translations.ts`.
 3. **RTL testing** — Layout changes must work with CSS logical properties and `dir="rtl"`.
-4. **Tests must pass** — Run `npm test` after every code change; all 142+ tests must pass.
+4. **Tests must pass** — Run `npm test` after every code change; all tests must pass (currently 155 passed + 1 skipped).
 5. **Build must be clean** — Run `npm run build` (includes `tsc --noEmit`) to verify TypeScript and static generation.
 6. **Zero backend** — The entire site must remain fully static with no server-side code.
 7. **Admin panel is French-only** — The admin area (`src/admin.css`, `AdminPage.tsx`) is intentionally LTR/French only.
@@ -282,5 +319,5 @@ When continuing work on this project:
 5. When modifying pages or routes, run `npm run build` to verify that `scripts/postbuild.mjs` runs without errors.
 6. **PowerShell note**: Use `;` to chain commands (e.g. `Set-Location d:\softwares\OpenBot\autoparts-store; npm test`), **not** `&&`.
 7. The dev server can be started with `npm run dev` (localhost only) or `npm run dev -- --host` (LAN accessible).
-8. The admin panel is at `/admin` — it has a local sandbox mode that works without GitHub credentials.
+8. The admin panel is at `/admin` — its local sandbox mode persists catalogue edits in `localStorage`, photos in IndexedDB, and exports a ready-to-commit ZIP. GitHub mode remains available for live saves.
 9. **Keep this `PROGRESS.md` updated** with any newly completed features, architectural changes, or pending tasks.

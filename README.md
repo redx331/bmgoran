@@ -175,7 +175,7 @@ autoparts-store/
 │  ├─ i18n/                   I18nProvider + FR/AR dictionaries
 │  ├─ lib/                    router, seo, order math/validation/message, shipping quote
 │  ├─ pages/                  Home, Shop, Product, Checkout, Delivery, Contact, 404
-│  ├─ test/                   Setup, render helper, 9 test suites
+│  ├─ test/                   Setup, render helper, 14 test suites
 │  └─ styles.css              Design system, responsive and RTL rules
 └─ docs/                      Product, shipping, deployment and launch documentation
 ```
@@ -183,6 +183,20 @@ autoparts-store/
 The UI never contains hard-coded product data: pages read from `src/data/products.json`
 through `src/data/products.ts`, and the build script reads the same JSON to generate the
 static product pages.
+
+---
+
+## Admin (`/admin`)
+
+A static, French-only CMS with two modes:
+
+- **GitHub mode** — sign in with a fine-grained token (**Contents: Read and write**, **Metadata:
+  Read**). Products, photos and OG images are saved as one commit; Cloudflare redeploys
+  automatically.
+- **Local mode** — no token needed. Edits are stored in the browser (`localStorage` for the
+  catalogue, IndexedDB for photos), restored on reload, and exported as a ZIP containing
+  `src/data/products.json`, `public/images/products/*`, `public/og/*` and `LISEZ-MOI.txt`.
+  Extract it at the project root and commit.
 
 ---
 
@@ -207,7 +221,8 @@ sitemap URLs are correct. Full steps, custom domain notes and troubleshooting:
 ## Intentionally out of scope
 
 - No payment processing, no cart across devices, no customer accounts.
-- No stock synchronisation or admin panel — products are edited in `products.json`.
+- No stock synchronisation. The catalogue is edited with `/admin` (GitHub commit or local ZIP
+  export) or directly in `products.json`.
 - No analytics or advertising pixels (nothing loads from third parties).
 - No automatic order storage; WhatsApp is the system of record.
 

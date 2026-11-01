@@ -134,6 +134,10 @@ Filtering, counts and the shop page pick it up automatically.
 
 ## Add a product — step by step
 
+> Fastest route: open `/admin`, use GitHub mode (live commit) or local mode (edits saved in the
+> browser, then export the ZIP and extract it at the project root). The manual steps below remain
+> the reference for bulk edits or when the admin is unavailable.
+
 1. **Add photos** to `public/images/products/`, named after the slug (`my-part-1.jpg`, `my-part-2.jpg`).
 2. **Append an object** to `src/data/products.json`. Copy an existing product and edit every field.
    Keep `id` and `slug` unique.
