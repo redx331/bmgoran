@@ -69,6 +69,7 @@ npm run og
 ## 📜 Git History (most recent first)
 
 ```
+2625630 feat(admin): persist local mode and export ready-to-commit ZIP
 d6a841e docs: update PROGRESS.md with full session 2 history and deployment guide
 838119c feat(checkout): add dynamic commune/city selector for all 58 wilayas
 9fcdb16 feat(admin): add local sandbox mode and footer administration link
@@ -78,7 +79,7 @@ d6a841e docs: update PROGRESS.md with full session 2 history and deployment guid
 - **Branch**: `main` (only branch)
 - **Remote**: ⚠️ **No remote configured yet.** The repo is local only. User needs to create a GitHub repo and `git remote add origin`.
 - **Git config** (local scope only): `user.name "BMG Oran Dev"`, `user.email "dev@bmg-oran.local"`
-- **Working tree**: Clean (no uncommitted changes as of last session end).
+- **Working tree**: Clean at the end of Session 3.
 
 ---
 
