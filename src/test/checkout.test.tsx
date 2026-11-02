@@ -38,24 +38,24 @@ describe('checkout page', () => {
     expect(summaryValue('Livraison')).toContain('Choisissez un mode de livraison');
 
     await user.click(screen.getByRole('radio', { name: /Livraison à domicile/ }));
-    expect(summaryValue('Livraison')).toContain(formatPrice(700, 'fr'));
-    expect(summaryValue('Livraison')).toContain('Tarif exemple');
-    expect(summaryValue('Total à payer')).toBe(formatPrice(7700, 'fr'));
+    expect(summaryValue('Livraison')).toContain(formatPrice(400, 'fr'));
+    expect(summaryValue('Livraison')).not.toContain('Tarif exemple');
+    expect(summaryValue('Total à payer')).toBe(formatPrice(7400, 'fr'));
 
     // Changing the delivery method updates shipping and the final total.
     await user.click(screen.getByRole('radio', { name: /Retrait au bureau/ }));
-    expect(summaryValue('Livraison')).toContain(formatPrice(450, 'fr'));
-    expect(summaryValue('Total à payer')).toBe(formatPrice(7450, 'fr'));
+    expect(summaryValue('Livraison')).toContain(formatPrice(300, 'fr'));
+    expect(summaryValue('Total à payer')).toBe(formatPrice(7300, 'fr'));
 
     // Changing the quantity updates the subtotal and the final total.
     const quantity = screen.getByRole('spinbutton', { name: 'Quantité' });
     await user.clear(quantity);
     await user.type(quantity, '3');
     expect(summaryValue('Sous-total')).toBe(formatPrice(10500, 'fr'));
-    expect(summaryValue('Total à payer')).toBe(formatPrice(10950, 'fr'));
+    expect(summaryValue('Total à payer')).toBe(formatPrice(10800, 'fr'));
   });
 
-  it('warns that the displayed delivery price is an example', async () => {
+  it('shows verified delivery rates without the example warning', async () => {
     const user = userEvent.setup();
     renderApp({ path: '/checkout/led-headlights', locale: 'fr' });
 
@@ -63,9 +63,9 @@ describe('checkout page', () => {
     await user.click(screen.getByRole('radio', { name: /Livraison à domicile/ }));
 
     expect(
-      screen.getByText(/Les frais de livraison affichés sont des tarifs d’exemple/),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Commande indisponible' })).toBeDisabled();
+      screen.queryByText(/Les frais de livraison affichés sont des tarifs d’exemple/),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Passer la commande' })).toBeEnabled();
   });
 
   it('refuses checkout for an out-of-stock product', () => {

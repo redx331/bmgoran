@@ -30,15 +30,15 @@ Those are business decisions and must be checked by a human.
 | `site.config.json` | `businessNameAr` | `بي إم جي وهران` | Confirm the Arabic spelling (already set) |
 | `site.config.json` | `brandMark` | `BMG` | 1–3 letters for the logo mark |
 | `site.config.json` | `demoContact` | `true` | `false` once the contact details are real |
-| `site.config.json` | `siteUrl` | `https://YOUR-PROJECT.pages.dev` | Real deployed URL / custom domain |
-| `site.config.json` | `phoneDisplay` | `+213 00 00 00 00` | Real phone as displayed |
-| `site.config.json` | `phoneHref` | *(empty)* | `tel:` target if you want click-to-call |
+| `site.config.json` | `siteUrl` | `https://bmg-oran.pages.dev` | Real deployed URL / custom domain |
+| `site.config.json` | `phoneDisplay` | `+213 673 45 77 12` | Real phone as displayed (done) |
+| `site.config.json` | `phoneHref` | `tel:+213673457712` | Click-to-call target (done) |
 | `site.config.json` | `addressFr` / `addressAr` | “Adresse … à remplacer” | Real address in both languages |
-| `site.config.json` | `cityFr` / `cityAr` | Alger / الجزائر | Real city |
+| `site.config.json` | `cityFr` / `cityAr` | Oran / وهران | Real city (done) |
 | `site.config.json` | `openingHoursFr` / `openingHoursAr` | Demo hours | Real hours |
 | `site.config.json` | `facebookUrl` / `instagramUrl` | *(empty)* | Real pages, or leave empty to hide them |
-| `src/config/shipping.ts` | all 58 × 2 prices | Example rates | Real courier rates |
-| `src/config/shipping.ts` | `SHIPPING_RATES_ARE_EXAMPLES` | `true` | `false` |
+| `src/config/shipping.ts` | all 58 × 2 prices | ZR Express rates (done) | Re-check when ZR changes its grid |
+| `src/config/shipping.ts` | `SHIPPING_RATES_ARE_EXAMPLES` | `false` | Keep `false` unless the grid is not confirmed |
 | `src/data/products.json` | every product | 8 demo products, `isDemo: true` | Real catalogue, `isDemo: false` |
 | `src/data/products.json` | `partNumber` | `DEMO-…` | Real references, or remove the field |
 | `public/images/products/` | all files | Generated SVG placeholders | Real photos (1200×900, WebP/JPEG) |

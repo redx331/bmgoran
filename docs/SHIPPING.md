@@ -23,13 +23,19 @@ export interface WilayaShipping {
   deskDeliveryPrice: number | null;   // pickup at the courier's agency, in DA
 }
 
-export const SHIPPING_RATES_ARE_EXAMPLES = true; // ← must become false at launch
+export const SHIPPING_RATES_ARE_EXAMPLES = false; // real ZR Express grid, 2026-11-02
 
 export const WILAYAS: WilayaShipping[] = [
-  { code: '16', nameFr: 'Alger', nameAr: 'الجزائر', homeDeliveryPrice: 700, deskDeliveryPrice: 450 },
+  { code: '16', nameFr: 'Alger', nameAr: 'الجزائر', homeDeliveryPrice: 400, deskDeliveryPrice: 300 },
   // …
 ];
 ```
+
+The current table is the **ZR Express** grid supplied by the shop (departure Oran, W31):
+`homeDeliveryPrice` = ZR “TARIF”, `deskDeliveryPrice` = ZR “STOP DESK”. The sheet is mapped
+**by wilaya name**, because its numbering diverges from official codes from row 49
+(sheet 54 = Timimoun = official 49). ZR “ANNULE RETOUR” is not modelled. Illizi (33),
+Tindouf (37), Bordj Badji Mokhtar (50) and Djanet (56) are absent from the sheet → `null`.
 
 Both prices are **integers in dinars**. Shipping is charged **once per order**, not per item:
 `total = (unit price × quantity) + shipping`.
@@ -47,10 +53,10 @@ delivery. This is enforced in `getShippingQuote()` and covered by tests.
 
 ### The example flag
 
-`SHIPPING_RATES_ARE_EXAMPLES = true` makes the interface label the shipping amount as an
-example (`exemple`) everywhere it appears, including the order email. Set it to `false`
-**only** after every price in the file has been replaced with a real rate you are willing to
-charge.
+The flag is currently `false`: the table holds verified ZR Express rates. Setting it to `true`
+makes the interface label every shipping amount as an example (`exemple`), and checkout plus
+`/api/order` refuse orders with `409 rates-not-verified`. Use `true` only while testing, or
+temporarily if a new grid has not been confirmed yet.
 
 ---
 

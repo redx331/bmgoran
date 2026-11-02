@@ -2,7 +2,7 @@
 
 > **Purpose of this file**: This document tracks the complete development progress, architectural decisions, current state, and upcoming tasks for the BMG Oran bilingual auto/moto parts storefront. **Any AI assistant resuming this project should read this document first to get full context without redundant exploration.**
 
-> **Last updated**: 2026-11-02 — Session 5 (live at https://bmg-oran.pages.dev; phone published; example rates now block orders).
+> **Last updated**: 2026-11-02 — Session 6 (real ZR Express rates live at https://bmg-oran.pages.dev; checkout open except unserved wilayas).
 
 ---
 
@@ -241,6 +241,21 @@ Made the local admin sandbox a real, reload-safe editor:
 4. **Order inbox chosen**: the owner’s inbox (kept out of this public repo; set it as `ORDER_EMAIL_TO` in Cloudflare). The code still needs `RESEND_API_KEY` + `ORDER_EMAIL_TO` on the Pages project; until then `/api/order` returns 503 and no email is sent.
 5. **Hygiene**: `.dev.vars` and `.dev.vars.*` added to `.gitignore`.
 
+### Session 6 (AI — 2026-11-02)
+
+1. **Real ZR Express rates entered** in `src/config/shipping.ts` from the owner’s grid (departure Oran, W31) and `SHIPPING_RATES_ARE_EXAMPLES` set to `false`.
+   - `homeDeliveryPrice` = ZR “TARIF”, `deskDeliveryPrice` = ZR “STOP DESK”; `/` → `null`.
+   - Matched **by wilaya name**, because the sheet’s numbering diverges from official codes from row 49 (sheet 54 = Timimoun = official 49).
+   - Not served (missing from the sheet) → `null`: Illizi (33), Tindouf (37), Bordj Badji Mokhtar (50), Djanet (56).
+   - ZR “ANNULE RETOUR” is not modelled.
+   - Spot checks: Oran 800/450, Alger 400/300, Béjaïa home 800 + desk `null`, Adrar 1300/900.
+2. **Tests updated for real rates**: `shipping.test.ts`, `checkout.test.tsx`, `storefront.test.tsx`, `order-function.test.ts` (Alger total now 7 400). New `checkout-example-rates.test.tsx` keeps UI coverage of example mode; `order-function-example-rates.test.ts` now mocks the flag to `true` to keep testing the 409 guard. Suite: **17 files, 165 passed + 1 skipped**.
+3. **Redeployed to https://bmg-oran.pages.dev** and verified in the live browser:
+   - Oran: home 800 → total 4 300, desk 450 → total 3 950; button “Passer la commande” enabled, no example badge/notice.
+   - Illizi home and Béjaïa desk: “Non configuré”, button “Commande indisponible”, no `0` fallback.
+   - `/api/order` with a valid Oran payload now returns **503 `not-configured`** (the rate guard passes; only Resend is missing).
+4. **Remaining blocker for real orders**: Resend is still unconfigured (`RESEND_API_KEY` + `ORDER_EMAIL_TO` on the `bmg-oran` project).
+
 ---
 
 ## 🌐 Sharing & Deployment Options
@@ -282,11 +297,11 @@ ngrok http 5173
 - [ ] Set real address and social links in `site.config.json`, then switch `demoContact` to `false` (phone is already real).
 - [ ] Decide on admin login: GitHub token today; email/password was discussed and deferred until after launch.
 
-### 2. Shipping Rates (requires user input)
-- [ ] Courier chosen: **ZR Express**, departure Oran (W31).
-- [ ] ZR’s public calculator API returns **404 `not_found` for every corridor** (checked 2026-11-02), so the grid must come from the owner’s ZR merchant account (screenshot/PDF) or be supplied manually.
-- [ ] Replace the example rates in `src/config/shipping.ts`; set unserved wilayas to `null`.
-- [ ] Set `SHIPPING_RATES_ARE_EXAMPLES = false` once verified. Checkout and `/api/order` now refuse orders while it is `true`.
+### 2. Shipping Rates (ZR Express — done, pending confirmation)
+- [x] Courier chosen: **ZR Express**, departure Oran (W31).
+- [x] Rates entered in `src/config/shipping.ts`; `SHIPPING_RATES_ARE_EXAMPLES = false`; unserved wilayas are `null`.
+- [ ] Optional: the owner should re-check the grid against their ZR merchant portal when prices change (ZR’s public calculator API returns 404 for every corridor, so it cannot be automated).
+- [ ] Optional: enter ZR “ANNULE RETOUR” handling if the shop decides to pass return fees on.
 
 ### 3. Product Catalogue & Assets
 - [ ] Add real initial products to `src/data/products.json` (or use `/admin` once deployed).
@@ -309,7 +324,7 @@ These rules must **never** be violated:
 1. **PROGRESS.md must be kept updated** — The user explicitly requested this as the handoff mechanism for AI-to-AI continuity. Update it after every significant change.
 2. **Bilingual parity** — Every UI string must exist in both French and Arabic in `src/i18n/translations.ts`.
 3. **RTL testing** — Layout changes must work with CSS logical properties and `dir="rtl"`.
-4. **Tests must pass** — Run `npm test` after every code change; all tests must pass (currently 164 passed + 1 skipped).
+4. **Tests must pass** — Run `npm test` after every code change; all tests must pass (currently 165 passed + 1 skipped).
 5. **Build must be clean** — Run `npm run build` (includes `tsc --noEmit`) to verify TypeScript and static generation.
 6. **Minimal backend** — Only `functions/api/order.ts` runs on the server. No database. Keep everything else static.
 7. **Admin panel is French-only** — The admin area (`src/admin.css`, `AdminPage.tsx`) is intentionally LTR/French only.

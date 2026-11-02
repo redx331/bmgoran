@@ -132,7 +132,7 @@ describe('bilingual interface', () => {
 
   it('translates the 58-wilaya delivery table', () => {
     const { unmount } = renderApp({ path: '/delivery', locale: 'fr' });
-    expect(screen.getAllByText('Tarifs d’exemple').length).toBeGreaterThan(0);
+    expect(screen.queryAllByText('Tarifs d’exemple')).toHaveLength(0);
     const frenchRows = document.querySelectorAll('.rates-table tbody tr');
     expect(frenchRows.length).toBe(58);
     expect(frenchRows[15]).toHaveTextContent('Alger');
@@ -140,7 +140,7 @@ describe('bilingual interface', () => {
 
     renderApp({ path: '/delivery', locale: 'ar' });
     expect(document.documentElement.dir).toBe('rtl');
-    expect(screen.getAllByText('أسعار تجريبية').length).toBeGreaterThan(0);
+    expect(screen.queryAllByText('أسعار تجريبية')).toHaveLength(0);
 
     const arabicRows = document.querySelectorAll('.rates-table tbody tr');
     expect(arabicRows.length).toBe(58);
@@ -166,10 +166,11 @@ describe('demo disclosures', () => {
     expect(screen.getAllByText('Prix démo').length).toBeGreaterThan(0);
   });
 
-  it('marks delivery prices as examples on the delivery page', () => {
+  it('does not mark verified delivery prices as examples', () => {
     renderApp({ path: '/delivery', locale: 'fr' });
     expect(
-      screen.getByText(/Ces montants ne sont pas des tarifs réels de transporteur/),
-    ).toBeInTheDocument();
+      screen.queryByText(/Ces montants ne sont pas des tarifs réels de transporteur/),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('Oran')).toBeInTheDocument();
   });
 });

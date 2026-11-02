@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { onRequestPost } from '../../functions/api/order';
 
+// Ordering must stay closed while the delivery grid is still example data.
+vi.mock('../config/shipping', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../config/shipping')>();
+  return { ...actual, SHIPPING_RATES_ARE_EXAMPLES: true };
+});
+
 const ENV = { RESEND_API_KEY: 'test-key', ORDER_EMAIL_TO: 'shop@example.test' };
 const URL_ORDER = 'https://shop.example.test/api/order';
 

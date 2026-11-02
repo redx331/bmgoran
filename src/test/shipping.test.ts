@@ -37,8 +37,8 @@ describe('Algerian wilaya shipping configuration', () => {
     }
   });
 
-  it('keeps the shipped example rates clearly flagged', () => {
-    expect(SHIPPING_RATES_ARE_EXAMPLES).toBe(true);
+  it('ships verified ZR Express rates, not examples', () => {
+    expect(SHIPPING_RATES_ARE_EXAMPLES).toBe(false);
   });
 
   it('keeps one price per delivery method and never a negative amount', () => {
@@ -59,9 +59,9 @@ describe('Algerian wilaya shipping configuration', () => {
     expect(home.ok).toBe(true);
     expect(desk.ok).toBe(true);
     if (home.ok && desk.ok) {
-      expect(home.quote.amount).toBe(700);
-      expect(desk.quote.amount).toBe(450);
-      expect(home.quote.isExample).toBe(true);
+      expect(home.quote.amount).toBe(400);
+      expect(desk.quote.amount).toBe(300);
+      expect(home.quote.isExample).toBe(false);
       expect(home.quote.wilaya.code).toBe('16');
     }
   });
@@ -85,8 +85,8 @@ describe('Algerian wilaya shipping configuration', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.quote.amount).toBe(0);
-      // Still example data, because the example flag was not turned off.
-      expect(result.quote.isExample).toBe(true);
+      // A real 0 is free delivery; it is not example data.
+      expect(result.quote.isExample).toBe(false);
     }
   });
 
@@ -96,16 +96,20 @@ describe('Algerian wilaya shipping configuration', () => {
     expect(findWilaya('XX')).toBeUndefined();
   });
 
-  it('can turn off the example flag for real rates', () => {
-    const result = getShippingQuote('16', 'home', { ratesAreExamples: false });
-    expect(result.ok && result.quote.isExample).toBe(false);
+  it('marks quotes as examples only when explicitly asked', () => {
+    const result = getShippingQuote('16', 'home', { ratesAreExamples: true });
+    expect(result.ok && result.quote.isExample).toBe(true);
+    expect(getShippingQuote('16', 'home')).toMatchObject({
+      ok: true,
+      quote: { isExample: false },
+    });
   });
 
   it('flags example and missing quotes as not orderable', () => {
-    expect(isExampleShipping(getShippingQuote('16', 'home'))).toBe(true);
     expect(
-      isExampleShipping(getShippingQuote('16', 'home', { ratesAreExamples: false })),
-    ).toBe(false);
+      isExampleShipping(getShippingQuote('16', 'home', { ratesAreExamples: true })),
+    ).toBe(true);
+    expect(isExampleShipping(getShippingQuote('16', 'home'))).toBe(false);
     expect(isExampleShipping({ ok: false, reason: 'rate-not-configured' })).toBe(false);
     expect(isExampleShipping(null)).toBe(false);
   });
