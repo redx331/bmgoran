@@ -196,7 +196,7 @@ const fr = {
 
   'delivery.title': 'Livraison dans les 58 wilayas',
   'delivery.subtitle':
-    'Deux options : à domicile ou retrait au bureau du transporteur. Les tarifs ci-dessous sont des exemples à remplacer.',
+    'Deux options : à domicile ou retrait au bureau du transporteur. Tarifs de livraison depuis Oran, par wilaya.',
   'delivery.noticeTitle': 'Tarifs d’exemple',
   'delivery.noticeText':
     'Ces montants ne sont pas des tarifs réels de transporteur. Ils servent uniquement à tester le calcul du total. Modifiez-les dans src/config/shipping.ts avant la mise en ligne.',
@@ -488,7 +488,7 @@ const ar: Record<TranslationKey, string> = {
 
   'delivery.title': 'التوصيل إلى 58 ولاية',
   'delivery.subtitle':
-    'خياران: إلى المنزل أو الاستلام من مكتب شركة النقل. الأسعار أدناه أمثلة يجب تغييرها.',
+    'خياران: إلى المنزل أو الاستلام من مكتب شركة النقل. أسعار التوصيل انطلاقًا من وهران، حسب الولاية.',
   'delivery.noticeTitle': 'أسعار تجريبية',
   'delivery.noticeText':
     'هذه المبالغ ليست أسعار شركات نقل حقيقية. تُستخدم فقط لاختبار حساب المجموع. عدّلها في src/config/shipping.ts قبل النشر.',
