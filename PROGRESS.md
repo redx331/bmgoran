@@ -2,7 +2,7 @@
 
 > **Purpose of this file**: This document tracks the complete development progress, architectural decisions, current state, and upcoming tasks for the BMG Oran bilingual auto/moto parts storefront. **Any AI assistant resuming this project should read this document first to get full context without redundant exploration.**
 
-> **Last updated**: 2026-11-02 — Session 6 (real ZR Express rates live at https://bmg-oran.pages.dev; checkout open except unserved wilayas).
+> **Last updated**: 2026-11-02 — Session 7 (email orders confirmed working live at https://bmg-oran.pages.dev).
 
 ---
 
@@ -254,7 +254,13 @@ Made the local admin sandbox a real, reload-safe editor:
    - Oran: home 800 → total 4 300, desk 450 → total 3 950; button “Passer la commande” enabled, no example badge/notice.
    - Illizi home and Béjaïa desk: “Non configuré”, button “Commande indisponible”, no `0` fallback.
    - `/api/order` with a valid Oran payload now returns **503 `not-configured`** (the rate guard passes; only Resend is missing).
-4. **Remaining blocker for real orders**: Resend is still unconfigured (`RESEND_API_KEY` + `ORDER_EMAIL_TO` on the `bmg-oran` project).
+4. **Superseded in Session 7**: Resend is now configured.
+
+### Session 7 (AI — 2026-11-02)
+
+1. **Email orders live**: the owner added `RESEND_API_KEY` and `ORDER_EMAIL_TO` as Production secrets on `bmg-oran`; site redeployed with `wrangler pages deploy`.
+2. **Verified**: a direct POST to the live `/api/order` returned 200 and the owner confirmed the email arrived. The form was not clicked through in a browser for this test.
+3. **Auto-deploy**: `.github/workflows/deploy.yml` builds, tests and deploys `main` to `bmg-oran` on every push, including admin saves. `bmg-oran` has no Git connection, so this workflow is what publishes changes. Needs GitHub secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
 
 ---
 
@@ -292,7 +298,7 @@ ngrok http 5173
 ## ⏳ Pending / Next Steps for Incoming AI
 
 ### 1. Pre-Launch Configuration (requires user input)
-- [ ] Create a Resend account with the owner’s inbox, then set `RESEND_API_KEY` + `ORDER_EMAIL_TO` on the **bmg-oran** Pages project and send a real test order.
+- [x] Resend configured on the **bmg-oran** Pages project; live test order ORD-2026-E3529B53 reached the owner’s inbox.
 - [ ] Add a Cloudflare rate-limiting rule on `/api/order`, or Turnstile if spam appears.
 - [ ] Set real address and social links in `site.config.json`, then switch `demoContact` to `false` (phone is already real).
 - [ ] Decide on admin login: GitHub token today; email/password was discussed and deferred until after launch.
