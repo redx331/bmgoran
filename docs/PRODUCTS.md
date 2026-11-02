@@ -157,7 +157,7 @@ Filtering, counts and the shop page pick it up automatically.
    npm test
    ```
 7. Open `http://localhost:4173/product/<slug>` and check: title, price, both languages,
-   gallery, quantity, Buy Now, and the WhatsApp message.
+   gallery, quantity, Buy Now, and the order email.
 
 ## Remove a product
 

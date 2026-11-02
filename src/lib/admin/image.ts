@@ -188,7 +188,7 @@ export async function buildOgImage(options: OgImageOptions): Promise<Blob> {
 
   context.fillStyle = '#ff4d47';
   context.font = `700 16px ${FONT}`;
-  context.fillText('COMMANDE WHATSAPP · 58 WILAYAS', 64, 190);
+  context.fillText('COMMANDE EN LIGNE · 58 WILAYAS', 64, 190);
 
   context.fillStyle = '#f5f6f7';
   context.font = `800 54px ${FONT}`;

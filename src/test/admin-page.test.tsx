@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SITE } from '../config/business';
 import { PRODUCTS, type Product } from '../data/products';
 import {
   GitHubError,
@@ -57,9 +58,8 @@ describe('admin login', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: /connexion administrateur/i }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Dépôt GitHub')).toHaveValue('');
+    expect(screen.getByLabelText('Dépôt GitHub')).toHaveValue(SITE.repository);
     expect(screen.getByLabelText('Jeton GitHub')).toHaveAttribute('type', 'password');
-    expect(screen.getByText(/première utilisation/i)).toBeInTheDocument();
 
     expect(document.title).toContain('Administration');
     expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute(

@@ -67,7 +67,7 @@ function setCanonical(html, href) {
 function productHtml(product, template) {
   const url = `${baseUrl}/product/${product.slug}`;
   const title = `${product.nameFr} — ${formatPrice(product.price)} | ${site.businessName}`;
-  const description = `${truncateAtWord(product.descriptionFr, 160).replace(/[.,;:!?]$/, '')}. Livraison en Algérie, commande via WhatsApp.`;
+  const description = `${truncateAtWord(product.descriptionFr, 160).replace(/[.,;:!?]$/, '')}. Livraison en Algérie, commande en ligne.`;
   const image = `${baseUrl}/og/${product.slug}.png`;
   let html = template;
   html = setTitle(html, title);

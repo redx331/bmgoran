@@ -1,14 +1,14 @@
 # Deployment — GitHub + Cloudflare Pages
 
-The site is fully static. Cloudflare Pages serves the `dist/` folder from its CDN; there is no
-server, database, function or paid service involved. The free plan is enough for a shop of
+The storefront is static: Cloudflare Pages serves the `dist/` folder from its CDN. One Pages
+Function, `functions/api/order.ts`, emails orders through Resend. There is no database. The free plan is enough for a shop of
 this size (check Cloudflare's current limits before relying on exact numbers).
 
 ---
 
 ## Before you deploy
 
-1. **Replace the placeholders** — at minimum `site.config.json` (business name, WhatsApp number,
+1. **Replace the placeholders** — at minimum `site.config.json` (business name,
    phone, e-mail, address, opening hours) and the `siteUrl`. See the
    [launch checklist](LAUNCH-CHECKLIST.md).
 2. **Confirm the build is green locally:**
@@ -25,7 +25,8 @@ this size (check Cloudflare's current limits before relying on exact numbers).
    npm run preview   # http://localhost:4173
    ```
    Open a product URL directly (e.g. `/product/led-headlights`), reload it, switch to Arabic,
-   and complete a test order up to the WhatsApp screen.
+   and complete a test order up to the validation errors. `npm run preview` has no `/api/order`, so a real
+   submission only works once deployed.
 
 ---
 
@@ -85,6 +86,30 @@ and docs are committed.
 `npm run build` runs `tsc --noEmit`, the Vite build, then `scripts/postbuild.mjs`, which adds
 the per-product HTML files, `_redirects`, `sitemap.xml` and `robots.txt` to `dist/`.
 Nothing else is required.
+
+---
+
+## Order email setup
+
+Orders fail with a visible error until both variables below are set.
+
+1. Create an account at <https://resend.com> using the inbox that should receive orders.
+2. Create an API key with sending access.
+3. In Cloudflare: **Workers & Pages → your project → Settings → Variables and Secrets**. Add, for
+   Production:
+
+   | Variable | Type | Value |
+   | --- | --- | --- |
+   | `RESEND_API_KEY` | Secret | The Resend API key |
+   | `ORDER_EMAIL_TO` | Secret | The same inbox as the Resend account |
+
+4. Redeploy, because variable changes only apply to new deployments.
+5. Place a test order and check the inbox, including spam.
+
+The default sender `onboarding@resend.dev` only delivers to the Resend account's own address. To
+send to another address, verify a domain in Resend and change `EMAIL_FROM` in the function.
+
+Never commit these values: the repository is public.
 
 ---
 
@@ -161,7 +186,7 @@ If you later add analytics, a map embed, external fonts or images from another d
 **must** extend the CSP (`script-src`, `img-src`, `connect-src`, …) or the browser will block
 them. The current policy intentionally allows nothing external.
 
-The WhatsApp number is public by design (it is in the `wa.me` link). Never put private keys,
+Never put private keys,
 passwords or customer data in this repository.
 
 ---
@@ -174,7 +199,7 @@ All content is in the repository; every push to `main` triggers a new deployment
 | --- | --- | --- |
 | Product, price, stock, photos | `src/data/products.json`, `public/images/products/` | `npm run build`, `npm test`, commit, push |
 | Delivery rates | `src/config/shipping.ts` | same |
-| WhatsApp number, phone, address, hours | `site.config.json` | same |
+| Phone, address, hours | `site.config.json` | same |
 | Interface wording / translations | `src/i18n/translations.ts` | same |
 | Business name in page titles | `site.config.json` (rebuild regenerates meta) | same |
 
@@ -224,7 +249,7 @@ The GitHub integration above is recommended for a shop that will be updated regu
 | Images missing only in production | File name case mismatch (Linux is case-sensitive) or the file is not inside `public/` |
 | Old title/image in Facebook/WhatsApp preview | The platform cached the old page. Re-scrape in the platform's debugger after redeploying with the correct `siteUrl` |
 | Demo banner still visible | `isDemo` flags / `SHIPPING_RATES_ARE_EXAMPLES` / placeholder business data are still set — see the launch checklist |
-| WhatsApp button disabled | `whatsappNumber` is empty or invalid. Use international digits only, e.g. `213550123456` |
+| “La commande n’a pas pu être envoyée” | Check `RESEND_API_KEY` and `ORDER_EMAIL_TO`, redeploy, then read the function logs in Cloudflare |
 | Shipping shows “exemple” | `SHIPPING_RATES_ARE_EXAMPLES` is still `true` |
 | Checkout blocked for one wilaya | That wilaya/method has `null` in `src/config/shipping.ts` |
 | Styles look unstyled after deploy | `dist/assets/*` not uploaded, or a CSP rule blocks the stylesheet (should not happen with the default policy) |
@@ -233,8 +258,8 @@ The GitHub integration above is recommended for a shop that will be updated regu
 
 ## 10. What is intentionally not deployed
 
-- No server, API, database, auth or admin dashboard.
-- No order storage: the order exists only in the WhatsApp conversation.
+- No database or customer accounts.
+- No order storage: the order exists only in the shop's inbox.
 - No analytics, cookies or tracking pixels.
 - No payment integration.
 

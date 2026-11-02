@@ -6,7 +6,7 @@ const fr = {
   'common.currency': 'DA',
   'common.loading': 'Chargement…',
   'common.seeProduct': 'Voir le produit',
-  'common.buyNow': 'Commander via WhatsApp',
+  'common.buyNow': 'Commander',
   'common.shopNow': 'Découvrir la boutique',
   'common.search': 'Rechercher',
   'common.clear': 'Effacer',
@@ -28,7 +28,6 @@ const fr = {
   'common.max': 'Max.',
   'common.invalidLink': 'Lien invalide',
   'common.contactUs': 'Nous contacter',
-  'common.whatsapp': 'WhatsApp',
 
   'nav.home': 'Accueil',
   'nav.shop': 'Boutique',
@@ -47,9 +46,9 @@ const fr = {
   'home.heroTitle': 'La bonne pièce,',
   'home.heroAccent': 'livrée partout en Algérie.',
   'home.heroText':
-    'Pièces et accessoires pour voitures et motos. Choisissez votre produit, vérifiez le prix et la livraison, puis commandez en quelques secondes sur WhatsApp.',
+    'Pièces et accessoires pour voitures et motos. Choisissez votre produit, vérifiez le prix et la livraison, puis commandez en quelques secondes.',
   'home.heroCta': 'Voir les produits',
-  'home.heroNote': 'Aucun compte requis · 58 wilayas · Commande WhatsApp',
+  'home.heroNote': 'Aucun compte requis · 58 wilayas · Commande en ligne',
   'home.categoriesTitle': 'Parcourir par catégorie',
   'home.categoriesSubtitle': 'Trouvez rapidement la pièce ou l’accessoire dont vous avez besoin.',
   'home.categoryCount': '{count} produit(s)',
@@ -63,7 +62,7 @@ const fr = {
   'home.step2Title': 'Renseignez',
   'home.step2Text': 'Indiquez votre nom, votre téléphone, votre wilaya et le mode de livraison.',
   'home.step3Title': 'Envoyez',
-  'home.step3Text': 'WhatsApp s’ouvre avec le récapitulatif. Appuyez sur Envoyer pour transmettre la commande.',
+  'home.step3Text': 'Remplissez le formulaire et validez. Le magasin vous appelle pour confirmer.',
   'home.trust1Title': 'Sans compte',
   'home.trust1Text': 'Aucune inscription, aucun mot de passe. Vous commandez directement.',
   'home.trust2Title': '58 wilayas',
@@ -130,7 +129,7 @@ const fr = {
   'product.viewAllInCategory': 'Voir la catégorie',
 
   'checkout.title': 'Finaliser la commande',
-  'checkout.subtitle': 'Aucun compte requis. Votre commande sera envoyée via WhatsApp.',
+  'checkout.subtitle': 'Aucun compte requis. Votre commande est transmise directement au magasin.',
   'checkout.contactSection': 'Vos coordonnées',
   'checkout.requiredNote': 'Les champs marqués * sont obligatoires.',
   'checkout.deliverySection': 'Livraison',
@@ -166,30 +165,27 @@ const fr = {
   'checkout.rateUnavailable':
     'Le tarif de livraison n’est pas configuré pour cette wilaya et ce mode. Choisissez un autre mode ou contactez-nous.',
   'checkout.rateExampleNotice':
-    'Les frais de livraison affichés sont des tarifs d’exemple, pas des tarifs réels. Ils seront à confirmer.',
+    'Les frais de livraison affichés sont des tarifs d’exemple, pas des tarifs réels. Les commandes sont en pause jusqu’à leur confirmation.',
   'checkout.rateExampleBadge': 'Tarif exemple',
-  'checkout.whatsappMissingTitle': 'Commande WhatsApp indisponible',
-  'checkout.whatsappMissingText':
-    'Le numéro WhatsApp du magasin n’est pas encore configuré. La commande ne peut pas être envoyée. Contactez-nous par téléphone.',
-  'checkout.buyButton': 'Envoyer la commande sur WhatsApp',
+  'checkout.buyButton': 'Passer la commande',
+  'checkout.sending': 'Envoi en cours…',
+  'checkout.sendError':
+    'La commande n’a pas pu être envoyée. Vérifiez votre connexion puis réessayez.',
   'checkout.buyButtonDisabled': 'Commande indisponible',
-  'checkout.whatsappHint':
-    'WhatsApp s’ouvrira avec le message prérempli. Vous devrez appuyer sur « Envoyer » dans WhatsApp : la commande n’est confirmée qu’à ce moment-là.',
+  'checkout.orderHint':
+    'Le magasin vous appellera au numéro indiqué pour confirmer la commande.',
   'checkout.consent':
-    'J’accepte que mes coordonnées soient incluses dans un message WhatsApp envoyé au magasin. Elles ne sont pas enregistrées sur ce site.',
+    'J’accepte que mes coordonnées soient transmises au magasin pour traiter ma commande.',
   'checkout.privacyTitle': 'Confidentialité',
   'checkout.privacyText':
-    'Ce site ne possède ni compte client ni base de données. Les informations saisies servent uniquement à préparer le message WhatsApp. Elles ne sont transmises que si vous appuyez sur Envoyer dans WhatsApp.',
+    'Ce site ne possède ni compte client ni base de données. Vos informations sont transmises au magasin via notre hébergeur et un service d’envoi de messages, uniquement pour traiter votre commande.',
   'checkout.validationSummary': 'Veuillez corriger les champs indiqués.',
-  'checkout.successTitle': 'Message prêt dans WhatsApp',
+  'checkout.successTitle': 'Commande envoyée',
   'checkout.successText':
-    'Votre commande n’est pas encore confirmée. Appuyez sur « Envoyer » dans WhatsApp pour la transmettre au magasin.',
+    'Merci ! Le magasin a bien reçu votre commande et vous appellera au numéro indiqué pour la confirmer.',
   'checkout.reference': 'Référence',
   'checkout.referenceHint':
-    'Référence générée localement pour cette tentative. Elle facilite le suivi, mais ne constitue pas une confirmation de commande.',
-  'checkout.copyMessage': 'Copier le message',
-  'checkout.copied': 'Message copié',
-  'checkout.openAgain': 'Rouvrir WhatsApp',
+    'Conservez cette référence pour le suivi de votre commande.',
   'checkout.unavailableProductTitle': 'Ce produit ne peut pas être commandé',
   'checkout.unavailableProductText':
     'Il est actuellement épuisé. Contactez-nous pour connaître la prochaine disponibilité.',
@@ -212,7 +208,7 @@ const fr = {
   'delivery.notConfigured': 'Non configuré',
   'delivery.helpTitle': 'Comment se passe la livraison ?',
   'delivery.helpText':
-    'Après votre commande WhatsApp, nous confirmons la disponibilité de la pièce et le tarif de livraison avec vous. Le colis est ensuite remis au transporteur pour votre wilaya.',
+    'Après votre commande, nous confirmons la disponibilité de la pièce et le tarif de livraison avec vous. Le colis est ensuite remis au transporteur pour votre wilaya.',
   'delivery.cta': 'Commander un produit',
   'delivery.exampleBadge': 'Tarifs d’exemple',
   'delivery.filterLabel': 'Filtrer les wilayas',
@@ -223,22 +219,17 @@ const fr = {
   'contact.title': 'Contact',
   'contact.subtitle':
     'Une question sur une pièce, une compatibilité ou une livraison ? Écrivez-nous avant de commander.',
-  'contact.whatsapp': 'WhatsApp',
   'contact.phone': 'Téléphone',
-  'contact.email': 'E-mail',
   'contact.address': 'Adresse',
   'contact.hours': 'Horaires',
-  'contact.whatsappMissing': 'Le numéro WhatsApp n’est pas configuré pour le moment.',
-  'contact.whatsappCta': 'Écrire sur WhatsApp',
-  'contact.phoneMissing': 'Le numéro de téléphone n’est pas configuré.',
   'contact.social': 'Réseaux sociaux',
   'contact.privacyTitle': 'Vos données',
   'contact.privacyText':
-    'Aucun compte n’est nécessaire et ce site ne stocke pas vos coordonnées. Lors d’une commande, vos informations sont préparées localement puis envoyées au magasin uniquement si vous appuyez sur Envoyer dans WhatsApp.',
+    'Aucun compte n’est nécessaire et ce site ne stocke pas vos coordonnées. Lors d’une commande, vos informations sont transmises au magasin via notre hébergeur et un service d’envoi de messages, uniquement pour la traiter.',
   'contact.demoNote': 'Coordonnées de démonstration à remplacer avant la mise en ligne.',
 
   'footer.about':
-    'Pièces et accessoires pour voitures et motos. Commande simple via WhatsApp, sans compte.',
+    'Pièces et accessoires pour voitures et motos. Commande simple en ligne, sans compte.',
   'footer.shop': 'Boutique',
   'footer.info': 'Informations',
   'footer.contact': 'Contact',
@@ -247,9 +238,9 @@ const fr = {
   'footer.rights': 'Tous droits réservés.',
   'footer.deliveryRates': 'Tarifs de livraison',
   'footer.allProducts': 'Tous les produits',
-  'footer.whatsappOrder': 'Commande via WhatsApp',
+  'footer.order': 'Commander en ligne',
   'footer.noDatabase':
-    'Site statique : aucune commande n’est enregistrée sur le site. Elle est transmise via WhatsApp.',
+    'Aucun compte client : votre commande est transmise directement au magasin.',
 
   'validation.firstNameRequired': 'Le prénom est obligatoire.',
   'validation.lastNameRequired': 'Le nom est obligatoire.',
@@ -261,25 +252,26 @@ const fr = {
   'validation.deliveryRequired': 'Choisissez un mode de livraison.',
   'validation.quantityInvalid': 'La quantité doit être un nombre entier supérieur à zéro.',
   'validation.quantityMax': 'La quantité maximale est de {max}.',
-  'validation.consentRequired': 'Veuillez accepter la transmission des informations via WhatsApp.',
+  'validation.consentRequired': 'Veuillez accepter la transmission de vos informations au magasin.',
   'validation.rateMissing': 'Le tarif de livraison n’est pas configuré pour cette wilaya.',
-  'validation.whatsappMissing': 'La commande WhatsApp n’est pas configurée.',
+  'validation.rateNotVerified':
+    'Les frais de livraison ne sont pas encore confirmés. Les commandes ouvriront dès qu’ils le seront.',
   'validation.productUnavailable': 'Ce produit n’est pas disponible.',
   'validation.productMissing': 'Produit introuvable.',
   'validation.fixErrors': 'Corrigez les champs indiqués.',
 
-  'seo.homeTitle': 'Pièces auto & moto en Algérie — Commande WhatsApp',
+  'seo.homeTitle': 'Pièces auto & moto en Algérie — Commande en ligne',
   'seo.homeDescription':
-    'Pièces et accessoires pour voitures et motos. Prix, photos et livraison dans les 58 wilayas. Commandez directement via WhatsApp, sans compte.',
+    'Pièces et accessoires pour voitures et motos. Prix, photos et livraison dans les 58 wilayas. Commandez directement en ligne, sans compte.',
   'seo.shopTitle': 'Boutique — Pièces auto & moto',
   'seo.shopDescription':
-    'Tous les produits : pièces auto, pièces moto et accessoires universels. Livraison en Algérie, commande via WhatsApp.',
+    'Tous les produits : pièces auto, pièces moto et accessoires universels. Livraison en Algérie, commande en ligne.',
   'seo.deliveryTitle': 'Livraison et tarifs — 58 wilayas',
   'seo.deliveryDescription':
     'Tarifs de livraison à domicile et en bureau pour les 58 wilayas d’Algérie.',
   'seo.contactTitle': 'Contact — BMG Oran',
   'seo.contactDescription':
-    'Contactez le magasin pour vérifier une pièce ou préparer votre commande WhatsApp.',
+    'Contactez le magasin pour vérifier une pièce ou préparer votre commande.',
   'seo.productTitle': '{name} — {price}',
   'seo.notFoundTitle': 'Page introuvable',
 
@@ -308,7 +300,7 @@ const ar: Record<TranslationKey, string> = {
   'common.currency': 'دج',
   'common.loading': 'جارٍ التحميل…',
   'common.seeProduct': 'عرض المنتج',
-  'common.buyNow': 'اطلب عبر واتساب',
+  'common.buyNow': 'اطلب الآن',
   'common.shopNow': 'تسوّق الآن',
   'common.search': 'بحث',
   'common.clear': 'مسح',
@@ -330,7 +322,6 @@ const ar: Record<TranslationKey, string> = {
   'common.max': 'الأقصى',
   'common.invalidLink': 'رابط غير صالح',
   'common.contactUs': 'تواصل معنا',
-  'common.whatsapp': 'واتساب',
 
   'nav.home': 'الرئيسية',
   'nav.shop': 'المتجر',
@@ -349,9 +340,9 @@ const ar: Record<TranslationKey, string> = {
   'home.heroTitle': 'القطعة المناسبة،',
   'home.heroAccent': 'تُوصَّل إلى كل ولايات الجزائر.',
   'home.heroText':
-    'قطع وإكسسوارات للسيارات والدراجات النارية. اختر منتجك، تحقق من السعر والتوصيل، ثم اطلب في ثوانٍ عبر واتساب.',
+    'قطع وإكسسوارات للسيارات والدراجات النارية. اختر منتجك، تحقق من السعر والتوصيل، ثم اطلب في ثوانٍ.',
   'home.heroCta': 'تصفّح المنتجات',
-  'home.heroNote': 'دون إنشاء حساب · 58 ولاية · طلب عبر واتساب',
+  'home.heroNote': 'دون إنشاء حساب · 58 ولاية · طلب عبر الإنترنت',
   'home.categoriesTitle': 'تصفّح حسب الفئة',
   'home.categoriesSubtitle': 'اعثر بسرعة على القطعة أو الإكسسوار الذي تحتاجه.',
   'home.categoryCount': '{count} منتج',
@@ -365,7 +356,7 @@ const ar: Record<TranslationKey, string> = {
   'home.step2Title': 'أدخل بياناتك',
   'home.step2Text': 'اكتب اسمك ورقم هاتفك وولايتك واختر طريقة التوصيل.',
   'home.step3Title': 'أرسل',
-  'home.step3Text': 'سيُفتح واتساب مع ملخص الطلب. اضغط على إرسال لتوصيل الطلب.',
+  'home.step3Text': 'املأ الاستمارة وأكّد الطلب. سيتصل بك المتجر للتأكيد.',
   'home.trust1Title': 'دون حساب',
   'home.trust1Text': 'لا تسجيل ولا كلمة مرور. اطلب مباشرة.',
   'home.trust2Title': '58 ولاية',
@@ -431,7 +422,7 @@ const ar: Record<TranslationKey, string> = {
   'product.viewAllInCategory': 'عرض الفئة',
 
   'checkout.title': 'إتمام الطلب',
-  'checkout.subtitle': 'دون إنشاء حساب. سيُرسل طلبك عبر واتساب.',
+  'checkout.subtitle': 'دون إنشاء حساب. يصل طلبك مباشرة إلى المتجر.',
   'checkout.contactSection': 'معلوماتك',
   'checkout.requiredNote': 'الحقول المعلّمة بـ * إلزامية.',
   'checkout.deliverySection': 'التوصيل',
@@ -467,30 +458,27 @@ const ar: Record<TranslationKey, string> = {
   'checkout.rateUnavailable':
     'رسوم التوصيل غير مهيأة لهذه الولاية وهذه الطريقة. اختر طريقة أخرى أو تواصل معنا.',
   'checkout.rateExampleNotice':
-    'رسوم التوصيل المعروضة هي أسعار تجريبية وليست أسعارًا حقيقية. ويجب تأكيدها.',
+    'رسوم التوصيل المعروضة هي أسعار تجريبية وليست أسعارًا حقيقية. الطلبات متوقفة حتى تأكيدها.',
   'checkout.rateExampleBadge': 'سعر تجريبي',
-  'checkout.whatsappMissingTitle': 'الطلب عبر واتساب غير متاح',
-  'checkout.whatsappMissingText':
-    'رقم واتساب المتجر غير مهيأ بعد. لا يمكن إرسال الطلب. تواصل معنا هاتفيًا.',
-  'checkout.buyButton': 'أرسل الطلب عبر واتساب',
+  'checkout.buyButton': 'أكّد الطلب',
+  'checkout.sending': 'جارٍ الإرسال…',
+  'checkout.sendError':
+    'تعذّر إرسال الطلب. تحقق من اتصالك ثم أعد المحاولة.',
   'checkout.buyButtonDisabled': 'الطلب غير متاح',
-  'checkout.whatsappHint':
-    'سيُفتح واتساب مع رسالة جاهزة. يجب أن تضغط «إرسال» داخل واتساب: لا يصبح الطلب مؤكدًا إلا في تلك اللحظة.',
+  'checkout.orderHint':
+    'سيتصل بك المتجر على الرقم المدخل لتأكيد الطلب.',
   'checkout.consent':
-    'أوافق على تضمين معلوماتي في رسالة واتساب تُرسل إلى المتجر. لا تُحفظ هذه المعلومات على الموقع.',
+    'أوافق على إرسال معلوماتي إلى المتجر لمعالجة طلبي.',
   'checkout.privacyTitle': 'الخصوصية',
   'checkout.privacyText':
-    'لا يوجد في هذا الموقع حساب عميل ولا قاعدة بيانات. تُستخدم المعلومات المدخلة فقط لتحضير رسالة واتساب، ولا تُنقل إلا إذا ضغطت إرسال داخل واتساب.',
+    'لا يوجد في هذا الموقع حساب عميل ولا قاعدة بيانات. تُنقل معلوماتك إلى المتجر عبر خدمة الاستضافة وخدمة إرسال الرسائل، فقط لمعالجة طلبك.',
   'checkout.validationSummary': 'يُرجى تصحيح الحقول المشار إليها.',
-  'checkout.successTitle': 'الرسالة جاهزة في واتساب',
+  'checkout.successTitle': 'تم إرسال الطلب',
   'checkout.successText':
-    'طلبك غير مؤكد بعد. اضغط «إرسال» داخل واتساب لإيصاله إلى المتجر.',
+    'شكرًا! استلم المتجر طلبك وسيتصل بك على الرقم المدخل لتأكيده.',
   'checkout.reference': 'المرجع',
   'checkout.referenceHint':
-    'مرجع مُنشأ محليًا لهذه المحاولة. يساعد على المتابعة لكنه ليس تأكيدًا للطلب.',
-  'checkout.copyMessage': 'نسخ الرسالة',
-  'checkout.copied': 'تم نسخ الرسالة',
-  'checkout.openAgain': 'إعادة فتح واتساب',
+    'احتفظ بهذا المرجع لمتابعة طلبك.',
   'checkout.unavailableProductTitle': 'لا يمكن طلب هذا المنتج',
   'checkout.unavailableProductText': 'هو غير متوفر حاليًا. تواصل معنا لمعرفة موعد التوفر القادم.',
   'checkout.unavailableProductCta': 'عرض منتجات أخرى',
@@ -512,7 +500,7 @@ const ar: Record<TranslationKey, string> = {
   'delivery.notConfigured': 'غير مُهيّأ',
   'delivery.helpTitle': 'كيف يتم التوصيل؟',
   'delivery.helpText':
-    'بعد طلبك عبر واتساب، نؤكد معك توفر القطعة وسعر التوصيل. ثم يُسلَّم الطرد إلى شركة النقل الخاصة بولاية.',
+    'بعد طلبك، نؤكد معك توفر القطعة وسعر التوصيل. ثم يُسلَّم الطرد إلى شركة النقل الخاصة بولاية.',
   'delivery.cta': 'اطلب منتجًا',
   'delivery.exampleBadge': 'أسعار تجريبية',
   'delivery.filterLabel': 'تصفية الولايات',
@@ -522,22 +510,17 @@ const ar: Record<TranslationKey, string> = {
 
   'contact.title': 'اتصل بنا',
   'contact.subtitle': 'سؤال عن قطعة أو توافق أو توصيل؟ راسلنا قبل الطلب.',
-  'contact.whatsapp': 'واتساب',
   'contact.phone': 'الهاتف',
-  'contact.email': 'البريد الإلكتروني',
   'contact.address': 'العنوان',
   'contact.hours': 'أوقات العمل',
-  'contact.whatsappMissing': 'رقم واتساب غير مهيأ حاليًا.',
-  'contact.whatsappCta': 'راسلنا على واتساب',
-  'contact.phoneMissing': 'رقم الهاتف غير مهيأ.',
   'contact.social': 'شبكات التواصل',
   'contact.privacyTitle': 'بياناتك',
   'contact.privacyText':
-    'لا تحتاج إلى حساب، ولا يحفظ هذا الموقع معلوماتك. عند الطلب تُحضَّر معلوماتك محليًا ثم تُرسل إلى المتجر فقط إذا ضغطت إرسال داخل واتساب.',
+    'لا تحتاج إلى حساب، ولا يحفظ هذا الموقع معلوماتك. عند الطلب تُنقل معلوماتك إلى المتجر عبر خدمة الاستضافة وخدمة إرسال الرسائل، فقط لمعالجته.',
   'contact.demoNote': 'بيانات اتصال تجريبية يجب تغييرها قبل النشر.',
 
   'footer.about':
-    'قطع وإكسسوارات للسيارات والدراجات النارية. طلب بسيط عبر واتساب، دون حساب.',
+    'قطع وإكسسوارات للسيارات والدراجات النارية. طلب بسيط عبر الإنترنت، دون حساب.',
   'footer.shop': 'المتجر',
   'footer.info': 'معلومات',
   'footer.contact': 'اتصل بنا',
@@ -546,9 +529,9 @@ const ar: Record<TranslationKey, string> = {
   'footer.rights': 'جميع الحقوق محفوظة.',
   'footer.deliveryRates': 'أسعار التوصيل',
   'footer.allProducts': 'كل المنتجات',
-  'footer.whatsappOrder': 'الطلب عبر واتساب',
+  'footer.order': 'اطلب عبر الإنترنت',
   'footer.noDatabase':
-    'موقع ثابت: لا تُحفظ الطلبات على الموقع، بل تُرسل عبر واتساب.',
+    'دون حساب عميل: يصل طلبك مباشرة إلى المتجر.',
 
   'validation.firstNameRequired': 'الاسم مطلوب.',
   'validation.lastNameRequired': 'اللقب مطلوب.',
@@ -560,23 +543,24 @@ const ar: Record<TranslationKey, string> = {
   'validation.deliveryRequired': 'اختر طريقة التوصيل.',
   'validation.quantityInvalid': 'يجب أن تكون الكمية عددًا صحيحًا أكبر من صفر.',
   'validation.quantityMax': 'الكمية القصوى هي {max}.',
-  'validation.consentRequired': 'يُرجى الموافقة على إرسال معلوماتك عبر واتساب.',
+  'validation.consentRequired': 'يُرجى الموافقة على إرسال معلوماتك إلى المتجر.',
   'validation.rateMissing': 'رسوم التوصيل غير مهيأة لهذه الولاية.',
-  'validation.whatsappMissing': 'الطلب عبر واتساب غير مهيأ.',
+  'validation.rateNotVerified':
+    'رسوم التوصيل لم تُؤكَّد بعد. سيفتح الطلب بمجرد تأكيدها.',
   'validation.productUnavailable': 'هذا المنتج غير متوفر.',
   'validation.productMissing': 'المنتج غير موجود.',
   'validation.fixErrors': 'صحّح الحقول المشار إليها.',
 
-  'seo.homeTitle': 'قطع السيارات والدراجات في الجزائر — الطلب عبر واتساب',
+  'seo.homeTitle': 'قطع السيارات والدراجات في الجزائر — الطلب عبر الإنترنت',
   'seo.homeDescription':
-    'قطع وإكسسوارات للسيارات والدراجات النارية. الأسعار والصور والتوصيل إلى 58 ولاية. اطلب عبر واتساب دون حساب.',
+    'قطع وإكسسوارات للسيارات والدراجات النارية. الأسعار والصور والتوصيل إلى 58 ولاية. اطلب عبر الإنترنت دون حساب.',
   'seo.shopTitle': 'المتجر — قطع السيارات والدراجات',
   'seo.shopDescription':
-    'كل المنتجات: قطع سيارات، قطع دراجات وإكسسوارات عامة. التوصيل داخل الجزائر والطلب عبر واتساب.',
+    'كل المنتجات: قطع سيارات، قطع دراجات وإكسسوارات عامة. التوصيل داخل الجزائر والطلب عبر الإنترنت.',
   'seo.deliveryTitle': 'التوصيل والأسعار — 58 ولاية',
   'seo.deliveryDescription': 'أسعار التوصيل إلى المنزل وإلى المكتب في 58 ولاية جزائرية.',
   'seo.contactTitle': 'اتصل بنا — بي إم جي وهران',
-  'seo.contactDescription': 'تواصل مع المتجر للتحقق من قطعة أو تحضير طلبك عبر واتساب.',
+  'seo.contactDescription': 'تواصل مع المتجر للتحقق من قطعة أو تحضير طلبك.',
   'seo.productTitle': '{name} — {price}',
   'seo.notFoundTitle': 'الصفحة غير موجودة',
 

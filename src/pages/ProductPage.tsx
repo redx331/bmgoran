@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { buildWhatsAppUrl, getWhatsAppStatus, runtimeProductUrl } from '../config/business';
 import { getCategoryName } from '../data/categories';
 import {
   getProductBySlug,
@@ -68,12 +67,6 @@ export function ProductPage({ slug }: { slug: string }) {
   const quantityIsValid = normalizeQuantity(quantity) !== null;
   const safeQuantity = normalizeQuantity(quantity) ?? 1;
   const related = relatedProducts(product);
-  const whatsapp = getWhatsAppStatus();
-  const helpMessage =
-    locale === 'ar'
-      ? `مرحبًا، لدي سؤال حول ${name} (${runtimeProductUrl(product.slug)}).`
-      : `Bonjour, j’ai une question sur ${name} (${runtimeProductUrl(product.slug)}).`;
-  const helpUrl = whatsapp.configured ? buildWhatsAppUrl(whatsapp.number, helpMessage) : null;
 
   const goToCheckout = () => {
     if (!available || !quantityIsValid) return;
@@ -146,13 +139,13 @@ export function ProductPage({ slug }: { slug: string }) {
                     onClick={goToCheckout}
                     disabled={!quantityIsValid}
                   >
-                    <Icon name="whatsapp" size={20} />
+                    <Icon name="package" size={20} />
                     {t('product.orderCta')}
                     <Icon name="arrow-right" size={18} className="directional-icon" />
                   </button>
                   <p className="order-note">
-                    <Icon name="whatsapp" size={15} />
-                    {t('checkout.whatsappHint')}
+                    <Icon name="phone" size={15} />
+                    {t('checkout.orderHint')}
                   </p>
                 </>
               ) : (
@@ -175,16 +168,9 @@ export function ProductPage({ slug }: { slug: string }) {
                 <h2>{t('product.needHelp')}</h2>
                 <p>{t('product.needHelpText')}</p>
               </div>
-              {helpUrl ? (
-                <a className="btn btn--ghost btn--sm" href={helpUrl} target="_blank" rel="noopener noreferrer">
-                  <Icon name="whatsapp" size={17} />
-                  {t('product.helpCta')}
-                </a>
-              ) : (
-                <Link to="/contact" className="btn btn--ghost btn--sm">
+              <Link to="/contact" className="btn btn--ghost btn--sm">
                   {t('product.helpCta')}
                 </Link>
-              )}
             </div>
           </div>
         </div>

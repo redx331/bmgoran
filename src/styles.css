@@ -296,17 +296,6 @@ ol {
   background: var(--bg-soft);
 }
 
-.btn--whatsapp {
-  background: var(--wa);
-  border-color: var(--wa);
-  color: #fff;
-}
-
-.btn--whatsapp:hover {
-  background: var(--wa-hover);
-  border-color: var(--wa-hover);
-}
-
 .btn--block {
   width: 100%;
 }
@@ -3026,25 +3015,6 @@ ol {
   line-height: 1.5;
 }
 
-.contact-panel__email {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 12px;
-  color: var(--text-muted);
-  font-size: 0.8125rem;
-  overflow-wrap: anywhere;
-}
-
-.contact-panel__email svg {
-  flex: 0 0 auto;
-  color: var(--accent-hover);
-}
-
-.contact-panel__email a:hover {
-  color: var(--accent-hover);
-}
-
 .privacy-panel h2 {
   font-size: 0.875rem;
   font-weight: 700;
@@ -3137,16 +3107,6 @@ ol {
 .footer-contact p svg {
   flex: 0 0 auto;
   margin-top: 1px;
-}
-
-.footer-whatsapp {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-  color: #6fe3a0;
-  font-size: 0.75rem;
-  font-weight: 650;
 }
 
 .footer-bottom {

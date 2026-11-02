@@ -13,18 +13,8 @@ function summaryValue(label: string): string {
   return row.lastElementChild?.textContent ?? '';
 }
 
-describe('checkout with the shipped placeholder configuration', () => {
-  it('explains that WhatsApp is not configured and disables ordering', () => {
-    renderApp({ path: '/checkout/led-headlights', locale: 'fr' });
-
-    expect(screen.getByText('Commande WhatsApp indisponible')).toBeInTheDocument();
-    expect(
-      screen.getByText(/Le numéro WhatsApp du magasin n’est pas encore configuré/),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Commande indisponible/ })).toBeDisabled();
-  });
-
-  it('shows privacy information and states that sending happens inside WhatsApp', () => {
+describe('checkout page', () => {
+  it('shows privacy information and how the order is confirmed', () => {
     renderApp({ path: '/checkout/led-headlights', locale: 'fr' });
 
     expect(screen.getByRole('heading', { name: 'Confidentialité' })).toBeInTheDocument();
@@ -32,7 +22,7 @@ describe('checkout with the shipped placeholder configuration', () => {
       screen.getByText(/Ce site ne possède ni compte client ni base de données/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Vous devrez appuyer sur « Envoyer » dans WhatsApp/),
+      screen.getByText(/Le magasin vous appellera au numéro indiqué/),
     ).toBeInTheDocument();
   });
 
@@ -75,6 +65,7 @@ describe('checkout with the shipped placeholder configuration', () => {
     expect(
       screen.getByText(/Les frais de livraison affichés sont des tarifs d’exemple/),
     ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Commande indisponible' })).toBeDisabled();
   });
 
   it('refuses checkout for an out-of-stock product', () => {
@@ -113,7 +104,7 @@ describe('checkout with the shipped placeholder configuration', () => {
 
     expect(document.documentElement.dir).toBe('rtl');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('إتمام الطلب');
-    expect(screen.getByRole('button', { name: /الطلب غير متاح/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'أكّد الطلب' })).toBeEnabled();
     expect(screen.getByText('ملخص الطلب')).toBeInTheDocument();
     expect(screen.getByText(/السعر|المجموع الكلي/)).toBeInTheDocument();
   });

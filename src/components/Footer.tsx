@@ -1,4 +1,4 @@
-import { buildWhatsAppUrl, getWhatsAppStatus, SITE } from '../config/business';
+import { SITE } from '../config/business';
 import { CATEGORIES, getCategoryName } from '../data/categories';
 import { useI18n } from '../i18n/I18nProvider';
 import { Link } from '../lib/router';
@@ -7,13 +7,9 @@ import { Icon } from './Icon';
 
 export function Footer() {
   const { t, locale } = useI18n();
-  const whatsapp = getWhatsAppStatus();
   const businessName = locale === 'ar' ? SITE.businessNameAr : SITE.businessName;
   const address = locale === 'ar' ? SITE.addressAr : SITE.addressFr;
   const hours = locale === 'ar' ? SITE.openingHoursAr : SITE.openingHoursFr;
-  const whatsappUrl = whatsapp.configured
-    ? buildWhatsAppUrl(whatsapp.number, locale === 'ar' ? 'مرحبًا، لدي سؤال.' : 'Bonjour, j’ai une question.')
-    : null;
 
   return (
     <footer className="site-footer">
@@ -52,7 +48,7 @@ export function Footer() {
           <Link to="/delivery">{t('footer.deliveryRates')}</Link>
           <Link to="/contact">{t('nav.contact')}</Link>
           <Link to="/contact">{t('footer.privacy')}</Link>
-          <Link to="/shop">{t('footer.whatsappOrder')}</Link>
+          <Link to="/shop">{t('footer.order')}</Link>
         </div>
 
         <div className="footer-column footer-contact">
@@ -65,24 +61,16 @@ export function Footer() {
               {locale === 'ar' ? SITE.cityAr : SITE.cityFr}
             </span>
           </p>
-          <p>
-            <Icon name="phone" size={16} />
-            <span dir="ltr">{SITE.phoneDisplay}</span>
-          </p>
-          <p>
-            <Icon name="mail" size={16} />
-            <span dir="ltr">{SITE.email}</span>
-          </p>
+          {SITE.phoneHref && (
+            <p>
+              <Icon name="phone" size={16} />
+              <span dir="ltr">{SITE.phoneDisplay}</span>
+            </p>
+          )}
           <p>
             <Icon name="clock" size={16} />
             <span>{hours}</span>
           </p>
-          {whatsappUrl && (
-            <a className="footer-whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <Icon name="whatsapp" size={16} />
-              {t('footer.whatsappOrder')}
-            </a>
-          )}
         </div>
       </div>
 

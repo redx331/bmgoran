@@ -40,7 +40,7 @@ Both prices are **integers in dinars**. Shipping is charged **once per order**, 
 | --- | --- | --- |
 | `700` | Real rate | Shipping = 700 DA, order allowed |
 | `0` | Genuine free delivery for that wilaya and method | Shipping = 0 DA, order allowed |
-| `null` | Not configured / wilaya not served | **Order blocked** with an explanation; WhatsApp button disabled |
+| `null` | Not configured / wilaya not served | **Order blocked** with an explanation; order button disabled |
 
 The application never substitutes a fallback rate and never treats a missing rate as free
 delivery. This is enforced in `getShippingQuote()` and covered by tests.
@@ -48,7 +48,7 @@ delivery. This is enforced in `getShippingQuote()` and covered by tests.
 ### The example flag
 
 `SHIPPING_RATES_ARE_EXAMPLES = true` makes the interface label the shipping amount as an
-example (`exemple`) everywhere it appears, including the WhatsApp message. Set it to `false`
+example (`exemple`) everywhere it appears, including the order email. Set it to `false`
 **only** after every price in the file has been replaced with a real rate you are willing to
 charge.
 
@@ -61,7 +61,7 @@ charge.
 3. If the price is `null`, not finite, or negative → failure `rate-not-configured`.
    If the code is unknown → failure `unknown-wilaya`.
 4. On success the checkout shows `Sous-total`, `Livraison` and `Total`, and the same three
-   numbers are written into the WhatsApp message.
+   numbers are written into the order email.
 5. Changing wilaya, method or quantity recalculates immediately; the total is never cached.
 
 The delivery page lists every wilaya with both prices, so customers can check before ordering.
@@ -109,7 +109,7 @@ Cloudflare Pages). There is no admin panel by design.
 - Delivery method labels live in `src/i18n/translations.ts`
   (`checkout.homeDelivery`, `checkout.deskDelivery`, plus their helper texts).
 - Error messages for missing rates and unknown wilayas (`validation.rateMissing`,
-  `validation.wilayaInvalid`, `validation.whatsappMissing`) are also there, in both languages.
+  `validation.wilayaInvalid`) are also there, in both languages.
 
 Do not rename wilayas to match a courier's internal labels: customers know the official names.
 

@@ -1,9 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildWhatsAppUrl,
-  getWhatsAppStatus,
-  normalizeWhatsAppNumber,
-} from '../config/business';
 import { getProductBySlug } from '../data/products';
 import {
   MAX_QUANTITY,
@@ -11,7 +6,6 @@ import {
   calculateTotals,
   hasFieldError,
   isValidAlgerianPhone,
-  nextOrderReference,
   normalizePhone,
   normalizeQuantity,
   validateOrderFields,
@@ -35,7 +29,7 @@ const shipping: ShippingResult = {
       homeDeliveryPrice: 700,
       deskDeliveryPrice: 450,
     },
-    isExample: true,
+    isExample: false,
   },
 };
 
@@ -76,7 +70,7 @@ describe('Algerian phone validation', () => {
     expect(isValidAlgerianPhone(phone)).toBe(false);
   });
 
-  it('normalizes spaces, dashes and dots for the WhatsApp message', () => {
+  it('normalizes spaces, dashes and dots for the order message', () => {
     expect(normalizePhone(' 0550-12.34 (56) ')).toBe('0550123456');
   });
 });
@@ -122,9 +116,29 @@ describe('checkout validation', () => {
       validateOrderFields(validValues, {
         product,
         shipping,
-        whatsappConfigured: true,
       }),
     ).toEqual([]);
+  });
+
+  it('refuses an order while the delivery rate is an example', () => {
+    const exampleShipping: ShippingResult = {
+      ok: true,
+      quote: {
+        amount: 700,
+        method: 'home',
+        wilaya: {
+          code: '16',
+          nameFr: 'Alger',
+          nameAr: 'الجزائر',
+          homeDeliveryPrice: 700,
+          deskDeliveryPrice: 450,
+        },
+        isExample: true,
+      },
+    };
+    expect(
+      validateOrderFields(validValues, { product, shipping: exampleShipping }),
+    ).toContainEqual({ field: 'form', key: 'validation.rateNotVerified' });
   });
 
   it('requires every customer field and the consent checkbox', () => {
@@ -138,7 +152,7 @@ describe('checkout validation', () => {
         quantity: 0,
         consent: false,
       },
-      { product, shipping: null, whatsappConfigured: true },
+      { product, shipping: null },
     );
 
     for (const field of [
@@ -157,7 +171,7 @@ describe('checkout validation', () => {
   it('rejects a malformed phone number', () => {
     const errors = validateOrderFields(
       { ...validValues, phone: '0123' },
-      { product, shipping, whatsappConfigured: true },
+      { product, shipping },
     );
     expect(errors).toContainEqual({ field: 'phone', key: 'validation.phoneInvalid' });
   });
@@ -165,7 +179,7 @@ describe('checkout validation', () => {
   it('blocks a quantity above the maximum with the limit in the message', () => {
     const errors = validateOrderFields(
       { ...validValues, quantity: MAX_QUANTITY + 1 },
-      { product, shipping, whatsappConfigured: true },
+      { product, shipping },
     );
     expect(errors).toContainEqual({
       field: 'quantity',
@@ -178,7 +192,6 @@ describe('checkout validation', () => {
     const errors = validateOrderFields(validValues, {
       product,
       shipping: { ok: false, reason: 'rate-not-configured' },
-      whatsappConfigured: true,
     });
     expect(errors).toContainEqual({ field: 'form', key: 'validation.rateMissing' });
   });
@@ -187,18 +200,8 @@ describe('checkout validation', () => {
     const errors = validateOrderFields(validValues, {
       product,
       shipping: { ok: false, reason: 'unknown-wilaya' },
-      whatsappConfigured: true,
     });
     expect(errors).toContainEqual({ field: 'form', key: 'validation.wilayaInvalid' });
-  });
-
-  it('blocks checkout while WhatsApp is not configured', () => {
-    const errors = validateOrderFields(validValues, {
-      product,
-      shipping,
-      whatsappConfigured: false,
-    });
-    expect(errors).toContainEqual({ field: 'form', key: 'validation.whatsappMissing' });
   });
 
   it('blocks an unavailable product', () => {
@@ -207,7 +210,6 @@ describe('checkout validation', () => {
     const errors = validateOrderFields(validValues, {
       product: unavailable,
       shipping,
-      whatsappConfigured: true,
     });
     expect(errors).toContainEqual({ field: 'form', key: 'validation.productUnavailable' });
   });
@@ -216,71 +218,15 @@ describe('checkout validation', () => {
     const errors = validateOrderFields(validValues, {
       product: undefined,
       shipping,
-      whatsappConfigured: true,
     });
     expect(errors).toEqual([{ field: 'form', key: 'validation.productMissing' }]);
   });
 });
 
-describe('WhatsApp configuration', () => {
-  it('treats an empty number as not configured instead of inventing one', () => {
-    expect(getWhatsAppStatus('')).toEqual({ configured: false, number: '', reason: 'missing' });
-    expect(getWhatsAppStatus('   ')).toEqual({ configured: false, number: '', reason: 'missing' });
-  });
-
-  it('rejects an invalid number', () => {
-    expect(getWhatsAppStatus('abc')).toEqual({
-      configured: false,
-      number: '',
-      reason: 'invalid',
-    });
-  });
-
-  it('normalizes accepted number formats to digits only', () => {
-    expect(normalizeWhatsAppNumber('+213 550 12 34 56')).toBe('213550123456');
-    expect(normalizeWhatsAppNumber('00213550123456')).toBe('213550123456');
-    expect(normalizeWhatsAppNumber('213-550-123-456')).toBe('213550123456');
-    expect(getWhatsAppStatus('+213 550 12 34 56')).toEqual({
-      configured: true,
-      number: '213550123456',
-    });
-  });
-
-  it('returns no URL when the number is unusable', () => {
-    expect(buildWhatsAppUrl('', 'hello')).toBeNull();
-    expect(buildWhatsAppUrl('abc', 'hello')).toBeNull();
-  });
-});
-
-describe('order reference', () => {
-  it('is readable, session-scoped and increments inside one session', () => {
-    const values = new Map<string, string>();
-    const storage = {
-      getItem: (key: string) => values.get(key) ?? null,
-      setItem: (key: string, value: string) => {
-        values.set(key, value);
-      },
-    };
-    const now = new Date('2026-10-30T12:00:00Z');
-
-    const first = nextOrderReference(now, storage);
-    const second = nextOrderReference(now, storage);
-
-    expect(first).toMatch(/^ORD-2026-\d{4}-[A-Z0-9]{3}$/);
-    expect(second).toMatch(/^ORD-2026-0002-[A-Z0-9]{3}$/);
-    expect(first.slice(0, 13)).toBe('ORD-2026-0001');
-  });
-
-  it('falls back to an in-memory sequence when storage is unavailable', () => {
-    const reference = nextOrderReference(new Date('2026-01-01T00:00:00Z'), null);
-    expect(reference).toMatch(/^ORD-2026-\d{4}-[A-Z0-9]{3}$/);
-  });
-});
-
-describe('WhatsApp order message', () => {
+describe('order message', () => {
   const totals = calculateTotals(product.price, 2, 700);
 
-  it('includes every order detail in French and is fully URL-encoded', () => {
+  it('includes every order detail in French', () => {
     const message = buildOrderMessage({
       reference: 'ORD-2026-0001-ABC',
       product,
@@ -315,18 +261,6 @@ describe('WhatsApp order message', () => {
     ]) {
       expect(message).toContain(expected);
     }
-
-    const url = buildWhatsAppUrl('213550123456', message);
-    expect(url).not.toBeNull();
-    expect(url).toMatch(/^https:\/\/wa\.me\/213550123456\?text=/);
-
-    const parsed = new URL(url as string);
-    expect(parsed.protocol).toBe('https:');
-    expect(parsed.hostname).toBe('wa.me');
-    expect(parsed.pathname).toBe('/213550123456');
-    // Round-trip proves &, ?, #, newlines and Arabic cannot break the link.
-    expect(parsed.searchParams.get('text')).toBe(message);
-    expect(parsed.search).not.toContain(' ');
   });
 
   it('is localized in Arabic with Arabic product name and method', () => {
@@ -351,12 +285,9 @@ describe('WhatsApp order message', () => {
     expect(message).toContain('الاستلام من مكتب التوصيل');
     expect(message).toContain('الجزائر (16)');
     expect(message).not.toContain('tarif exemple');
-
-    const url = buildWhatsAppUrl('213550123456', message);
-    expect(new URL(url as string).searchParams.get('text')).toBe(message);
   });
 
-  it('includes the commune in the WhatsApp message when provided', () => {
+  it('includes the commune in the message when provided', () => {
     const message = buildOrderMessage({
       reference: 'ORD-2026-0003-COMM',
       product,
@@ -375,11 +306,5 @@ describe('WhatsApp order message', () => {
     });
 
     expect(message).toContain('Oran (31) · Gdyel');
-  });
-
-  it('keeps an ampersand, question mark, hash and emoji intact through encoding', () => {
-    const message = 'Produit & accessoire ? #1 🔧\nLigne 2';
-    const url = buildWhatsAppUrl('213550123456', message);
-    expect(new URL(url as string).searchParams.get('text')).toBe(message);
   });
 });

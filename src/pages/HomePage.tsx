@@ -1,6 +1,5 @@
 import { getCategoryName, CATEGORIES } from '../data/categories';
 import { PRODUCTS, getProductName, type Product } from '../data/products';
-import { buildWhatsAppUrl, getWhatsAppStatus } from '../config/business';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatPrice } from '../lib/format';
 import { Link } from '../lib/router';
@@ -21,7 +20,6 @@ function countInCategory(category: string): number {
 
 export function HomePage() {
   const { t, locale } = useI18n();
-  const whatsapp = getWhatsAppStatus();
   const featured = PRODUCTS.filter((product) => product.featured).slice(0, 4);
   const heroProduct: Product | undefined = featured[0] ?? PRODUCTS[0];
 
@@ -31,15 +29,6 @@ export function HomePage() {
     path: '/',
     locale,
   });
-
-  const whatsappUrl = whatsapp.configured
-    ? buildWhatsAppUrl(
-        whatsapp.number,
-        locale === 'ar'
-          ? 'مرحبًا، لدي سؤال حول قطعة غيار.'
-          : 'Bonjour, j’ai une question sur une pièce.',
-      )
-    : null;
 
   return (
     <>
@@ -160,7 +149,7 @@ export function HomePage() {
             {[
               { title: t('home.step1Title'), text: t('home.step1Text'), icon: 'search' as IconName },
               { title: t('home.step2Title'), text: t('home.step2Text'), icon: 'package' as IconName },
-              { title: t('home.step3Title'), text: t('home.step3Text'), icon: 'whatsapp' as IconName },
+              { title: t('home.step3Title'), text: t('home.step3Text'), icon: 'check' as IconName },
             ].map((step, index) => (
               <li className="step" key={step.title}>
                 <span className="step__number">{String(index + 1).padStart(2, '0')}</span>
@@ -193,7 +182,7 @@ export function HomePage() {
               </div>
             </div>
             <div className="trust-item">
-              <Icon name="whatsapp" size={22} />
+              <Icon name="phone" size={22} />
               <div>
                 <h3>{t('home.trust3Title')}</h3>
                 <p>{t('home.trust3Text')}</p>
@@ -219,18 +208,10 @@ export function HomePage() {
               <h2>{t('home.contactTitle')}</h2>
               <p>{t('home.contactText')}</p>
             </div>
-            {whatsappUrl ? (
-              <a className="btn btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                <Icon name="whatsapp" size={19} />
-                {t('home.contactCta')}
-                <span className="visually-hidden">({t('a11y.external')})</span>
-              </a>
-            ) : (
-              <Link to="/contact" className="btn btn--primary">
+            <Link to="/contact" className="btn btn--primary">
                 <Icon name="phone" size={18} />
                 {t('home.contactCta')}
               </Link>
-            )}
           </div>
         </div>
       </section>

@@ -1,10 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import {
-  buildWhatsAppUrl,
-  getWhatsAppStatus,
-  runtimeProductUrl,
-  SITE,
-} from '../config/business';
+import { useMemo, useState, type FormEvent } from 'react';
 import { WILAYAS } from '../config/shipping';
 import { getCategoryName } from '../data/categories';
 import { getCommunesForWilaya, formatCommuneName } from '../data/communes';
@@ -16,20 +10,17 @@ import {
 import { useI18n } from '../i18n/I18nProvider';
 import { formatPrice } from '../lib/format';
 import {
-  buildOrderMessage,
   calculateTotals,
   getFieldError,
-  nextOrderReference,
   normalizeQuantity,
+  submitOrder,
   validateOrderFields,
-  type OrderTotals,
   type OrderFormValues,
   type ValidationError,
   type ValidationField,
 } from '../lib/order';
 import {
   getShippingQuote,
-  wilayaName,
   type DeliveryMethod,
   type ShippingResult,
 } from '../lib/shipping';
@@ -65,7 +56,6 @@ export function CheckoutPage({ slug }: { slug: string }) {
   const query = useQuery();
   const { navigate } = useRouter();
   const product: Product | undefined = getProductBySlug(slug);
-  const whatsapp = getWhatsAppStatus();
 
   const initialQuantity = normalizeQuantity(query.get('qty') ?? '') ?? 1;
   const [quantity, setQuantity] = useState(initialQuantity);
@@ -78,13 +68,10 @@ export function CheckoutPage({ slug }: { slug: string }) {
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod | ''>('');
   const [consent, setConsent] = useState(false);
   const [attempted, setAttempted] = useState(false);
-  const [submitted, setSubmitted] = useState<{
-    url: string;
-    message: string;
-    reference: string;
-    totals: OrderTotals;
-  } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [website, setWebsite] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sendFailed, setSendFailed] = useState(false);
+  const [reference, setReference] = useState<string | null>(null);
 
   const name = product ? getProductName(product, locale) : '';
   const available = product ? product.stockStatus !== 'out_of_stock' : false;
@@ -115,17 +102,8 @@ export function CheckoutPage({ slug }: { slug: string }) {
     consent,
   };
   const errors = attempted
-    ? validateOrderFields(values, {
-        product,
-        shipping,
-        whatsappConfigured: whatsapp.configured,
-      })
+    ? validateOrderFields(values, { product, shipping })
     : [];
-
-  useEffect(() => {
-    setSubmitted(null);
-    setCopied(false);
-  }, [firstName, lastName, phone, wilayaCode, commune, customCommune, deliveryMethod, quantity, consent]);
 
   usePageMeta({
     title: product ? `${t('checkout.title')} — ${name}` : t('checkout.title'),
@@ -155,19 +133,19 @@ export function CheckoutPage({ slug }: { slug: string }) {
   };
 
   const rateBlocked = shipping !== null && !shipping.ok;
-  const submitDisabled = !whatsapp.configured || rateBlocked || submitted !== null;
+  const exampleRate = shipping !== null && shipping.ok && shipping.quote.isExample;
+  const submitDisabled = rateBlocked || exampleRate || sending;
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setAttempted(true);
-    setCopied(false);
+    setSendFailed(false);
 
     const currentShipping =
       wilayaCode && deliveryMethod ? getShippingQuote(wilayaCode, deliveryMethod) : null;
     const currentErrors = validateOrderFields(values, {
       product,
       shipping: currentShipping,
-      whatsappConfigured: whatsapp.configured,
     });
 
     if (currentErrors.length > 0) {
@@ -179,54 +157,27 @@ export function CheckoutPage({ slug }: { slug: string }) {
 
     if (!product || !available || !currentShipping?.ok || validQuantity === null) return;
 
-    const confirmedTotals = calculateTotals(
-      product.price,
-      validQuantity,
-      currentShipping.quote.amount,
-    );
-    const reference = nextOrderReference();
-    const message = buildOrderMessage({
-      reference,
-      product,
-      quantity: validQuantity,
-      totals: confirmedTotals,
-      firstName,
-      lastName,
-      phone,
-      wilayaName: wilayaName(currentShipping.quote.wilaya, locale),
-      wilayaCode: currentShipping.quote.wilaya.code,
-      commune: resolvedCommune,
-      deliveryMethod: currentShipping.quote.method,
-      isExampleRate: currentShipping.quote.isExample,
-      locale,
-      link: runtimeProductUrl(product.slug),
-    });
-    const url = buildWhatsAppUrl(whatsapp.number, message);
-    if (!url) return;
-
-    setSubmitted({ url, message, reference, totals: confirmedTotals });
-
+    setSending(true);
     try {
-      const opened = window.open(url, '_blank', 'noopener,noreferrer');
-      if (!opened) {
-        // Pop-up blocked: the success panel below always contains a direct link.
-      }
+      setReference(
+        await submitOrder({
+          productSlug: product.slug,
+          quantity: validQuantity,
+          firstName,
+          lastName,
+          phone,
+          wilayaCode,
+          commune: resolvedCommune,
+          deliveryMethod: currentShipping.quote.method,
+          consent,
+          website,
+        }),
+      );
+      window.scrollTo({ top: 0 });
     } catch {
-      // The visible "open again" link remains available.
-    }
-
-    window.setTimeout(() => {
-      document.getElementById('order-ready')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  };
-
-  const copyMessage = async () => {
-    if (!submitted) return;
-    try {
-      await navigator.clipboard.writeText(submitted.message);
-      setCopied(true);
-    } catch {
-      setCopied(false);
+      setSendFailed(true);
+    } finally {
+      setSending(false);
     }
   };
 
@@ -286,6 +237,34 @@ export function CheckoutPage({ slug }: { slug: string }) {
     );
   }
 
+  if (reference) {
+    return (
+      <section className="section section--checkout">
+        <div className="container container--narrow">
+          <div className="order-success" id="order-ready" role="status" aria-live="polite">
+            <div className="order-success__icon">
+              <Icon name="check" size={24} />
+            </div>
+            <div className="order-success__body">
+              <h1>{t('checkout.successTitle')}</h1>
+              <p>{t('checkout.successText')}</p>
+              <p className="order-success__ref">
+                <span>{t('checkout.reference')}</span>
+                <code>{reference}</code>
+              </p>
+              <p className="order-success__hint">{t('checkout.referenceHint')}</p>
+              <div className="order-success__actions">
+                <Link to="/shop" className="btn btn--primary btn--sm">
+                  {t('product.backToShop')}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const formErrorKeys = [...new Set(errors.filter((error) => error.field === 'form').map((error) => error.key))];
 
   return (
@@ -301,53 +280,20 @@ export function CheckoutPage({ slug }: { slug: string }) {
           <p className="required-note">{t('checkout.requiredNote')}</p>
         </div>
 
-        {!whatsapp.configured && (
-          <div className="notice notice--error" role="alert">
-            <Icon name="alert" size={20} />
-            <div>
-              <strong>{t('checkout.whatsappMissingTitle')}</strong>
-              <p>{t('checkout.whatsappMissingText')}</p>
-              <p className="notice__contact">
-                <Icon name="phone" size={15} />
-                <span dir="ltr">{SITE.phoneDisplay}</span>
-              </p>
-            </div>
-          </div>
-        )}
-
-        {submitted && (
-          <div className="order-success" id="order-ready" role="status" aria-live="polite">
-            <div className="order-success__icon">
-              <Icon name="check" size={24} />
-            </div>
-            <div className="order-success__body">
-              <h2>{t('checkout.successTitle')}</h2>
-              <p>{t('checkout.successText')}</p>
-              <p className="order-success__ref">
-                <span>{t('checkout.reference')}</span>
-                <code>{submitted.reference}</code>
-              </p>
-              <p className="order-success__hint">{t('checkout.referenceHint')}</p>
-              <div className="order-success__actions">
-                <a
-                  className="btn btn--whatsapp btn--sm"
-                  href={submitted.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Icon name="whatsapp" size={17} />
-                  {t('checkout.openAgain')}
-                </a>
-                <button type="button" className="btn btn--ghost btn--sm" onClick={copyMessage}>
-                  <Icon name="copy" size={16} />
-                  {copied ? t('checkout.copied') : t('checkout.copyMessage')}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         <form className="checkout-layout" onSubmit={handleSubmit} noValidate>
+          <div className="visually-hidden" aria-hidden="true">
+            <label htmlFor="checkout-website">Website</label>
+            <input
+              id="checkout-website"
+              name="website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={website}
+              onChange={(event) => setWebsite(event.target.value)}
+            />
+          </div>
+
           <div className="checkout-form">
             {attempted && errors.length > 0 && (
               <div className="notice notice--error" role="alert">
@@ -660,30 +606,29 @@ export function CheckoutPage({ slug }: { slug: string }) {
             </label>
             <FieldError error={consentError} id="checkout-consent-error" />
 
-            {submitted ? (
-              <a
-                className="btn btn--whatsapp btn--block btn--lg"
-                href={submitted.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Icon name="whatsapp" size={20} />
-                {t('checkout.openAgain')}
-              </a>
-            ) : (
-              <button
-                type="submit"
-                className="btn btn--primary btn--block btn--lg"
-                disabled={submitDisabled}
-              >
-                <Icon name="whatsapp" size={20} />
-                {submitDisabled ? t('checkout.buyButtonDisabled') : t('checkout.buyButton')}
-              </button>
+            {sendFailed && (
+              <div className="notice notice--error" role="alert">
+                <Icon name="alert" size={19} />
+                <p>{t('checkout.sendError')}</p>
+              </div>
             )}
 
+            <button
+              type="submit"
+              className="btn btn--primary btn--block btn--lg"
+              disabled={submitDisabled}
+            >
+              <Icon name="check" size={20} />
+              {sending
+                ? t('checkout.sending')
+                : submitDisabled
+                  ? t('checkout.buyButtonDisabled')
+                  : t('checkout.buyButton')}
+            </button>
+
             <p className="summary-note">
-              <Icon name="whatsapp" size={15} />
-              {t('checkout.whatsappHint')}
+              <Icon name="phone" size={15} />
+              {t('checkout.orderHint')}
             </p>
 
             <div className="privacy-note">

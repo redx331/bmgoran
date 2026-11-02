@@ -92,7 +92,6 @@ export function validateOrderFields(
   context: {
     product?: Product;
     shipping: ShippingResult | null;
-    whatsappConfigured: boolean;
   },
 ): ValidationError[] {
   const errors: ValidationError[] = [];
@@ -144,15 +143,13 @@ export function validateOrderFields(
             ? 'validation.wilayaInvalid'
             : 'validation.rateMissing',
       });
+    } else if (context.shipping.quote.isExample) {
+      errors.push({ field: 'form', key: 'validation.rateNotVerified' });
     }
   }
 
   if (!values.consent) {
     errors.push({ field: 'consent', key: 'validation.consentRequired' });
-  }
-
-  if (!context.whatsappConfigured) {
-    errors.push({ field: 'form', key: 'validation.whatsappMissing' });
   }
 
   return errors;
@@ -170,58 +167,7 @@ export function getFieldError(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Order reference                                                            */
-/* -------------------------------------------------------------------------- */
-
-const ORDER_SEQUENCE_KEY = 'autoparts.order_sequence';
-let memorySequence = 0;
-
-/**
- * Human-readable, session-scoped reference: ORD-2026-0001-K7Q.
- * The sequence is kept in sessionStorage to avoid accidental duplicates during
- * one browser session, and a short random suffix reduces collisions between
- * customers. This is NOT a globally unique identifier and NOT proof of a
- * confirmed order.
- */
-export function nextOrderReference(
-  now: Date = new Date(),
-  storage: Pick<Storage, 'getItem' | 'setItem'> | null = getSessionStorage(),
-): string {
-  let sequence = 0;
-  if (storage) {
-    const stored = Number(storage.getItem(ORDER_SEQUENCE_KEY) ?? '0');
-    sequence = Number.isInteger(stored) && stored > 0 ? stored : 0;
-    sequence += 1;
-    try {
-      storage.setItem(ORDER_SEQUENCE_KEY, String(sequence));
-    } catch {
-      // Keep the in-memory sequence below as fallback.
-    }
-  } else {
-    memorySequence += 1;
-    sequence = memorySequence;
-  }
-
-  const suffix = Math.random().toString(36).slice(2, 5).toUpperCase().padEnd(3, '0');
-  return `ORD-${now.getFullYear()}-${String(sequence).padStart(4, '0')}-${suffix}`;
-}
-
-function getSessionStorage(): Storage | null {
-  try {
-    if (typeof window === 'undefined' || !window.sessionStorage) return null;
-    return window.sessionStorage;
-  } catch {
-    return null;
-  }
-}
-
-/** Test helper: resets the fallback counter. */
-export function __resetOrderSequenceForTests(): void {
-  memorySequence = 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* WhatsApp message                                                           */
+/* Order message                                                              */
 /* -------------------------------------------------------------------------- */
 
 export interface OrderMessageInput {
@@ -239,6 +185,33 @@ export interface OrderMessageInput {
   isExampleRate: boolean;
   locale: Locale;
   link: string;
+}
+
+export interface OrderRequest {
+  productSlug: string;
+  quantity: number;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  wilayaCode: string;
+  commune: string;
+  deliveryMethod: DeliveryMethod;
+  consent: boolean;
+  /** Honeypot: stays empty for real customers. */
+  website: string;
+}
+
+/** Sends the order to the shop and returns its reference. Throws on any failure. */
+export async function submitOrder(order: OrderRequest): Promise<string> {
+  const response = await fetch('/api/order', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(order),
+  });
+  if (!response.ok) throw new Error(`Order failed with status ${response.status}`);
+  const { reference } = (await response.json()) as { reference?: string };
+  if (!reference) throw new Error('Order response has no reference');
+  return reference;
 }
 
 export function buildOrderMessage(input: OrderMessageInput): string {

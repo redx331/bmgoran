@@ -13,7 +13,7 @@ The automated tests verify behaviour (URLs, totals, validation, encoding, RTL, b
 They cannot verify:
 
 - that your delivery prices match your courier's contract;
-- that your WhatsApp number belongs to the shop and is answered;
+- that the order inbox belongs to the shop and is checked;
 - that product photos, part numbers, specs and compatibility are correct;
 - that your business name, address and opening hours are real;
 - that the shop is legally compliant in your situation.
@@ -31,10 +31,8 @@ Those are business decisions and must be checked by a human.
 | `site.config.json` | `brandMark` | `BMG` | 1–3 letters for the logo mark |
 | `site.config.json` | `demoContact` | `true` | `false` once the contact details are real |
 | `site.config.json` | `siteUrl` | `https://YOUR-PROJECT.pages.dev` | Real deployed URL / custom domain |
-| `site.config.json` | `whatsappNumber` | *(empty)* | International digits, e.g. `213550123456` |
 | `site.config.json` | `phoneDisplay` | `+213 00 00 00 00` | Real phone as displayed |
 | `site.config.json` | `phoneHref` | *(empty)* | `tel:` target if you want click-to-call |
-| `site.config.json` | `email` | `contact@example.com` | Real e-mail |
 | `site.config.json` | `addressFr` / `addressAr` | “Adresse … à remplacer” | Real address in both languages |
 | `site.config.json` | `cityFr` / `cityAr` | Alger / الجزائر | Real city |
 | `site.config.json` | `openingHoursFr` / `openingHoursAr` | Demo hours | Real hours |
@@ -57,28 +55,20 @@ launch, one of those is still set.
 ## 2. Business identity
 
 - [ ] Shop name, phone, e-mail and address are correct in **both** French and Arabic.
-- [ ] Opening hours are accurate (and match what you tell customers on WhatsApp).
+- [ ] Opening hours are accurate (and match what you tell customers).
 - [ ] Social links work, or are left empty (empty links are hidden, not broken).
 - [ ] Address is precise enough for a courier to find you.
 - [ ] `demoContact` is set to `false` in `site.config.json` (removes the “demo contact details” note).
-- [ ] Someone is responsible for answering WhatsApp during opening hours.
+- [ ] Someone is responsible for checking orders and calling customers during opening hours.
 
 ---
 
-## 3. WhatsApp ordering
+## 3. Email ordering
 
-- [ ] `whatsappNumber` is in international format, digits only: `213` + number without the
-      leading `0` (e.g. `0550 12 34 56` → `213550123456`).
-- [ ] The number is a **WhatsApp Business** account (or at least WhatsApp-enabled).
-- [ ] You tested an order from a phone that is **not** the shop phone: the message arrives,
-      the product link opens the right product, and the price/total match the site.
-- [ ] The message contains: reference, product, link, quantity, unit price, subtotal,
-      customer name, phone, wilaya, delivery method, shipping and total.
-- [ ] You know that **orders are not saved by the site** — the WhatsApp thread is the record.
-- [ ] The checkout privacy notice is accurate for how you actually handle customer data.
-- [ ] You have a habit of archiving/labelling WhatsApp orders (e.g. “Commande – à préparer”).
-
-Reminder: the customer must press **Send** in WhatsApp. The site cannot send anything by itself.
+- [ ] `RESEND_API_KEY` and `ORDER_EMAIL_TO` are set in Cloudflare (see `docs/DEPLOYMENT.md`).
+- [ ] A real test order reached the inbox with the right product, price and customer details.
+- [ ] You know that **orders are not saved by the site** — the email is the record.
+- [ ] You have a habit of labelling order emails (e.g. “Commande – à préparer”).
 
 ---
 
@@ -123,7 +113,7 @@ See [`PRODUCTS.md`](PRODUCTS.md).
 ## 6. Legal & privacy
 
 - [ ] The privacy notice on the checkout page matches reality: the site stores only the
-      language and a session order counter; the order lives in WhatsApp.
+      language and a session order counter; the order lives in the shop's inbox.
 - [ ] You are allowed to publish the phone number, address and social links shown.
 - [ ] You have a return/exchange policy, even a short one, and can state it on request.
 - [ ] Prices, delivery fees and availability are presented as offers you can honour.
@@ -170,7 +160,7 @@ See [`DEPLOYMENT.md`](DEPLOYMENT.md).
 - [ ] Change quantity, wilaya and delivery method: subtotal, shipping and total update.
 - [ ] Try an invalid phone and empty fields: errors appear in the active language.
 - [ ] Try a sold-out product: it cannot be ordered.
-- [ ] Complete a real order to WhatsApp and send it.
+- [ ] Complete a real order and check that the email arrives.
 - [ ] Open an unknown URL: the “page not found” screen appears, with a way back to the shop.
 - [ ] Use the browser back button after navigating: it returns to the previous page.
 
@@ -181,7 +171,7 @@ See [`DEPLOYMENT.md`](DEPLOYMENT.md).
 - [ ] Keep `products.json` and `shipping.ts` in Git; every change is a commit and a redeploy.
 - [ ] Update stock and prices the same day they change in the shop.
 - [ ] Review delivery rates whenever the courier changes its grid.
-- [ ] Check the WhatsApp number and hours after any staff change.
+- [ ] Check the order inbox and hours after any staff change.
 - [ ] Re-run `npm run verify` after each content change.
 - [ ] Keep a copy of the previous deployment (Cloudflare keeps deployment history for rollback).
 

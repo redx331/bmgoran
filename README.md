@@ -3,9 +3,9 @@
 A static, mobile-first storefront in **French (LTR)** and **Arabic (RTL)** for a car and
 motorcycle parts shop in Algeria. Customers browse the catalogue, open a permanent product
 URL, choose a wilaya and a delivery method, see the exact total, and send the finished order
-to the shop on **WhatsApp**.
+to the shop by **email**.
 
-No database, no server, no account system, no paid API. The whole site is static files that
+No database and no account system. One small Cloudflare function emails the orders. The whole site is static files that
 can be hosted for free on Cloudflare Pages.
 
 ---
@@ -16,8 +16,8 @@ Everything below is **placeholder content**, not verified business information:
 
 | Item | Current state |
 | --- | --- |
-| Phone, address, e-mail, opening hours | Demo values (`contact@example.com`, `+213 00 00 00 00`, …) |
-| WhatsApp number | **Empty** — checkout is intentionally disabled until you set it |
+| Address, opening hours | Demo values |
+| Order email | **Not set** — orders show an error until `RESEND_API_KEY` and `ORDER_EMAIL_TO` are set in Cloudflare |
 | Products, prices, part numbers, specs | 8 fictional demo products, marked “démo” in the UI |
 | Product photos | Generated SVG placeholders, not real photos |
 | Delivery rates (all 58 wilayas) | **Example numbers**, flagged in the UI and in the code |
@@ -43,9 +43,8 @@ so nothing here can be mistaken for a real quote. Replace the data before launch
   delivery method), inline validation in the active language, live subtotal / shipping / total.
 - **All 58 wilayas**, each with separate home-delivery and desk-delivery prices.
   A missing rate blocks the order instead of silently becoming `0`.
-- **WhatsApp handoff**: a fully encoded, localized message containing reference, product,
-  product link, quantity, unit price, subtotal, customer, wilaya, method, shipping and total.
-  The customer still has to press Send inside WhatsApp.
+- **Email orders**: the customer submits the form on the site, and the server recalculates the
+  price and emails reference, product, quantity, totals and customer details to the shop.
 - **Language switch** (FR / AR) persisted in `localStorage`, with `<html lang>`/`dir` updated,
   RTL layout using CSS logical properties, and no horizontal overflow at 390 px.
 - **Accessibility**: Lighthouse 1.00 on the home, product, checkout and delivery pages
@@ -97,10 +96,10 @@ assertions on the production build in `dist/`:
 
 - product URLs, generated static pages, Open Graph tags, `_redirects`, sitemap and robots
 - search, category filters, quantity / wilaya / delivery-method changes and live totals
-- missing shipping rates and unconfigured WhatsApp blocking checkout with an explanation
+- missing shipping rates blocking checkout with an explanation
 - field validation (names, Algerian/international phone, wilaya, method, consent, quantity)
 - unavailable products not being orderable
-- WhatsApp message content and full URL encoding
+- order function validation, price recalculation and email content
 - French LTR and Arabic RTL rendering, plus persisted language choice
 - demo disclosures (banner, demo prices, example rates)
 
@@ -113,7 +112,7 @@ Run `npm run build` before `npm test` so the static-build assertions inspect the
 
 | File | What it controls |
 | --- | --- |
-| `site.config.json` | Business name (FR/AR), brand initials, deployed URL, WhatsApp number, phone, e-mail, address, opening hours, social links, `demoContact` flag |
+| `site.config.json` | Business name (FR/AR), brand initials, deployed URL, phone, address, opening hours, social links, `demoContact` flag |
 | `src/config/shipping.ts` | The 58 wilayas, both delivery prices, and `SHIPPING_RATES_ARE_EXAMPLES` |
 | `src/data/products.json` | The entire catalogue (texts, prices, specs, images, stock, part numbers) |
 | `src/data/categories.ts` | The 4 category names, descriptions and icons |
@@ -135,18 +134,19 @@ Detailed guides:
 1. Customer picks a product and a quantity, then opens the checkout page.
 2. They enter name, phone, wilaya and delivery method. The page validates each field and
    recalculates shipping and total on every change.
-3. “Commander sur WhatsApp” builds a `https://wa.me/<number>?text=<encoded message>` link.
-4. The customer presses **Send** in WhatsApp. Only then does the shop receive the order.
+3. “Passer la commande” posts the order to `/api/order`.
+4. The function validates it and emails the shop. The customer sees a reference, and the shop calls
+   to confirm.
 
 Important consequences, also stated in the UI:
 
 - **Orders are not stored anywhere.** There is no dashboard, no order history and no
-  confirmation e-mail. WhatsApp is the order channel.
+  confirmation e-mail to the customer. The shop's inbox is the order record.
 - **The order reference** (for example `ORD-2026-0001-K7Q`) is generated per browser session
   to make a conversation easy to find. It is **not** a globally unique order number.
-- **Personal data** stays in the browser and in the WhatsApp message; the site stores only the
+- **Personal data** goes to the shop by email, through Cloudflare and Resend; the site stores only the
   chosen language and the session order counter. The checkout shows a short privacy notice.
-- If the WhatsApp number is missing or invalid, checkout is disabled and explains why.
+- If the email cannot be sent, the customer sees an error and can retry. Success is never faked.
 - If the selected wilaya/method has no rate, checkout is blocked with a clear message.
 
 ---
@@ -156,7 +156,7 @@ Important consequences, also stated in the UI:
 ```
 autoparts-store/
 ├─ index.html                 SPA shell (base meta tags)
-├─ site.config.json           Business / contact / WhatsApp configuration
+├─ site.config.json           Business / contact configuration
 ├─ public/
 │  ├─ images/products/        Product images (SVG placeholders today)
 │  ├─ og/                     Social sharing images (1200×630 PNG)
@@ -170,7 +170,7 @@ autoparts-store/
 │  └─ generate-og.mjs
 ├─ src/
 │  ├─ components/             Header, footer, product card, gallery, quantity stepper, …
-│  ├─ config/                 business.ts (site config + WhatsApp), shipping.ts (58 wilayas)
+│  ├─ config/                 business.ts (site config), shipping.ts (58 wilayas)
 │  ├─ data/                   products.json + typed helpers, categories
 │  ├─ i18n/                   I18nProvider + FR/AR dictionaries
 │  ├─ lib/                    router, seo, order math/validation/message, shipping quote
@@ -202,7 +202,7 @@ A static, French-only CMS with two modes:
 
 ## Deployment (short version)
 
-Cloudflare Pages, free plan, no server:
+Cloudflare Pages, free plan:
 
 | Setting | Value |
 | --- | --- |
@@ -224,7 +224,7 @@ sitemap URLs are correct. Full steps, custom domain notes and troubleshooting:
 - No stock synchronisation. The catalogue is edited with `/admin` (GitHub commit or local ZIP
   export) or directly in `products.json`.
 - No analytics or advertising pixels (nothing loads from third parties).
-- No automatic order storage; WhatsApp is the system of record.
+- No automatic order storage; the shop's inbox is the system of record.
 
 ---
 

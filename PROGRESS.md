@@ -2,7 +2,7 @@
 
 > **Purpose of this file**: This document tracks the complete development progress, architectural decisions, current state, and upcoming tasks for the BMG Oran bilingual auto/moto parts storefront. **Any AI assistant resuming this project should read this document first to get full context without redundant exploration.**
 
-> **Last updated**: 2026-11-01 — Session 3 (local admin persistence + ZIP export).
+> **Last updated**: 2026-11-02 — Session 5 (live at https://bmg-oran.pages.dev; phone published; example rates now block orders).
 
 ---
 
@@ -10,8 +10,8 @@
 
 - **Project**: Bilingual (French LTR / Arabic RTL) static storefront for an Algerian auto & motorcycle parts shop.
 - **Client / Location**: Oran, Algeria (serving all 58 wilayas).
-- **Architecture**: 100% static client-side React 19 + TypeScript + Vite 8 application. Zero backend, zero database, no runtime server, free deployment on Cloudflare Pages.
-- **Order Channel**: WhatsApp handoff (`wa.me` links with structured, localized order details).
+- **Architecture**: Static React 19 + TypeScript + Vite 8 storefront on Cloudflare Pages, plus one Pages Function (`functions/api/order.ts`) that emails orders. No database, no customer accounts.
+- **Order Channel**: Email. The customer submits the form, `POST /api/order` validates it, recalculates the price server-side and emails the shop through Resend. WhatsApp was removed at the owner's request; the shop's email and phone must not appear on the site or in this public repo.
 - **Admin System**: Serverless in-browser CMS (`/admin`) that commits directly to GitHub via GitHub REST API and user's Personal Access Token.
 - **Repository Path**: `d:\softwares\OpenBot\autoparts-store`
 - **User OS**: Windows (PowerShell). Use `;` not `&&` to chain commands.
@@ -52,14 +52,14 @@ npm run og
 
 | Area | Key Files | Description |
 |---|---|---|
-| **Site Config** | `site.config.json` | Business info, contact, WhatsApp, GitHub repo, site URL |
-| **Business Logic** | `src/config/business.ts` | Loaded config, WhatsApp URL builders, formatters |
+| **Site Config** | `site.config.json` | Business info, GitHub repo, site URL |
+| **Business Logic** | `src/config/business.ts` | Loaded config, URL helpers |
 | **Shipping Rules** | `src/config/shipping.ts` | All 58 Algerian wilayas, home/desk delivery rates |
 | **Catalogue** | `src/data/products.json`, `src/data/products.ts` | Product schema, categories, typed query helpers |
 | **Communes** | `src/data/communes.ts` | All communes/cities for every wilaya (FR + AR names) with `getCommunesForWilaya()` and `formatCommuneName()` |
 | **i18n** | `src/i18n/translations.ts`, `src/i18n/I18nProvider.tsx` | Complete FR (LTR) and AR (RTL) dictionaries |
 | **Router & Nav** | `src/lib/router.tsx`, `src/App.tsx` | Lightweight custom hash/history router with deep linking |
-| **Order & WA** | `src/lib/order.ts`, `src/lib/shipping.ts` | Order validation, live totals, WhatsApp message encoding |
+| **Orders** | `src/lib/order.ts`, `src/lib/shipping.ts`, `functions/api/order.ts` | Order validation, live totals, order submission and email |
 | **Admin CMS** | `src/pages/AdminPage.tsx`, `src/lib/admin/` | GitHub-backed static CMS (catalogue, github api, image processing), plus browser-local persistence (`local.ts`) and ZIP export (`zip.ts`) |
 | **Static Build** | `scripts/postbuild.mjs`, `scripts/verify-build.mjs` | Prerenders HTML for each product, `_redirects`, sitemap |
 | **Styles** | `src/styles.css`, `src/admin.css` | Design system, CSS logical properties for RTL, dark automotive aesthetic |
@@ -77,7 +77,7 @@ d6a841e docs: update PROGRESS.md with full session 2 history and deployment guid
 ```
 
 - **Branch**: `main` (only branch)
-- **Remote**: ⚠️ **No remote configured yet.** The repo is local only. User needs to create a GitHub repo and `git remote add origin`.
+- **Remote**: `origin` = https://github.com/redx331/bmgoran (public repo: never commit private contact details or keys).
 - **Git config** (local scope only): `user.name "BMG Oran Dev"`, `user.email "dev@bmg-oran.local"`
 - **Working tree**: Clean at the end of Session 3.
 
@@ -104,17 +104,17 @@ d6a841e docs: update PROGRESS.md with full session 2 history and deployment guid
   - Automatically loads the exact communes/cities for the selected wilaya (e.g. Oran -> Gdyel, Es Senia, Bir El Djir, Arzew...).
   - Full dataset covering all 58 Algerian wilayas in both French and Arabic (`src/data/communes.ts`).
   - Includes an "Autre commune (préciser) / أخرى" fallback input for any unlisted village or locality.
-  - Communes are seamlessly included in the generated WhatsApp message (e.g. `Wilaya: Oran (31) · Gdyel`).
+  - Communes are included in the order email (e.g. `Wilaya: Oran (31) · Gdyel`).
 - [x] Live subtotal, delivery quote, and total calculation.
 - [x] **Safety guard**: Missing delivery rates block checkout explicitly; missing rates are never treated as 0 DZD.
 - [x] Form validation: Name length, Algerian phone number syntax (`05/06/07...` or `+213...`), wilaya selection, delivery method selection.
-- [x] Privacy notice: Explains that data stays on customer's device and is transmitted solely through WhatsApp.
+- [x] Privacy notice: Explains that order details go to the shop through the host and a messaging service.
 
-### 4. WhatsApp Order Pipeline
-- [x] Generates complete localized message with order reference, product details, quantity, prices, customer name, phone, wilaya, commune, delivery method, and exact total.
-- [x] One-click WhatsApp launch (`https://wa.me/<number>?text=...`).
-- [x] Copy text fallback button for desktop or blocked popups.
-- [x] Blocks checkout with warning if WhatsApp number is unconfigured in `site.config.json`.
+### 4. Email Order Pipeline
+- [x] Checkout posts to `/api/order`; the customer stays on the site and gets a reference on success, or a retryable error on failure.
+- [x] Server re-validates every field and takes price and delivery rate from the deployed catalogue, ignoring browser values.
+- [x] Spam limits: honeypot field, same-origin check and body size limit. No CAPTCHA yet.
+- [x] Secrets are Cloudflare environment variables: `RESEND_API_KEY`, `ORDER_EMAIL_TO`.
 
 ### 5. In-Browser Admin Panel (`/admin`)
 - [x] Accessible at `/admin` (and via the discreet "Administration" footer link).
@@ -130,7 +130,7 @@ d6a841e docs: update PROGRESS.md with full session 2 history and deployment guid
 - [x] Fully covered by unit and integration tests (`admin-catalogue.test.ts`, `admin-github.test.ts`, `admin-local.test.ts`, `admin-zip.test.ts`, `admin-page.test.tsx`).
 
 ### 6. Testing & Quality Assurance
-- [x] **14 test suites, 155 tests passing, 1 skipped** (static-build sentinel).
+- [x] **15 test suites, 161 passing, 1 skipped** (static-build sentinel).
 - [x] Unit tests for order math, validation, catalogue helpers, shipping lookup, and GitHub API.
 - [x] Integration tests for storefront routing, deep links, checkout flow, commune selector, missing rate safety, and admin workflows.
 - [x] Strict TypeScript typing (`tsc --noEmit` clean).
@@ -222,6 +222,25 @@ Made the local admin sandbox a real, reload-safe editor:
    - New: `src/lib/admin/local.ts`, `src/lib/admin/zip.ts`, `src/test/admin-local.test.ts`, `src/test/admin-zip.test.ts`.
    - Modified: `src/pages/AdminPage.tsx`, `src/admin.css`, `src/test/admin-page.test.tsx`, `src/test/setup.ts`, `PROGRESS.md`.
 
+### Session 4 (AI — 2026-11-01)
+
+1. **Deployed**: code pushed to `redx331/bmgoran`, live on Cloudflare Pages at https://bmgoran.pages.dev. Use the Pages flow, not "Create Worker".
+2. **Email orders**: new `functions/api/order.ts` + `submitOrder()` in `src/lib/order.ts`. WhatsApp links, config fields, icon, CSS and copy removed in FR and AR.
+3. **Contact details hidden**: `whatsappNumber` and `email` removed from config. Phone is hidden until `phoneHref` is set.
+4. **Tests**: new `order-function.test.ts`; checkout tests rewritten. Function also exercised in `wrangler pages dev` with a fake key (422 on bad order, 502 on rejected email). Real email delivery not tested yet.
+
+### Session 5 (AI — 2026-11-02)
+
+1. **Phone published**: `+213 673 45 77 12` (`tel:+213673457712`) is now in `site.config.json` and appears on the Contact page and in the footer in both languages. The shop address is still a placeholder, so `demoContact` stays `true`.
+2. **Example rates cannot take orders anymore**:
+   - New `isExampleShipping()` in `src/lib/shipping.ts`.
+   - `validateOrderFields()` returns `validation.rateNotVerified`; checkout disables the submit button and labels it “Commande indisponible”.
+   - `functions/api/order.ts` returns **409 `rates-not-verified`** before sending any email.
+   - New test file `order-function-example-rates.test.ts`; suite is now **16 files, 164 passed + 1 skipped**.
+3. **Deployed to https://bmg-oran.pages.dev** (Cloudflare project `bmg-oran`, account `taguinekossai@gmail.com`). The old `bmgoran.pages.dev` is still online but belongs to another Cloudflare account — the API answers “Project not found” — so it cannot be updated from this machine. `siteUrl` was updated to the new domain.
+4. **Order inbox chosen**: the owner’s inbox (kept out of this public repo; set it as `ORDER_EMAIL_TO` in Cloudflare). The code still needs `RESEND_API_KEY` + `ORDER_EMAIL_TO` on the Pages project; until then `/api/order` returns 503 and no email is sent.
+5. **Hygiene**: `.dev.vars` and `.dev.vars.*` added to `.gitignore`.
+
 ---
 
 ## 🌐 Sharing & Deployment Options
@@ -257,28 +276,25 @@ ngrok http 5173
 
 ## ⏳ Pending / Next Steps for Incoming AI
 
-### 1. Pre-Launch Configuration (Business Data — requires user input)
-- [ ] Set real `whatsappNumber` in `site.config.json` (e.g. `213XXXXXXXXX` without `+` or spaces).
-- [ ] Set real `siteUrl` in `site.config.json` once Cloudflare Pages subdomain or custom domain is chosen.
-- [ ] Set real phone, address, and social links in `site.config.json`, then switch `demoContact` to `false`.
-- [ ] Connect GitHub repository in `site.config.json` (`"repository": "owner/repo"`).
+### 1. Pre-Launch Configuration (requires user input)
+- [ ] Create a Resend account with the owner’s inbox, then set `RESEND_API_KEY` + `ORDER_EMAIL_TO` on the **bmg-oran** Pages project and send a real test order.
+- [ ] Add a Cloudflare rate-limiting rule on `/api/order`, or Turnstile if spam appears.
+- [ ] Set real address and social links in `site.config.json`, then switch `demoContact` to `false` (phone is already real).
+- [ ] Decide on admin login: GitHub token today; email/password was discussed and deferred until after launch.
 
 ### 2. Shipping Rates (requires user input)
-- [ ] Update `src/config/shipping.ts` with real quotes from the shop's chosen courier partner (e.g., Yalidine, ZR Express, Procolis, Kazitour).
-- [ ] Set `SHIPPING_RATES_ARE_EXAMPLES = false` once verified.
+- [ ] Courier chosen: **ZR Express**, departure Oran (W31).
+- [ ] ZR’s public calculator API returns **404 `not_found` for every corridor** (checked 2026-11-02), so the grid must come from the owner’s ZR merchant account (screenshot/PDF) or be supplied manually.
+- [ ] Replace the example rates in `src/config/shipping.ts`; set unserved wilayas to `null`.
+- [ ] Set `SHIPPING_RATES_ARE_EXAMPLES = false` once verified. Checkout and `/api/order` now refuse orders while it is `true`.
 
 ### 3. Product Catalogue & Assets
 - [ ] Add real initial products to `src/data/products.json` (or use `/admin` once deployed).
 - [ ] Replace demo SVG product images in `public/images/products/` with real photos.
 - [ ] Run `npm run og` to regenerate high-resolution social sharing cards.
 
-### 4. Deployment
-- [ ] Create GitHub repository and push code (see Deployment section above).
-- [ ] Connect to Cloudflare Pages for automatic deployment.
-- [ ] Update `siteUrl` and `repository` in `site.config.json` after deployment.
-
 ### 5. Optional Feature Enhancements
-- [ ] **Multi-item shopping cart** — Currently the checkout only handles one product at a time with a quantity stepper. Adding a cart would let customers order multiple different parts in one WhatsApp message.
+- [ ] **Multi-item shopping cart** — Currently the checkout only handles one product at a time with a quantity stepper. Adding a cart would let customers order multiple different parts at once.
 - [ ] **Wilaya search/filter autocomplete** — Type-ahead dropdown in checkout for faster selection on mobile (58 wilayas is long to scroll).
 - [ ] **Vehicle selector / compatibility filter** — Brand → Model → Year to help customers find the right part (useful when catalogue grows past 50+ items).
 - [ ] **Product image zoom / lightbox** — Pinch-to-zoom on product gallery images.
@@ -293,11 +309,11 @@ These rules must **never** be violated:
 1. **PROGRESS.md must be kept updated** — The user explicitly requested this as the handoff mechanism for AI-to-AI continuity. Update it after every significant change.
 2. **Bilingual parity** — Every UI string must exist in both French and Arabic in `src/i18n/translations.ts`.
 3. **RTL testing** — Layout changes must work with CSS logical properties and `dir="rtl"`.
-4. **Tests must pass** — Run `npm test` after every code change; all tests must pass (currently 155 passed + 1 skipped).
+4. **Tests must pass** — Run `npm test` after every code change; all tests must pass (currently 164 passed + 1 skipped).
 5. **Build must be clean** — Run `npm run build` (includes `tsc --noEmit`) to verify TypeScript and static generation.
-6. **Zero backend** — The entire site must remain fully static with no server-side code.
+6. **Minimal backend** — Only `functions/api/order.ts` runs on the server. No database. Keep everything else static.
 7. **Admin panel is French-only** — The admin area (`src/admin.css`, `AdminPage.tsx`) is intentionally LTR/French only.
-8. **Never treat missing shipping rates as free** — A `null` rate blocks checkout; this is a safety invariant tested explicitly.
+8. **Never treat missing shipping rates as free** — A `null` rate blocks checkout; this is a safety invariant tested explicitly. Example rates also block orders (`409 rates-not-verified`).
 9. **User's OS**: Windows. Shell: PowerShell. Use `;` to chain commands (not `&&`). Path style: backslash in Windows commands, forward slash in code.
 
 ---
@@ -305,8 +321,9 @@ These rules must **never** be violated:
 ## 🐛 Known Issues & Gotchas
 
 1. **LF/CRLF warnings on Windows**: Every `git add` produces CRLF warnings. These are harmless and can be ignored (or silenced with `git config core.autocrlf true`).
-2. **`npm run verify` shows 5 warnings**: These are all expected placeholder warnings for pre-launch configuration values (WhatsApp number, site URL, etc.). They will disappear once real values are set.
+2. **`npm run verify` shows 3 warnings**: These are expected placeholder warnings for demo contact details, demo products and example delivery rates. They will disappear once real values are set.
 3. **`edit_file` precision**: When using edit_file, always read the actual file content first. Target strings must match exactly including whitespace — don't guess.
+4. **Two Pages projects exist**: `bmgoran.pages.dev` is live but belongs to a different Cloudflare account (“Project not found” from the logged-in account). Deployments from this machine go to **`bmg-oran.pages.dev`** (project `bmg-oran`).
 
 ---
 

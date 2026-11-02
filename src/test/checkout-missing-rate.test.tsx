@@ -3,15 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderApp } from './render';
 
-vi.mock('../config/business', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../config/business')>();
-  return {
-    ...actual,
-    getWhatsAppStatus: () => ({ configured: true, number: '213550123456' }),
-  };
+// Simulates a wilaya whose rates have not been filled in yet.
+vi.mock('../config/shipping', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../config/shipping')>();
+  return { ...actual, SHIPPING_RATES_ARE_EXAMPLES: false };
 });
 
-// Simulates a wilaya whose rates have not been filled in yet.
 vi.mock('../lib/shipping', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../lib/shipping')>();
   return {
@@ -66,6 +63,6 @@ describe('checkout when a wilaya rate is missing', () => {
     expect(
       screen.queryByText(/Le tarif de livraison n’est pas configuré pour cette wilaya/),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Envoyer la commande sur WhatsApp/ })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Passer la commande' })).toBeEnabled();
   });
 });

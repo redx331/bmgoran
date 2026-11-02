@@ -9,6 +9,7 @@ import {
   getShippingQuote,
   getWilayaPrice,
   hasAnyRate,
+  isExampleShipping,
   wilayaName,
 } from '../lib/shipping';
 
@@ -98,6 +99,15 @@ describe('Algerian wilaya shipping configuration', () => {
   it('can turn off the example flag for real rates', () => {
     const result = getShippingQuote('16', 'home', { ratesAreExamples: false });
     expect(result.ok && result.quote.isExample).toBe(false);
+  });
+
+  it('flags example and missing quotes as not orderable', () => {
+    expect(isExampleShipping(getShippingQuote('16', 'home'))).toBe(true);
+    expect(
+      isExampleShipping(getShippingQuote('16', 'home', { ratesAreExamples: false })),
+    ).toBe(false);
+    expect(isExampleShipping({ ok: false, reason: 'rate-not-configured' })).toBe(false);
+    expect(isExampleShipping(null)).toBe(false);
   });
 
   it('reports wilaya coverage and localized names', () => {

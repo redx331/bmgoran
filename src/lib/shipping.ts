@@ -70,6 +70,14 @@ export function getShippingQuote(
   };
 }
 
+/**
+ * True when a quote exists but its price is still an example. Checkout and the
+ * order endpoint must refuse to take an order in that state.
+ */
+export function isExampleShipping(result: ShippingResult | null): boolean {
+  return result !== null && result.ok && result.quote.isExample;
+}
+
 /** A wilaya is "served" when at least one delivery method has a rate. */
 export function hasAnyRate(wilaya: WilayaShipping): boolean {
   return wilaya.homeDeliveryPrice !== null || wilaya.deskDeliveryPrice !== null;

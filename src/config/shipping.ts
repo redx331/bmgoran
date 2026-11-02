@@ -23,7 +23,7 @@
  *    order; a real free delivery can be entered as `0`.
  *
  * The application never invents a fallback rate. If the selected rate is
- * missing, the customer sees a clear message and cannot open WhatsApp.
+ * missing, the customer sees a clear message and cannot place the order.
  */
 
 export interface WilayaShipping {

@@ -68,9 +68,6 @@ for (const asset of new Set(assetRefs)) {
 const sizeKb = statSync(join(dist, 'index.html')).size / 1024;
 if (sizeKb > 100) warnings.push(`index.html is ${sizeKb.toFixed(1)} KB (large for a shell)`);
 
-if (site.whatsappNumber.trim() === '') {
-  warnings.push('WhatsApp number is empty — checkout is intentionally disabled until configured.');
-}
 if (site.siteUrl.includes('YOUR-PROJECT')) {
   warnings.push('site.config.json still contains the placeholder siteUrl (canonical/OG URLs).');
 }

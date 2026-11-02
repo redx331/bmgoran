@@ -147,7 +147,7 @@ const brand = { mark: site.brandMark, name: site.businessName, tag: 'Pièces aut
 
 screenshot(
   html({
-    title: { eyebrow: 'Commande WhatsApp · 58 wilayas', value: 'La bonne pièce, livrée partout en Algérie.' },
+    title: { eyebrow: 'Commande en ligne · 58 wilayas', value: 'La bonne pièce, livrée partout en Algérie.' },
     subtitle:
       'Pièces et accessoires pour voitures et motos. Prix, photos, disponibilité et livraison affichés avant la commande.',
     price: '58 wilayas',
