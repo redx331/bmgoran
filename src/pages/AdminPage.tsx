@@ -18,12 +18,14 @@ import {
   type ProductErrors,
 } from '../lib/admin/catalogue';
 import {
-  GitHubError,
   commitChanges,
+  getSession,
   loadCatalogue,
-  verifyAccess,
-  type FileChange,
-} from '../lib/admin/github';
+  login as adminLogin,
+  logout as adminLogout,
+  type AdminSession,
+} from '../lib/admin/api';
+import { GitHubError, type FileChange } from '../lib/admin/github';
 import { buildOgImage, prepareProductImage } from '../lib/admin/image';
 import {
   clearLocalData,
@@ -38,9 +40,6 @@ import { formatPrice } from '../lib/format';
 import { usePageMeta } from '../lib/seo';
 import '../admin.css';
 
-export const ADMIN_TOKEN_KEY = 'bmg.admin.token';
-export const ADMIN_REPO_KEY = 'bmg.admin.repo';
-
 const BRANCH = SITE.branch || 'main';
 const MAX_IMAGES = 8;
 
@@ -50,31 +49,6 @@ interface Notice {
   kind: 'success' | 'error' | 'info';
   text: string;
   url?: string;
-}
-
-function readStored(key: string): string {
-  if (typeof window === 'undefined') return '';
-  try {
-    return window.sessionStorage.getItem(key) ?? '';
-  } catch {
-    return '';
-  }
-}
-
-function writeStored(key: string, value: string): void {
-  try {
-    window.sessionStorage.setItem(key, value);
-  } catch {
-    // Private mode / storage disabled: the session simply won't survive a reload.
-  }
-}
-
-function removeStored(key: string): void {
-  try {
-    window.sessionStorage.removeItem(key);
-  } catch {
-    // Ignore.
-  }
 }
 
 function errorMessage(error: unknown): string {
@@ -149,16 +123,12 @@ export function AdminPage() {
     noindex: true,
   });
 
-  const [repo, setRepo] = useState(() => readStored(ADMIN_REPO_KEY) || SITE.repository);
-  const [tokenInput, setTokenInput] = useState('');
-  const [token, setToken] = useState(() => readStored(ADMIN_TOKEN_KEY));
-  const [login, setLogin] = useState('');
-  const [phase, setPhase] = useState<Phase>(() =>
-    readStored(ADMIN_TOKEN_KEY) && (readStored(ADMIN_REPO_KEY) || SITE.repository)
-      ? 'connecting'
-      : 'login',
-  );
+  const [session, setSession] = useState<AdminSession | null>(null);
+  const [usernameInput, setUsernameInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [phase, setPhase] = useState<Phase>('connecting');
+  const [repo, setRepo] = useState(SITE.repository);
 
   const [isLocalMode, setIsLocalMode] = useState(false);
   const [products, setProducts] = useState<Product[] | null>(null);
@@ -177,9 +147,11 @@ export function AdminPage() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<CategoryId | 'all'>('all');
 
-  const autoTried = useRef(false);
   const previewsRef = useRef(previews);
   previewsRef.current = previews;
+
+  const login = session?.login ?? (isLocalMode ? 'local' : '');
+  const activeBranch = session?.branch || BRANCH;
 
   const revokePreviews = useCallback((paths: string[]) => {
     setPreviews((current) => {
@@ -200,41 +172,68 @@ export function AdminPage() {
     [],
   );
 
-  const connect = useCallback(async (nextToken: string, nextRepo: string) => {
-    setPhase('connecting');
-    setLoginError('');
-    setNotice(null);
+  const applySession = useCallback(async (next: AdminSession) => {
+    setSession(next);
+    setRepo(next.repository);
+    setPhase('ready');
+
     try {
-      const session = await verifyAccess(nextToken, nextRepo);
-      const snapshot = await loadCatalogue(nextToken, nextRepo, BRANCH);
-      writeStored(ADMIN_TOKEN_KEY, nextToken);
-      writeStored(ADMIN_REPO_KEY, nextRepo);
-      setToken(nextToken);
-      setLogin(session.login);
+      const snapshot = await loadCatalogue();
       setProducts(snapshot.products);
-      setPhase('ready');
     } catch (error) {
-      removeStored(ADMIN_TOKEN_KEY);
-      setToken('');
-      setProducts(null);
-      setPhase('login');
-      setLoginError(errorMessage(error));
+      // The login itself succeeded; only the GitHub side is unavailable. Keep the
+      // dashboard open so the message is not mistaken for a wrong password.
+      setProducts([]);
+      setNotice({
+        kind: 'error',
+        text: `Connexion réussie, mais le catalogue n’a pas pu être chargé. ${errorMessage(error)}`,
+      });
     }
   }, []);
 
+  const restoreSession = useCallback(async () => {
+    try {
+      const next = await getSession();
+      await applySession(next);
+    } catch (error) {
+      setSession(null);
+      setProducts(null);
+      setPhase('login');
+      const status = error instanceof GitHubError ? error.status : 0;
+      setLoginError(status && status !== 401 ? errorMessage(error) : '');
+    }
+  }, [applySession]);
+
   useEffect(() => {
-    if (autoTried.current) return;
-    autoTried.current = true;
-    if (token && repo) void connect(token, repo);
-  }, [connect, repo, token]);
+    void restoreSession();
+  }, [restoreSession]);
+
+  const connect = useCallback(
+    async (username: string, password: string) => {
+      setPhase('connecting');
+      setLoginError('');
+      setNotice(null);
+      try {
+        const next = await adminLogin(username, password);
+        await applySession(next);
+        setPasswordInput('');
+      } catch (error) {
+        setSession(null);
+        setProducts(null);
+        setPhase('login');
+        setLoginError(errorMessage(error));
+      }
+    },
+    [applySession],
+  );
 
   function disconnect() {
+    void adminLogout().catch(() => {});
     revokePreviews(Object.keys(previewsRef.current));
-    removeStored(ADMIN_TOKEN_KEY);
     setIsLocalMode(false);
-    setToken('');
-    setTokenInput('');
-    setLogin('');
+    setSession(null);
+    setUsernameInput('');
+    setPasswordInput('');
     setProducts(null);
     setDraft(null);
     setOriginalSlug(null);
@@ -244,6 +243,7 @@ export function AdminPage() {
     setDirty(false);
     setDeleteArmed(false);
     setNotice(null);
+    setLoginError('');
     setPhase('login');
   }
 
@@ -264,7 +264,6 @@ export function AdminPage() {
     const stored = loadLocalProducts(PRODUCTS);
     setIsLocalMode(true);
     setRepo('Mode local (sans GitHub)');
-    setLogin('local');
     setProducts(stored.products);
     setPhase('ready');
     setNotice({
@@ -346,13 +345,13 @@ export function AdminPage() {
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextRepo = repo.trim();
-    const nextToken = tokenInput.trim();
-    if (!nextRepo || !nextToken) {
-      setLoginError('Renseignez le dépôt GitHub et le jeton.');
+    const nextUsername = usernameInput.trim();
+    const nextPassword = passwordInput;
+    if (!nextUsername || !nextPassword) {
+      setLoginError('Renseignez votre identifiant et votre mot de passe.');
       return;
     }
-    await connect(nextToken, nextRepo);
+    await connect(nextUsername, nextPassword);
   }
 
   const filteredProducts = useMemo(() => {
@@ -520,7 +519,7 @@ export function AdminPage() {
   }
 
   async function handleSave() {
-    if ((!token && !isLocalMode) || !products || !draft) return;
+    if ((!session && !isLocalMode) || !products || !draft) return;
     const prepared = prepareProduct(draft);
     const nextErrors = validateProduct(prepared, products, originalSlug);
     setErrors(nextErrors);
@@ -599,9 +598,6 @@ export function AdminPage() {
       }
 
       const result = await commitChanges(
-        token,
-        repo,
-        BRANCH,
         originalSlug
           ? `Admin : mettre à jour « ${prepared.nameFr} »`
           : `Admin : ajouter « ${prepared.nameFr} »`,
@@ -630,7 +626,7 @@ export function AdminPage() {
   }
 
   async function handleDelete() {
-    if ((!token && !isLocalMode) || !products || !draft || !originalSlug) return;
+    if ((!session && !isLocalMode) || !products || !draft || !originalSlug) return;
     setBusy(true);
     setNotice(null);
     try {
@@ -674,13 +670,7 @@ export function AdminPage() {
         { path: `public/og/${originalSlug}.png`, delete: true },
       ];
 
-      const result = await commitChanges(
-        token,
-        repo,
-        BRANCH,
-        `Admin : supprimer « ${draft.nameFr} »`,
-        changes,
-      );
+      const result = await commitChanges(`Admin : supprimer « ${draft.nameFr} »`, changes);
 
       revokePreviews([...imagePaths]);
       setProducts(nextProducts);
@@ -704,7 +694,7 @@ export function AdminPage() {
   }
 
   async function reloadCatalogue() {
-    if (!isLocalMode && (!token || !repo)) return;
+    if (!isLocalMode && !session) return;
     if (!confirmDiscard()) return;
     clearPending();
     setRemovedImages([]);
@@ -730,7 +720,7 @@ export function AdminPage() {
         return;
       }
 
-      const snapshot = await loadCatalogue(token, repo, BRANCH);
+      const snapshot = await loadCatalogue();
       setProducts(snapshot.products);
       if (draft && originalSlug) {
         const fresh = snapshot.products.find((product) => product.slug === originalSlug);
@@ -791,57 +781,39 @@ export function AdminPage() {
 
             <h1>Connexion administrateur</h1>
             <p className="admin-login__lead">
-              Connectez-vous avec un jeton GitHub pour ajouter des produits, modifier les prix et
-              les photos. Chaque enregistrement met le site à jour automatiquement.
+              Connectez-vous avec votre identifiant et votre mot de passe pour ajouter des
+              produits, modifier les prix et les photos. Chaque enregistrement met le site à jour
+              automatiquement.
             </p>
-
-            {!SITE.repository && !repo.trim() ? (
-              <div className="notice notice--info">
-                <Icon name="alert" size={18} />
-                <div>
-                  <p>
-                    Première utilisation : indiquez le dépôt GitHub qui contient ce site
-                    (par exemple <code>bmg-oran/site</code>). Vous pouvez aussi le renseigner
-                    dans <code>site.config.json</code>, champ <code>repository</code>.
-                  </p>
-                </div>
-              </div>
-            ) : null}
 
             <form className="admin-login__form" onSubmit={handleLogin} noValidate>
               <div className="field">
-                <label htmlFor="admin-repo">Dépôt GitHub</label>
+                <label htmlFor="admin-username">Identifiant</label>
                 <input
-                  id="admin-repo"
-                  value={repo}
+                  id="admin-username"
+                  value={usernameInput}
                   dir="ltr"
-                  autoComplete="off"
+                  autoComplete="username"
                   spellCheck={false}
-                  placeholder="propriétaire/dépôt"
                   disabled={connecting}
-                  onChange={(event) => setRepo(event.target.value)}
+                  onChange={(event) => setUsernameInput(event.target.value)}
                 />
-                <p className="field-hint">
-                  Le dépôt qui contient le site, branche <code>{BRANCH}</code>.
-                </p>
               </div>
 
               <div className="field">
-                <label htmlFor="admin-token">Jeton GitHub</label>
+                <label htmlFor="admin-password">Mot de passe</label>
                 <input
-                  id="admin-token"
+                  id="admin-password"
                   type="password"
-                  value={tokenInput}
+                  value={passwordInput}
                   dir="ltr"
-                  autoComplete="off"
-                  spellCheck={false}
-                  placeholder="github_pat_…"
+                  autoComplete="current-password"
                   disabled={connecting}
-                  onChange={(event) => setTokenInput(event.target.value)}
+                  onChange={(event) => setPasswordInput(event.target.value)}
                 />
                 <p className="field-hint">
-                  Jeton « fine-grained » avec <strong>Contents: Read and write</strong> et{' '}
-                  <strong>Metadata: Read</strong> sur ce dépôt uniquement.
+                  Identifiants définis dans les variables du serveur. Le jeton GitHub reste côté
+                  serveur et n’est jamais envoyé au navigateur.
                 </p>
               </div>
 
@@ -856,7 +828,7 @@ export function AdminPage() {
                 className="btn btn--primary btn--block btn--lg"
                 disabled={connecting}
               >
-                {connecting ? 'Connexion à GitHub…' : 'Se connecter'}
+                {connecting ? 'Connexion…' : 'Se connecter'}
               </button>
             </form>
 
@@ -875,34 +847,6 @@ export function AdminPage() {
               Sans compte : vos produits, prix et photos sont enregistrés dans ce navigateur, puis
               exportables en dossier ZIP prêt à publier.
             </p>
-
-            <details className="admin-help">
-              <summary>Comment créer le jeton ?</summary>
-              <ol>
-                <li>
-                  Ouvrez{' '}
-                  <a
-                    href="https://github.com/settings/personal-access-tokens/new"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    github.com/settings/personal-access-tokens/new
-                  </a>
-                  .
-                </li>
-                <li>Choisissez « Fine-grained token » et sélectionnez votre dépôt.</li>
-                <li>
-                  Dans « Repository permissions », réglez <strong>Contents</strong> sur{' '}
-                  <em>Read and write</em> et <strong>Metadata</strong> sur <em>Read</em>.
-                </li>
-                <li>Créez le jeton, copiez-le et collez-le ci-dessus.</li>
-              </ol>
-              <p>
-                Le jeton reste uniquement dans cet onglet (<code>sessionStorage</code>) et n’est
-                envoyé qu’à <code>api.github.com</code>. Fermez l’onglet ou cliquez sur
-                « Déconnexion » pour l’effacer.
-              </p>
-            </details>
 
             <a className="admin-login__back" href="/">
               <Icon name="arrow-left" size={15} />
@@ -928,7 +872,7 @@ export function AdminPage() {
 
           <div className="admin-bar__meta">
             <span className="admin-bar__repo">
-              {repo} · {BRANCH}
+              {repo} · {activeBranch}
             </span>
             {login ? <span className="admin-bar__user">@{login}</span> : null}
             {isLocalMode && (

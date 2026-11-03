@@ -1,29 +1,27 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SITE } from '../config/business';
 import { PRODUCTS, type Product } from '../data/products';
 import {
-  GitHubError,
   commitChanges,
+  getSession,
   loadCatalogue,
-  verifyAccess,
-} from '../lib/admin/github';
+  login as adminLogin,
+  logout,
+} from '../lib/admin/api';
+import { GitHubError } from '../lib/admin/github';
 import { buildOgImage } from '../lib/admin/image';
 import { saveLocalProducts } from '../lib/admin/local';
 import { createZip } from '../lib/admin/zip';
-import { ADMIN_REPO_KEY, ADMIN_TOKEN_KEY } from '../pages/AdminPage';
 import { renderApp } from './render';
 
-vi.mock('../lib/admin/github', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../lib/admin/github')>();
-  return {
-    ...actual,
-    verifyAccess: vi.fn(),
-    loadCatalogue: vi.fn(),
-    commitChanges: vi.fn(),
-  };
-});
+vi.mock('../lib/admin/api', () => ({
+  getSession: vi.fn(),
+  login: vi.fn(),
+  logout: vi.fn(),
+  loadCatalogue: vi.fn(),
+  commitChanges: vi.fn(),
+}));
 
 vi.mock('../lib/admin/image', () => ({
   buildOgImage: vi.fn(),
@@ -37,18 +35,27 @@ vi.mock('../lib/admin/zip', () => ({
 const SAMPLE = PRODUCTS.slice(0, 2);
 
 function signIn() {
-  window.sessionStorage.setItem(ADMIN_TOKEN_KEY, 'github-token');
-  window.sessionStorage.setItem(ADMIN_REPO_KEY, 'bmg-oran/site');
-  vi.mocked(verifyAccess).mockResolvedValue({ login: 'bmg', defaultBranch: 'main' });
+  vi.mocked(getSession).mockResolvedValue({
+    login: 'bmg',
+    repository: 'bmg-oran/site',
+    branch: 'main',
+    githubConfigured: true,
+  });
   vi.mocked(loadCatalogue).mockResolvedValue({ products: SAMPLE, sha: 'catalogue-sha' });
 }
 
 beforeEach(() => {
-  vi.mocked(verifyAccess).mockReset();
+  vi.mocked(getSession).mockReset();
+  vi.mocked(adminLogin).mockReset();
+  vi.mocked(logout).mockReset();
   vi.mocked(loadCatalogue).mockReset();
   vi.mocked(commitChanges).mockReset();
   vi.mocked(buildOgImage).mockReset();
   vi.mocked(createZip).mockReset();
+
+  // Default: no valid session cookie.
+  vi.mocked(getSession).mockRejectedValue(new GitHubError('Session expirée.', 401));
+  vi.mocked(logout).mockResolvedValue();
 });
 
 describe('admin login', () => {
@@ -58,8 +65,8 @@ describe('admin login', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: /connexion administrateur/i }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Dépôt GitHub')).toHaveValue(SITE.repository);
-    expect(screen.getByLabelText('Jeton GitHub')).toHaveAttribute('type', 'password');
+    expect(screen.getByLabelText('Identifiant')).toHaveAttribute('autocomplete', 'username');
+    expect(screen.getByLabelText('Mot de passe')).toHaveAttribute('type', 'password');
 
     expect(document.title).toContain('Administration');
     expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute(
@@ -72,7 +79,7 @@ describe('admin login', () => {
     expect(screen.queryByRole('contentinfo')).toBeNull();
   });
 
-  it('restores a session from sessionStorage and lists the catalogue', async () => {
+  it('restores a server session and lists the catalogue', async () => {
     signIn();
     renderApp({ path: '/admin', locale: 'fr' });
 
@@ -82,21 +89,48 @@ describe('admin login', () => {
     expect(
       screen.getByRole('button', { name: (name) => name.includes(PRODUCTS[0]!.nameFr) }),
     ).toBeInTheDocument();
-    expect(vi.mocked(loadCatalogue)).toHaveBeenCalledWith('github-token', 'bmg-oran/site', 'main');
+    expect(vi.mocked(getSession)).toHaveBeenCalled();
+    expect(vi.mocked(loadCatalogue)).toHaveBeenCalled();
   });
 
-  it('shows the GitHub error and clears the stored token when access fails', async () => {
-    window.sessionStorage.setItem(ADMIN_TOKEN_KEY, 'expired');
-    window.sessionStorage.setItem(ADMIN_REPO_KEY, 'bmg-oran/site');
-    vi.mocked(verifyAccess).mockRejectedValue(
-      new GitHubError('Jeton invalide ou expiré. Créez un nouveau jeton GitHub.', 401),
+  it('shows an error and stays on the form when the password is wrong', async () => {
+    vi.mocked(adminLogin).mockRejectedValue(
+      new GitHubError('Identifiant ou mot de passe incorrect.', 401),
     );
 
+    const user = userEvent.setup();
     renderApp({ path: '/admin', locale: 'fr' });
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(/jeton invalide/i);
-    expect(window.sessionStorage.getItem(ADMIN_TOKEN_KEY)).toBeNull();
-    expect(screen.getByLabelText('Jeton GitHub')).toBeInTheDocument();
+    await user.type(await screen.findByLabelText('Identifiant'), 'bmg');
+    await user.type(screen.getByLabelText('Mot de passe'), 'wrong-password');
+    await user.click(screen.getByRole('button', { name: 'Se connecter' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/mot de passe incorrect/i);
+    expect(screen.getByLabelText('Mot de passe')).toBeInTheDocument();
+    expect(vi.mocked(adminLogin)).toHaveBeenCalledWith('bmg', 'wrong-password');
+  });
+
+  it('stays signed in and explains when the catalogue cannot load', async () => {
+    vi.mocked(adminLogin).mockResolvedValue({
+      login: 'bmg',
+      repository: 'bmg-oran/site',
+      branch: 'main',
+      githubConfigured: false,
+    });
+    vi.mocked(loadCatalogue).mockRejectedValue(
+      new GitHubError('Le jeton GitHub du serveur n’est pas configuré (GITHUB_TOKEN).', 503),
+    );
+
+    const user = userEvent.setup();
+    renderApp({ path: '/admin', locale: 'fr' });
+
+    await user.type(await screen.findByLabelText('Identifiant'), 'bmg');
+    await user.type(screen.getByLabelText('Mot de passe'), 'bmg-demo-2026');
+    await user.click(screen.getByRole('button', { name: 'Se connecter' }));
+
+    expect(await screen.findByText(/connexion réussie/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText('Mot de passe')).toBeNull();
+    expect(screen.getByText('@bmg')).toBeInTheDocument();
   });
 
   it('allows testing in local mode without a GitHub token', async () => {
@@ -245,10 +279,7 @@ describe('admin editor', () => {
     expect(await screen.findByText(/modifications enregistrées/i)).toBeInTheDocument();
     expect(vi.mocked(commitChanges)).toHaveBeenCalledTimes(1);
 
-    const [token, repo, branch, message, changes] = vi.mocked(commitChanges).mock.calls[0]!;
-    expect(token).toBe('github-token');
-    expect(repo).toBe('bmg-oran/site');
-    expect(branch).toBe('main');
+    const [message, changes] = vi.mocked(commitChanges).mock.calls[0]!;
     expect(message).toContain('Plaquettes de frein avant');
 
     const jsonChange = changes.find(

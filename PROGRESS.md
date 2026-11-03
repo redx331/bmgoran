@@ -2,7 +2,7 @@
 
 > **Purpose of this file**: This document tracks the complete development progress, architectural decisions, current state, and upcoming tasks for the BMG Oran bilingual auto/moto parts storefront. **Any AI assistant resuming this project should read this document first to get full context without redundant exploration.**
 
-> **Last updated**: 2026-11-02 — Session 7 (email orders confirmed working live at https://bmg-oran.pages.dev).
+> **Last updated**: 2026-11-03 — Session 8 (username/password admin login built on branch `admin-login`, **not deployed**).
 
 ---
 
@@ -10,9 +10,9 @@
 
 - **Project**: Bilingual (French LTR / Arabic RTL) static storefront for an Algerian auto & motorcycle parts shop.
 - **Client / Location**: Oran, Algeria (serving all 58 wilayas).
-- **Architecture**: Static React 19 + TypeScript + Vite 8 storefront on Cloudflare Pages, plus one Pages Function (`functions/api/order.ts`) that emails orders. No database, no customer accounts.
+- **Architecture**: Static React 19 + TypeScript + Vite 8 storefront on Cloudflare Pages, plus Pages Functions: `functions/api/order.ts` (emails orders) and `functions/api/admin/*` (password login + authenticated GitHub proxy). No database, no customer accounts.
 - **Order Channel**: Email. The customer submits the form, `POST /api/order` validates it, recalculates the price server-side and emails the shop through Resend. WhatsApp was removed at the owner's request; the shop's email and phone must not appear on the site or in this public repo.
-- **Admin System**: Serverless in-browser CMS (`/admin`) that commits directly to GitHub via GitHub REST API and user's Personal Access Token.
+- **Admin System**: Serverless CMS (`/admin`). Username/password login checked in a Pages Function; signed 8-hour `HttpOnly` session cookie; the GitHub token lives only in Cloudflare env vars, and the browser commits through `/api/admin/github`.
 - **Repository Path**: `d:\softwares\OpenBot\autoparts-store`
 - **User OS**: Windows (PowerShell). Use `;` not `&&` to chain commands.
 
@@ -60,7 +60,7 @@ npm run og
 | **i18n** | `src/i18n/translations.ts`, `src/i18n/I18nProvider.tsx` | Complete FR (LTR) and AR (RTL) dictionaries |
 | **Router & Nav** | `src/lib/router.tsx`, `src/App.tsx` | Lightweight custom hash/history router with deep linking |
 | **Orders** | `src/lib/order.ts`, `src/lib/shipping.ts`, `functions/api/order.ts` | Order validation, live totals, order submission and email |
-| **Admin CMS** | `src/pages/AdminPage.tsx`, `src/lib/admin/` | GitHub-backed static CMS (catalogue, github api, image processing), plus browser-local persistence (`local.ts`) and ZIP export (`zip.ts`) |
+| **Admin CMS** | `src/pages/AdminPage.tsx`, `src/lib/admin/`, `functions/api/admin/` | Server-session CMS: password login, GitHub proxy, catalogue, image processing, browser-local persistence (`local.ts`), ZIP export (`zip.ts`) |
 | **Static Build** | `scripts/postbuild.mjs`, `scripts/verify-build.mjs` | Prerenders HTML for each product, `_redirects`, sitemap |
 | **Styles** | `src/styles.css`, `src/admin.css` | Design system, CSS logical properties for RTL, dark automotive aesthetic |
 
@@ -69,6 +69,11 @@ npm run og
 ## 📜 Git History (most recent first)
 
 ```
+d3d69ae ci: deploy main to Cloudflare Pages on every push
+30b36b2 copy: delivery page no longer calls the rates examples
+ebfcf23 feat: apply real ZR Express delivery rates and open checkout
+31fa262 feat: email orders, verified-rate guard, phone contact and bmg-oran deploy
+e648451 docs: record Session 3 commit and clean tree
 2625630 feat(admin): persist local mode and export ready-to-commit ZIP
 d6a841e docs: update PROGRESS.md with full session 2 history and deployment guide
 838119c feat(checkout): add dynamic commune/city selector for all 58 wilayas
@@ -76,10 +81,11 @@ d6a841e docs: update PROGRESS.md with full session 2 history and deployment guid
 82bd174 feat: complete storefront, admin cms, test suites and progress documentation
 ```
 
-- **Branch**: `main` (only branch)
+- **Branches**: `main` (deployed automatically by `.github/workflows/deploy.yml`) and local
+  `admin-login` (Session 8 work, **not merged and not pushed**).
 - **Remote**: `origin` = https://github.com/redx331/bmgoran (public repo: never commit private contact details or keys).
 - **Git config** (local scope only): `user.name "BMG Oran Dev"`, `user.email "dev@bmg-oran.local"`
-- **Working tree**: Clean at the end of Session 3.
+- **Working tree**: Session 8 changes committed on `admin-login`; `main` is clean at `d3d69ae`.
 
 ---
 
@@ -120,22 +126,22 @@ d6a841e docs: update PROGRESS.md with full session 2 history and deployment guid
 - [x] Accessible at `/admin` (and via the discreet "Administration" footer link).
 - [x] **Local Mode & GitHub Mode**:
   - **Local Mode (One-Click)**: Works without a GitHub token. Products, prices and uploaded photos are persisted in the browser (`localStorage` for the catalogue, IndexedDB for photos), restored on reload, and exportable as a **ready-to-commit ZIP** containing `src/data/products.json`, `public/images/products/*`, `public/og/*` and a French `LISEZ-MOI.txt`. A separate “Réinitialiser” action clears the local copy after confirmation.
-  - **GitHub Mode**: Authenticates directly with a GitHub Personal Access Token (stored safely in `sessionStorage`).
+  - **GitHub (server) Mode**: The browser logs in with a **username and password**. `functions/api/admin/login.ts` verifies the PBKDF2-SHA256 hash and issues a signed, `HttpOnly`, `SameSite=Strict` cookie (8 hours). `functions/api/admin/github.ts` injects `GITHUB_TOKEN` server-side, so the token never reaches the browser. Path allowlist: `src/data/products.json`, `public/images/products/*`, `public/og/*`. Throttle: 5 failed logins per IP per 10 minutes.
 - [x] Loads catalogue directly from GitHub repository (or local fallback).
 - [x] Create, edit, and delete products with auto-generated or custom slugs.
 - [x] Price control in Algerian Dinars (DA) with validation.
 - [x] Client-side image processing: automatic 1200×900 4:3 JPEG resizing and compression via HTML Canvas.
 - [x] Automatic social OG card generator: draws a branded 1200×630 card with product name, price, brand mark, and image.
-- [x] Atomic commits to GitHub default branch via GitHub Git Trees & Commits API.
-- [x] Fully covered by unit and integration tests (`admin-catalogue.test.ts`, `admin-github.test.ts`, `admin-local.test.ts`, `admin-zip.test.ts`, `admin-page.test.tsx`).
+- [x] Atomic commits to GitHub default branch via GitHub Git Trees & Commits API (called from the server function).
+- [x] Fully covered by unit and integration tests (`admin-catalogue.test.ts`, `admin-github.test.ts`, `admin-local.test.ts`, `admin-zip.test.ts`, `admin-page.test.tsx`, `admin-auth.test.ts`, `admin-functions.test.ts`).
 
 ### 6. Testing & Quality Assurance
-- [x] **15 test suites, 161 passing, 1 skipped** (static-build sentinel).
-- [x] Unit tests for order math, validation, catalogue helpers, shipping lookup, and GitHub API.
-- [x] Integration tests for storefront routing, deep links, checkout flow, commune selector, missing rate safety, and admin workflows.
+- [x] **19 test files, 186 passing, 1 skipped** (static-build sentinel).
+- [x] Unit tests for order math, validation, catalogue helpers, shipping lookup, GitHub API, admin password hashing/sessions and the admin endpoints.
+- [x] Integration tests for storefront routing, deep links, checkout flow, commune selector, missing rate safety, and admin workflows (login, session restore, catalogue load, local persistence, ZIP export).
 - [x] Strict TypeScript typing (`tsc --noEmit` clean).
-- [x] Build passes clean: `npm run build` completes successfully (~179ms Vite build + postbuild prerendering).
-- [x] Verify passes: `npm run verify` shows 5 expected warnings (all for pre-launch placeholder values).
+- [x] Build passes clean: `npm run build` completes successfully.
+- [x] Verify passes: `npm run verify` shows 2 expected warnings (demo contact details, demo products).
 
 ---
 
@@ -262,6 +268,27 @@ Made the local admin sandbox a real, reload-safe editor:
 2. **Verified**: a direct POST to the live `/api/order` returned 200 and the owner confirmed the email arrived. The form was not clicked through in a browser for this test.
 3. **Auto-deploy**: `.github/workflows/deploy.yml` builds, tests and deploys `main` to `bmg-oran` on every push, including admin saves. `bmg-oran` has no Git connection, so this workflow is what publishes changes. Needs GitHub secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
 
+### Session 8 (AI — 2026-11-03)
+
+Built a **username/password admin login** so the owner no longer pastes a GitHub token. **Not deployed on purpose** — it waits for the owner's local test.
+
+1. **Server auth** — new `functions/lib/admin-auth.ts`:
+   - `ADMIN_PASSWORD_HASH` format `pbkdf2-sha256$<iterations>$<saltB64>$<hashB64>` (100k iterations, Web Crypto); the iteration count is stored, so it can be lowered if Cloudflare's free-plan CPU limit complains.
+   - Session = HMAC-SHA256-signed payload `{ username, expiresAt }`, 8 hours.
+   - Cookie `bmg_admin`: `Path=/api/admin`, `HttpOnly`, `SameSite=Strict`, `Secure` only on HTTPS (so `http://localhost` works).
+   - Same-origin check on every `/api/admin/*` call; in-memory throttle of 5 failed logins per IP per 10 minutes.
+2. **Endpoints** — new `functions/api/admin/`: `login.ts`, `logout.ts`, `session.ts`, `github.ts`.
+   - `github.ts` is the only place `GITHUB_TOKEN` is used: `action: 'catalogue'` and `action: 'commit'` (base64 changes, max 40 files).
+   - Path allowlist: `src/data/products.json`, `public/images/products/*`, `public/og/*`; traversal rejected before any GitHub call.
+3. **Client** — new `src/lib/admin/api.ts`; `AdminPage.tsx` now shows username + password, restores the session on mount via `GET /api/admin/session`, and no longer stores a token anywhere (the old `sessionStorage` keys are gone).
+4. **Tooling** — `scripts/hash-admin-password.mjs` prints the hash + session secret; `.dev.vars.example` documents the variables; `.dev.vars` (gitignored) holds the local-only demo credentials; `docs/DEPLOYMENT.md` gained an “Admin login setup” section.
+5. **Tests** — new `admin-auth.test.ts`, `admin-functions.test.ts`; `admin-page.test.tsx` rewritten for the server session. **19 files, 186 passed + 1 skipped**; typecheck clean.
+6. **Not live yet**: all of this is committed on local branch `admin-login`. Production still runs the token-based admin until the owner tests locally and approves the env vars.
+7. **Local test** — `npm run build` then `npx wrangler pages dev dist --port 8788` → http://localhost:8788/admin.
+   - Credentials are in the gitignored `.dev.vars` (do not commit them; use different secrets in production).
+   - Verified in Chromium (Session 8): login 200, dashboard opens, cookie `bmg_admin` is `HttpOnly` (invisible to `document.cookie`), session survives a reload, logout returns 204 and the form comes back.
+   - Without `GITHUB_TOKEN` in `.dev.vars`, the login still succeeds; the dashboard shows “Connexion réussie, mais le catalogue n’a pas pu être chargé…” instead of pretending the password was wrong.
+
 ---
 
 ## 🌐 Sharing & Deployment Options
@@ -299,9 +326,9 @@ ngrok http 5173
 
 ### 1. Pre-Launch Configuration (requires user input)
 - [x] Resend configured on the **bmg-oran** Pages project; live test order ORD-2026-E3529B53 reached the owner’s inbox.
-- [ ] Add a Cloudflare rate-limiting rule on `/api/order`, or Turnstile if spam appears.
+- [ ] **Admin login — owner approval gate**: the username/password login exists only on local branch `admin-login`. The owner must test it locally first. After approval: generate real credentials with `node scripts/hash-admin-password.mjs`, set `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`, `GITHUB_TOKEN` (and optionally `GITHUB_REPOSITORY`, `GITHUB_BRANCH`) on `bmg-oran`, merge `admin-login` → `main`, then log in on the live site.
+- [ ] Add a Cloudflare rate-limiting rule on `/api/order` and `/api/admin/login`, or Turnstile if spam appears.
 - [ ] Set real address and social links in `site.config.json`, then switch `demoContact` to `false` (phone is already real).
-- [ ] Decide on admin login: GitHub token today; email/password was discussed and deferred until after launch.
 
 ### 2. Shipping Rates (ZR Express — done, pending confirmation)
 - [x] Courier chosen: **ZR Express**, departure Oran (W31).
@@ -330,21 +357,25 @@ These rules must **never** be violated:
 1. **PROGRESS.md must be kept updated** — The user explicitly requested this as the handoff mechanism for AI-to-AI continuity. Update it after every significant change.
 2. **Bilingual parity** — Every UI string must exist in both French and Arabic in `src/i18n/translations.ts`.
 3. **RTL testing** — Layout changes must work with CSS logical properties and `dir="rtl"`.
-4. **Tests must pass** — Run `npm test` after every code change; all tests must pass (currently 165 passed + 1 skipped).
+4. **Tests must pass** — Run `npm test` after every code change; all tests must pass (currently 186 passed + 1 skipped).
 5. **Build must be clean** — Run `npm run build` (includes `tsc --noEmit`) to verify TypeScript and static generation.
-6. **Minimal backend** — Only `functions/api/order.ts` runs on the server. No database. Keep everything else static.
+6. **Minimal backend** — The server only holds `functions/api/order.ts` (email) and the small `functions/api/admin/*` auth/proxy endpoints. No database. Keep everything else static.
 7. **Admin panel is French-only** — The admin area (`src/admin.css`, `AdminPage.tsx`) is intentionally LTR/French only.
 8. **Never treat missing shipping rates as free** — A `null` rate blocks checkout; this is a safety invariant tested explicitly. Example rates also block orders (`409 rates-not-verified`).
-9. **User's OS**: Windows. Shell: PowerShell. Use `;` to chain commands (not `&&`). Path style: backslash in Windows commands, forward slash in code.
+9. **The GitHub token never reaches the browser** — Admin commits go through `/api/admin/github`, which reads `GITHUB_TOKEN` from the environment. Do not reintroduce token entry in the UI.
+10. **Do not deploy `admin-login` until the owner approves** — `main` auto-deploys on push.
+11. **User's OS**: Windows. Shell: PowerShell. Use `;` to chain commands (not `&&`). Path style: backslash in Windows commands, forward slash in code.
 
 ---
 
 ## 🐛 Known Issues & Gotchas
 
 1. **LF/CRLF warnings on Windows**: Every `git add` produces CRLF warnings. These are harmless and can be ignored (or silenced with `git config core.autocrlf true`).
-2. **`npm run verify` shows 3 warnings**: These are expected placeholder warnings for demo contact details, demo products and example delivery rates. They will disappear once real values are set.
+2. **`npm run verify` shows 2 warnings**: Expected placeholder warnings for demo contact details and demo products. They disappear once real values are set.
 3. **`edit_file` precision**: When using edit_file, always read the actual file content first. Target strings must match exactly including whitespace — don't guess.
 4. **Two Pages projects exist**: `bmgoran.pages.dev` is live but belongs to a different Cloudflare account (“Project not found” from the logged-in account). Deployments from this machine go to **`bmg-oran.pages.dev`** (project `bmg-oran`).
+5. **Admin session cookie path**: it is scoped to `Path=/api/admin`, so `/admin` (the static page) cannot read it. The UI learns the session by calling `GET /api/admin/session`; do not expect a cookie during page rendering.
+6. **PBKDF2 cost**: 100k iterations is near the Cloudflare free-plan CPU budget. The iteration count is embedded in `ADMIN_PASSWORD_HASH`, so regenerate with fewer iterations (minimum 10 000 in the script) if logins hit CPU limits.
 
 ---
 
@@ -358,5 +389,5 @@ When continuing work on this project:
 5. When modifying pages or routes, run `npm run build` to verify that `scripts/postbuild.mjs` runs without errors.
 6. **PowerShell note**: Use `;` to chain commands (e.g. `Set-Location d:\softwares\OpenBot\autoparts-store; npm test`), **not** `&&`.
 7. The dev server can be started with `npm run dev` (localhost only) or `npm run dev -- --host` (LAN accessible).
-8. The admin panel is at `/admin` — its local sandbox mode persists catalogue edits in `localStorage`, photos in IndexedDB, and exports a ready-to-commit ZIP. GitHub mode remains available for live saves.
+8. The admin panel is at `/admin`. Server mode now uses a username/password session (GitHub token stays in Cloudflare env); local mode persists catalogue edits in `localStorage`, photos in IndexedDB, and exports a ready-to-commit ZIP.
 9. **Keep this `PROGRESS.md` updated** with any newly completed features, architectural changes, or pending tasks.
