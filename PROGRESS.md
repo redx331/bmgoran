@@ -2,7 +2,7 @@
 
 > **Purpose of this file**: This document tracks the complete development progress, architectural decisions, current state, and upcoming tasks for the BMG Oran bilingual auto/moto parts storefront. **Any AI assistant resuming this project should read this document first to get full context without redundant exploration.**
 
-> **Last updated**: 2026-11-03 — Session 8 (username/password admin login built on branch `admin-login`, **not deployed**).
+> **Last updated**: 2026-11-03 — Session 9 (username/password admin login deployed to https://bmg-oran.pages.dev and verified live).
 
 ---
 
@@ -69,6 +69,10 @@ npm run og
 ## 📜 Git History (most recent first)
 
 ```
+48f5ba0 fix(admin): send a User-Agent header to the GitHub API
+7f3bb53 feat(admin): deploy username/password login
+55f91fe docs: keep local admin demo credentials out of the public repo
+1021879 feat(admin): username/password login with server-side GitHub token
 d3d69ae ci: deploy main to Cloudflare Pages on every push
 30b36b2 copy: delivery page no longer calls the rates examples
 ebfcf23 feat: apply real ZR Express delivery rates and open checkout
@@ -81,11 +85,11 @@ d6a841e docs: update PROGRESS.md with full session 2 history and deployment guid
 82bd174 feat: complete storefront, admin cms, test suites and progress documentation
 ```
 
-- **Branches**: `main` (deployed automatically by `.github/workflows/deploy.yml`) and local
-  `admin-login` (Session 8 work, **not merged and not pushed**).
+- **Branches**: `main` only (deployed by `.github/workflows/deploy.yml` on push and by direct
+  `wrangler pages deploy`). The `admin-login` branch was merged in Session 9.
 - **Remote**: `origin` = https://github.com/redx331/bmgoran (public repo: never commit private contact details or keys).
 - **Git config** (local scope only): `user.name "BMG Oran Dev"`, `user.email "dev@bmg-oran.local"`
-- **Working tree**: Session 8 changes committed on `admin-login`; `main` is clean at `d3d69ae`.
+- **Working tree**: clean on `main` after Session 9.
 
 ---
 
@@ -283,11 +287,21 @@ Built a **username/password admin login** so the owner no longer pastes a GitHub
 3. **Client** — new `src/lib/admin/api.ts`; `AdminPage.tsx` now shows username + password, restores the session on mount via `GET /api/admin/session`, and no longer stores a token anywhere (the old `sessionStorage` keys are gone).
 4. **Tooling** — `scripts/hash-admin-password.mjs` prints the hash + session secret; `.dev.vars.example` documents the variables; `.dev.vars` (gitignored) holds the local-only demo credentials; `docs/DEPLOYMENT.md` gained an “Admin login setup” section.
 5. **Tests** — new `admin-auth.test.ts`, `admin-functions.test.ts`; `admin-page.test.tsx` rewritten for the server session. **19 files, 186 passed + 1 skipped**; typecheck clean.
-6. **Not live yet**: all of this is committed on local branch `admin-login`. Production still runs the token-based admin until the owner tests locally and approves the env vars.
-7. **Local test** — `npm run build` then `npx wrangler pages dev dist --port 8788` → http://localhost:8788/admin.
+6. **Local test** — `npm run build` then `npx wrangler pages dev dist --port 8788` → http://localhost:8788/admin.
    - Credentials are in the gitignored `.dev.vars` (do not commit them; use different secrets in production).
    - Verified in Chromium (Session 8): login 200, dashboard opens, cookie `bmg_admin` is `HttpOnly` (invisible to `document.cookie`), session survives a reload, logout returns 204 and the form comes back.
    - Without `GITHUB_TOKEN` in `.dev.vars`, the login still succeeds; the dashboard shows “Connexion réussie, mais le catalogue n’a pas pu être chargé…” instead of pretending the password was wrong.
+
+### Session 9 (AI — 2026-11-03)
+
+The owner approved the login and asked to deploy.
+
+1. **Production secrets set on `bmg-oran`**: `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`, `GITHUB_TOKEN`. `GITHUB_REPOSITORY` / `GITHUB_BRANCH` still default to `site.config.json` (`redx331/bmgoran`, `main`).
+2. **First deploy failed on the catalogue** with `502 github-auth`. Cause: the GitHub REST API answers **403 for any request without a `User-Agent`**, and a Workers `fetch` sends none (the old browser-based client always did). Fixed in `src/lib/admin/github.ts` (`User-Agent: bmg-oran-admin`), with a regression assertion in `admin-github.test.ts`.
+3. **Deployed**: `wrangler pages deploy dist --project-name bmg-oran --branch main`, then `main` pushed to GitHub.
+4. **Verified live** at https://bmg-oran.pages.dev/admin: login 200 → session 200 (`githubConfigured: true`) → catalogue 200 with 8 products → logout 204. Also verified in Chromium: `/admin` shows the 8 products and no error.
+5. **Admin password is short** (`akuma`). Login is throttled (5 tries / 10 min / IP), but a stronger password is advisable: regenerate the hash, update `ADMIN_PASSWORD_HASH`, redeploy.
+6. **Token hygiene**: the GitHub token was shared in chat during setup; rotate it if it may have been exposed, then update `GITHUB_TOKEN`.
 
 ---
 
@@ -326,7 +340,9 @@ ngrok http 5173
 
 ### 1. Pre-Launch Configuration (requires user input)
 - [x] Resend configured on the **bmg-oran** Pages project; live test order ORD-2026-E3529B53 reached the owner’s inbox.
-- [ ] **Admin login — owner approval gate**: the username/password login exists only on local branch `admin-login`. The owner must test it locally first. After approval: generate real credentials with `node scripts/hash-admin-password.mjs`, set `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`, `GITHUB_TOKEN` (and optionally `GITHUB_REPOSITORY`, `GITHUB_BRANCH`) on `bmg-oran`, merge `admin-login` → `main`, then log in on the live site.
+- [x] **Admin login deployed** (Session 9): `/admin` asks for a username and password. Production secrets `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`, `GITHUB_TOKEN` are set on `bmg-oran`; login, catalogue read and logout verified live.
+- [ ] Change the admin password to something longer than `akuma` (regenerate `ADMIN_PASSWORD_HASH` and redeploy).
+- [ ] Rotate `GITHUB_TOKEN` if it may have been exposed, then update the secret.
 - [ ] Add a Cloudflare rate-limiting rule on `/api/order` and `/api/admin/login`, or Turnstile if spam appears.
 - [ ] Set real address and social links in `site.config.json`, then switch `demoContact` to `false` (phone is already real).
 
@@ -363,7 +379,7 @@ These rules must **never** be violated:
 7. **Admin panel is French-only** — The admin area (`src/admin.css`, `AdminPage.tsx`) is intentionally LTR/French only.
 8. **Never treat missing shipping rates as free** — A `null` rate blocks checkout; this is a safety invariant tested explicitly. Example rates also block orders (`409 rates-not-verified`).
 9. **The GitHub token never reaches the browser** — Admin commits go through `/api/admin/github`, which reads `GITHUB_TOKEN` from the environment. Do not reintroduce token entry in the UI.
-10. **Do not deploy `admin-login` until the owner approves** — `main` auto-deploys on push.
+10. **Always send a `User-Agent` to the GitHub API** — Workers `fetch` sends none and GitHub answers 403; the shared client sets `bmg-oran-admin`.
 11. **User's OS**: Windows. Shell: PowerShell. Use `;` to chain commands (not `&&`). Path style: backslash in Windows commands, forward slash in code.
 
 ---
