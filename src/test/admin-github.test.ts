@@ -85,6 +85,10 @@ describe('verifyAccess', () => {
     expect(
       (calls[0]?.init?.headers as Record<string, string> | undefined)?.Authorization,
     ).toBe('Bearer token');
+    // A Workers `fetch` sends no User-Agent, and GitHub answers 403 without one.
+    expect(
+      (calls[0]?.init?.headers as Record<string, string> | undefined)?.['User-Agent'],
+    ).toBe('bmg-oran-admin');
     expect(calls[1]?.url).toBe(`${API}/repos/bmg-oran/site`);
   });
 

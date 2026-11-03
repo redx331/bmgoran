@@ -97,6 +97,9 @@ async function request<T>(token: string, path: string, init: RequestInit = {}): 
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${token}`,
+        // GitHub returns 403 without a User-Agent. Browsers always send one, but a
+        // Workers `fetch` does not, so the admin proxy must set it explicitly.
+        'User-Agent': 'bmg-oran-admin',
         'X-GitHub-Api-Version': '2022-11-28',
         ...(init.body ? { 'Content-Type': 'application/json' } : {}),
       },
