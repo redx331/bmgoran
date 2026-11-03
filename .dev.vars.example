@@ -1,0 +1,16 @@
+# Local-only admin configuration — copy to `.dev.vars` and fill in.
+# `.dev.vars` is gitignored; never commit real credentials.
+#
+# Generate the password hash + session secret:
+#   node scripts/hash-admin-password.mjs "votre-mot-de-passe"
+#
+# The GitHub token stays on the server and is never sent to the browser.
+# Use a fine-grained token with "Contents: Read and write" on the repo.
+
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD_HASH=pbkdf2-sha256$100000$REMPLACER$REMPLACER
+ADMIN_SESSION_SECRET=REMPLACER_PAR_UN_SECRET_DE_32_CARACTERES_MINIMUM
+
+GITHUB_TOKEN=
+GITHUB_REPOSITORY=redx331/bmgoran
+GITHUB_BRANCH=main

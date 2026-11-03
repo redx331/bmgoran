@@ -5,8 +5,8 @@ motorcycle parts shop in Algeria. Customers browse the catalogue, open a permane
 URL, choose a wilaya and a delivery method, see the exact total, and send the finished order
 to the shop by **email**.
 
-No database and no account system. One small Cloudflare function emails the orders. The whole site is static files that
-can be hosted for free on Cloudflare Pages.
+No database and no customer accounts. Small Cloudflare functions email the orders and check the
+admin password. The whole site is static files that can be hosted for free on Cloudflare Pages.
 
 ---
 
@@ -17,15 +17,15 @@ Everything below is **placeholder content**, not verified business information:
 | Item | Current state |
 | --- | --- |
 | Address, opening hours | Demo values |
-| Order email | **Not set** — orders show an error until `RESEND_API_KEY` and `ORDER_EMAIL_TO` are set in Cloudflare |
+| Order email | Configured — Resend secrets are set on the `bmg-oran` Pages project and a real test order arrived |
 | Products, prices, part numbers, specs | 8 fictional demo products, marked “démo” in the UI |
 | Product photos | Generated SVG placeholders, not real photos |
-| Delivery rates (all 58 wilayas) | **Example numbers**, flagged in the UI and in the code |
+| Delivery rates (all 58 wilayas) | Real ZR Express grid (departure Oran); wilayas ZR does not serve block checkout |
 | Product compatibility | Not claimed anywhere (`verified: false`, no vehicle list) |
 | Site URL | `https://YOUR-PROJECT.pages.dev` placeholder |
 
-The interface shows a visible demo banner and marks demo prices and example shipping rates,
-so nothing here can be mistaken for a real quote. Replace the data before launch — see
+The interface still shows a demo banner and marks demo products and prices, so nothing here can
+be mistaken for a real quote. Replace the data before launch — see
 [`docs/LAUNCH-CHECKLIST.md`](docs/LAUNCH-CHECKLIST.md).
 
 ---
@@ -91,8 +91,8 @@ npm run verify     # checks the dist/ output and lists remaining placeholders
 
 ## Tests
 
-`npm test` runs 9 suites (106 tests) against the real application rendered at URLs, plus
-assertions on the production build in `dist/`:
+`npm test` runs 19 suites (186 passing, 1 skipped) against the real application rendered at URLs,
+plus assertions on the production build in `dist/`:
 
 - product URLs, generated static pages, Open Graph tags, `_redirects`, sitemap and robots
 - search, category filters, quantity / wilaya / delivery-method changes and live totals
@@ -101,7 +101,9 @@ assertions on the production build in `dist/`:
 - unavailable products not being orderable
 - order function validation, price recalculation and email content
 - French LTR and Arabic RTL rendering, plus persisted language choice
-- demo disclosures (banner, demo prices, example rates)
+- demo disclosures (banner, demo products and prices)
+- admin login: password hashing, signed sessions, cookie flags, throttling, and the GitHub proxy
+  (no token in the browser, path allowlist)
 
 Run `npm run build` before `npm test` so the static-build assertions inspect the current
 `dist/`. One sentinel test is intentionally skipped while `dist/` exists.
@@ -119,6 +121,7 @@ Run `npm run build` before `npm test` so the static-build assertions inspect the
 | `src/i18n/translations.ts` | Every French and Arabic interface string |
 | `public/images/products/`, `public/og/` | Real product photos and social images |
 | `index.html` | Base title/description used by the SPA shell |
+| Cloudflare env vars | `RESEND_API_KEY`, `ORDER_EMAIL_TO` for orders; `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`, `GITHUB_TOKEN` for the admin |
 
 Detailed guides:
 
@@ -190,13 +193,21 @@ static product pages.
 
 A static, French-only CMS with two modes:
 
-- **GitHub mode** — sign in with a fine-grained token (**Contents: Read and write**, **Metadata:
-  Read**). Products, photos and OG images are saved as one commit; Cloudflare redeploys
-  automatically.
-- **Local mode** — no token needed. Edits are stored in the browser (`localStorage` for the
+- **Server mode** — sign in with a **username and password**. Credentials are checked in
+  `functions/api/admin/login.ts` against `ADMIN_USERNAME` and a PBKDF2-SHA256 hash
+  (`ADMIN_PASSWORD_HASH`); the session is a signed, `HttpOnly`, `SameSite=Strict` cookie valid for
+  8 hours. The GitHub token stays in the server environment (`GITHUB_TOKEN`) and is never sent to
+  the browser, which talks only to `/api/admin/*`. Products, photos and OG images are saved as one
+  commit; Cloudflare redeploys automatically.
+- **Local mode** — no account needed. Edits are stored in the browser (`localStorage` for the
   catalogue, IndexedDB for photos), restored on reload, and exported as a ZIP containing
   `src/data/products.json`, `public/images/products/*`, `public/og/*` and `LISEZ-MOI.txt`.
   Extract it at the project root and commit.
+
+Server mode needs `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET` and
+`GITHUB_TOKEN` set in Cloudflare (Production). Generate the hash with
+`node scripts/hash-admin-password.mjs "votre-mot-de-passe"`; full steps in
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md#admin-login-setup).
 
 ---
 

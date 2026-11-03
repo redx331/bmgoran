@@ -113,6 +113,47 @@ Never commit these values: the repository is public.
 
 ---
 
+## Admin login setup
+
+The admin panel asks for a **username and password**, not a GitHub token. The token stays on
+the server and is used by `functions/api/admin/github.ts` to commit catalogue changes.
+
+1. Generate the password hash and a session secret:
+   ```bash
+   node scripts/hash-admin-password.mjs "votre-mot-de-passe"
+   ```
+2. In Cloudflare: **Workers & Pages → bmg-oran → Settings → Variables and Secrets**. Add, for
+   Production:
+
+   | Variable | Type | Value |
+   | --- | --- | --- |
+   | `ADMIN_USERNAME` | Secret | Your admin username |
+   | `ADMIN_PASSWORD_HASH` | Secret | The `pbkdf2-sha256$…` line printed by the script |
+   | `ADMIN_SESSION_SECRET` | Secret | The random secret printed by the script |
+   | `GITHUB_TOKEN` | Secret | Fine-grained token, **Contents: Read and write** on the repo |
+   | `GITHUB_REPOSITORY` | Plain | `redx331/bmgoran` (optional, defaults to `site.config.json`) |
+   | `GITHUB_BRANCH` | Plain | `main` (optional) |
+
+3. Redeploy. Log in at `/admin`. The session is a signed, `HttpOnly`, `SameSite=Strict` cookie
+   valid for 8 hours; the browser never sees the GitHub token.
+4. Changing the password means regenerating `ADMIN_PASSWORD_HASH` and redeploying. Existing
+   sessions keep working until they expire unless `ADMIN_SESSION_SECRET` is also rotated.
+
+Login attempts are throttled to 5 failures per IP per 10 minutes inside the Function. For
+stronger protection, add a Cloudflare rate-limiting rule on `/api/admin/login`.
+
+Local testing:
+
+```bash
+npm run build
+npx wrangler pages dev dist --port 8788
+# http://localhost:8788/admin
+```
+
+Copy `.dev.vars.example` to `.dev.vars` and fill it in. `.dev.vars` is gitignored.
+
+---
+
 ## 3. Set the real URL
 
 Canonical links, Open Graph images and the sitemap are generated from
