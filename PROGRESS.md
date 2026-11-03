@@ -281,11 +281,11 @@ Built a **username/password admin login** so the owner no longer pastes a GitHub
    - `github.ts` is the only place `GITHUB_TOKEN` is used: `action: 'catalogue'` and `action: 'commit'` (base64 changes, max 40 files).
    - Path allowlist: `src/data/products.json`, `public/images/products/*`, `public/og/*`; traversal rejected before any GitHub call.
 3. **Client** — new `src/lib/admin/api.ts`; `AdminPage.tsx` now shows username + password, restores the session on mount via `GET /api/admin/session`, and no longer stores a token anywhere (the old `sessionStorage` keys are gone).
-4. **Tooling** — `scripts/hash-admin-password.mjs` prints the hash + session secret; `.dev.vars.example` documents the variables; `.dev.vars` (gitignored) holds demo credentials `bmg` / `bmg-demo-2026`; `docs/DEPLOYMENT.md` gained an “Admin login setup” section.
+4. **Tooling** — `scripts/hash-admin-password.mjs` prints the hash + session secret; `.dev.vars.example` documents the variables; `.dev.vars` (gitignored) holds the local-only demo credentials; `docs/DEPLOYMENT.md` gained an “Admin login setup” section.
 5. **Tests** — new `admin-auth.test.ts`, `admin-functions.test.ts`; `admin-page.test.tsx` rewritten for the server session. **19 files, 186 passed + 1 skipped**; typecheck clean.
 6. **Not live yet**: all of this is committed on local branch `admin-login`. Production still runs the token-based admin until the owner tests locally and approves the env vars.
 7. **Local test** — `npm run build` then `npx wrangler pages dev dist --port 8788` → http://localhost:8788/admin.
-   - Credentials in `.dev.vars`: `bmg` / `bmg-demo-2026`.
+   - Credentials are in the gitignored `.dev.vars` (do not commit them; use different secrets in production).
    - Verified in Chromium (Session 8): login 200, dashboard opens, cookie `bmg_admin` is `HttpOnly` (invisible to `document.cookie`), session survives a reload, logout returns 204 and the form comes back.
    - Without `GITHUB_TOKEN` in `.dev.vars`, the login still succeeds; the dashboard shows “Connexion réussie, mais le catalogue n’a pas pu être chargé…” instead of pretending the password was wrong.
 
