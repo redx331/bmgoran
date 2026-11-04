@@ -300,7 +300,7 @@ The owner approved the login and asked to deploy.
 2. **First deploy failed on the catalogue** with `502 github-auth`. Cause: the GitHub REST API answers **403 for any request without a `User-Agent`**, and a Workers `fetch` sends none (the old browser-based client always did). Fixed in `src/lib/admin/github.ts` (`User-Agent: bmg-oran-admin`), with a regression assertion in `admin-github.test.ts`.
 3. **Deployed**: `wrangler pages deploy dist --project-name bmg-oran --branch main`, then `main` pushed to GitHub.
 4. **Verified live** at https://bmg-oran.pages.dev/admin: login 200 → session 200 (`githubConfigured: true`) → catalogue 200 with 8 products → logout 204. Also verified in Chromium: `/admin` shows the 8 products and no error.
-5. **Admin password is short** (`akuma`). Login is throttled (5 tries / 10 min / IP), but a stronger password is advisable: regenerate the hash, update `ADMIN_PASSWORD_HASH`, redeploy.
+5. **Admin password is short**. Login is throttled (5 tries / 10 min / IP), but a stronger password is advisable: regenerate the hash, update `ADMIN_PASSWORD_HASH`, redeploy.
 6. **Token hygiene**: the GitHub token was shared in chat during setup; rotate it if it may have been exposed, then update `GITHUB_TOKEN`.
 
 ### Session 10 (AI — 2026-11-04)
@@ -311,7 +311,7 @@ The owner reported that he could not delete existing products, and that products
 2. **Fail-fast guard**: `/api/admin/session` now returns `canWrite` from `checkWriteAccess()` — a harmless probe that creates an unreferenced blob (no commit, no ref). `/admin` shows a red “jeton en lecture seule” banner and blocks save/delete **before** any upload. Tests: **190 passed + 1 skipped**.
 3. **Token replaced**: a classic token with the `repo` scope (the simplest reliable route; a fine-grained token with “Contents: Read and write” also works). Uploaded with `wrangler pages secret put GITHUB_TOKEN --project-name bmg-oran`, rebuilt and redeployed (`38797c98`).
 4. **Verified live end-to-end** through the admin proxy: add commit `5dd2bc8` (test product present on GitHub) → delete/restore commit `2619871` (file byte-identical to the original, `cbb142f`), 8 products, workflow `completed/success`, and `sitemap.xml` still lists exactly 8 product URLs with no test product.
-5. **Still to do**: revoke the two old read-only fine-grained tokens (both were pasted in chat), and consider a longer admin password than `akuma`.
+5. **Still to do**: revoke the two old read-only fine-grained tokens (both were pasted in chat), and consider a longer admin password.
 
 ---
 
@@ -353,7 +353,7 @@ ngrok http 5173
 - [x] **Admin login deployed** (Session 9): `/admin` asks for a username and password. Production secrets `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`, `GITHUB_TOKEN` are set on `bmg-oran`; login, catalogue read and logout verified live.
 - [x] **Write-capable GitHub token** (Session 10): classic `repo` token uploaded; add/delete verified live through the admin proxy.
 - [ ] Revoke the two old read-only fine-grained tokens (both were pasted in chat).
-- [ ] Change the admin password to something longer than `akuma` (regenerate `ADMIN_PASSWORD_HASH` and redeploy).
+- [ ] **Urgent**: the old admin password was published in this file (still in git history), so it must be changed. Change the admin password to something longer (regenerate `ADMIN_PASSWORD_HASH` and redeploy).
 - [ ] Add a Cloudflare rate-limiting rule on `/api/order` and `/api/admin/login`, or Turnstile if spam appears.
 - [ ] Set real address and social links in `site.config.json`, then switch `demoContact` to `false` (phone is already real).
 
