@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   GitHubError,
+  checkWriteAccess,
   commitChanges,
   decodeBase64Utf8,
   loadCatalogue,
@@ -63,6 +64,21 @@ describe('base64 helpers', () => {
   it('round-trips UTF-8 text including Arabic and accents', () => {
     const text = '{"nameAr":"مصابيح LED","nameFr":"Éclairage"}';
     expect(decodeBase64Utf8(textToBase64(text))).toBe(text);
+  });
+});
+
+describe('checkWriteAccess', () => {
+  it('returns true when a blob can be created', async () => {
+    const { calls } = mockFetch(() => reply({ sha: 'blob-sha' }, 201));
+    await expect(checkWriteAccess('token', 'bmg-oran/site')).resolves.toBe(true);
+    expect(calls[0]?.url).toBe(`${API}/repos/bmg-oran/site/git/blobs`);
+  });
+
+  it('returns false for a read-only token', async () => {
+    mockFetch(() =>
+      reply({ message: 'Resource not accessible by personal access token' }, 403),
+    );
+    await expect(checkWriteAccess('token', 'bmg-oran/site')).resolves.toBe(false);
   });
 });
 

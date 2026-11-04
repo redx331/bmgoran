@@ -520,6 +520,13 @@ export function AdminPage() {
 
   async function handleSave() {
     if ((!session && !isLocalMode) || !products || !draft) return;
+    if (session && !session.canWrite) {
+      setNotice({
+        kind: 'error',
+        text: 'Le jeton GitHub du serveur est en lecture seule : enregistrement impossible. Remplacez GITHUB_TOKEN par un jeton avec « Contents: Read and write ».',
+      });
+      return;
+    }
     const prepared = prepareProduct(draft);
     const nextErrors = validateProduct(prepared, products, originalSlug);
     setErrors(nextErrors);
@@ -627,6 +634,13 @@ export function AdminPage() {
 
   async function handleDelete() {
     if ((!session && !isLocalMode) || !products || !draft || !originalSlug) return;
+    if (session && !session.canWrite) {
+      setNotice({
+        kind: 'error',
+        text: 'Le jeton GitHub du serveur est en lecture seule : suppression impossible. Remplacez GITHUB_TOKEN par un jeton avec « Contents: Read and write ».',
+      });
+      return;
+    }
     setBusy(true);
     setNotice(null);
     try {
@@ -914,6 +928,20 @@ export function AdminPage() {
       </header>
 
       <main className="admin-main">
+        {session && !session.canWrite ? (
+          <div className="notice notice--error" role="alert">
+            <Icon name="alert" size={18} />
+            <div>
+              <p>
+                Le jeton GitHub du serveur est en <strong>lecture seule</strong> : l’ajout, la
+                modification et la suppression sont désactivés. Créez un jeton « fine-grained »
+                avec <strong>Contents: Read and write</strong> sur ce dépôt, puis mettez à jour{' '}
+                <code>GITHUB_TOKEN</code> sur le serveur.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
         {notice ? (
           <div
             className={`notice notice--${notice.kind === 'success' ? 'success' : notice.kind}`}

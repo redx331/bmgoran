@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { onRequestPost as githubPost } from '../../functions/api/admin/github';
 import { onRequestPost as loginPost } from '../../functions/api/admin/login';
 import { onRequestPost as logoutPost } from '../../functions/api/admin/logout';
@@ -35,6 +35,10 @@ beforeEach(async () => {
     GITHUB_REPOSITORY: 'redx331/bmgoran',
     GITHUB_BRANCH: 'main',
   };
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 function loginRequest(body: unknown, ua = '203.0.113.5'): Request {
@@ -126,6 +130,7 @@ describe('POST /api/admin/login', () => {
 
 describe('/api/admin/session', () => {
   it('returns the signed-in user and repository config', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => Response.json({ sha: 'blob-sha' }, { status: 201 })));
     const request = adminRequest(URL_SESSION, await cookieFor(), undefined, 'GET');
     const response = await sessionGet({ request, env });
 
@@ -135,7 +140,27 @@ describe('/api/admin/session', () => {
       repository: 'redx331/bmgoran',
       branch: 'main',
       githubConfigured: true,
+      canWrite: true,
     });
+    vi.unstubAllGlobals();
+  });
+
+  it('reports a read-only token instead of pretending writes work', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json({ message: 'Resource not accessible by personal access token' }, { status: 403 }),
+      ),
+    );
+    const request = adminRequest(URL_SESSION, await cookieFor(), undefined, 'GET');
+    const response = await sessionGet({ request, env });
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      githubConfigured: true,
+      canWrite: false,
+    });
+    vi.unstubAllGlobals();
   });
 
   it('returns 401 without a valid cookie', async () => {

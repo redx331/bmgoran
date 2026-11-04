@@ -40,6 +40,7 @@ function signIn() {
     repository: 'bmg-oran/site',
     branch: 'main',
     githubConfigured: true,
+    canWrite: true,
   });
   vi.mocked(loadCatalogue).mockResolvedValue({ products: SAMPLE, sha: 'catalogue-sha' });
 }
@@ -116,6 +117,7 @@ describe('admin login', () => {
       repository: 'bmg-oran/site',
       branch: 'main',
       githubConfigured: false,
+      canWrite: false,
     });
     vi.mocked(loadCatalogue).mockRejectedValue(
       new GitHubError('Le jeton GitHub du serveur n’est pas configuré (GITHUB_TOKEN).', 503),
@@ -131,6 +133,33 @@ describe('admin login', () => {
     expect(await screen.findByText(/connexion réussie/i)).toBeInTheDocument();
     expect(screen.queryByLabelText('Mot de passe')).toBeNull();
     expect(screen.getByText('@bmg')).toBeInTheDocument();
+  });
+
+  it('blocks saving when the server token is read-only', async () => {
+    vi.mocked(getSession).mockResolvedValue({
+      login: 'bmg',
+      repository: 'bmg-oran/site',
+      branch: 'main',
+      githubConfigured: true,
+      canWrite: false,
+    });
+    vi.mocked(loadCatalogue).mockResolvedValue({ products: SAMPLE, sha: 'catalogue-sha' });
+
+    const user = userEvent.setup();
+    renderApp({ path: '/admin', locale: 'fr' });
+
+    expect((await screen.findAllByText(/lecture seule/i)).length).toBeGreaterThan(0);
+
+    await user.click(
+      screen.getByRole('button', { name: (name) => name.includes(PRODUCTS[0]!.nameFr) }),
+    );
+    const price = screen.getByLabelText(/prix en dinars/i);
+    await user.clear(price);
+    await user.type(price, '9999');
+    await user.click(screen.getByRole('button', { name: /enregistrer les modifications/i }));
+
+    expect(await screen.findByText(/enregistrement impossible/i)).toBeInTheDocument();
+    expect(vi.mocked(commitChanges)).not.toHaveBeenCalled();
   });
 
   it('allows testing in local mode without a GitHub token', async () => {

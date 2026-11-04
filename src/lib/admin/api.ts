@@ -7,6 +7,7 @@ export interface AdminSession {
   repository: string;
   branch: string;
   githubConfigured: boolean;
+  canWrite: boolean;
 }
 
 interface ErrorBody {

@@ -149,6 +149,36 @@ export async function verifyAccess(token: string, repository: string): Promise<S
   return { login: user.login, defaultBranch: details.default_branch };
 }
 
+/**
+ * Probes the token's **write** permission. `verifyAccess` looks at the user's
+ * repository role, which says nothing about a fine-grained token's scope: a
+ * read-only token passes that check and only fails later, after the browser has
+ * already uploaded the photos.
+ *
+ * Creating an unreferenced blob is enough to know, and changes nothing in the
+ * repository (no commit, no ref).
+ */
+export async function checkWriteAccess(token: string, repository: string): Promise<boolean> {
+  const repo = parseRepository(repository);
+  if (!repo) return false;
+
+  try {
+    await request(token, `/repos/${repo.fullName}/git/blobs`, {
+      method: 'POST',
+      body: JSON.stringify({ content: 'bmg-oran-admin-write-check', encoding: 'utf-8' }),
+    });
+    return true;
+  } catch (error) {
+    if (
+      error instanceof GitHubError &&
+      (error.status === 401 || error.status === 403 || error.status === 404)
+    ) {
+      return false;
+    }
+    throw error;
+  }
+}
+
 export async function loadCatalogue(
   token: string,
   repository: string,
