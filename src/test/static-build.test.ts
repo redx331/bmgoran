@@ -2,7 +2,11 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import siteConfig from '../../site.config.json';
-import { PRODUCTS } from '../data/products';
+import realProducts from '../data/products.json';
+import type { Product } from '../data/products';
+
+// The build uses the real catalogue, unlike the other tests.
+const PRODUCTS = realProducts as unknown as Product[];
 
 const DIST = join(process.cwd(), 'dist');
 const BUILT = existsSync(join(DIST, 'index.html'));

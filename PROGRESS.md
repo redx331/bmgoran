@@ -2,7 +2,7 @@
 
 > **Purpose of this file**: This document tracks the complete development progress, architectural decisions, current state, and upcoming tasks for the BMG Oran bilingual auto/moto parts storefront. **Any AI assistant resuming this project should read this document first to get full context without redundant exploration.**
 
-> **Last updated**: 2026-11-04 — Session 10 (write-capable GitHub token; add/delete verified live end-to-end).
+> **Last updated**: 2026-11-04 — Session 11 (tests no longer depend on the live catalogue; password change script).
 
 ---
 
@@ -313,6 +313,12 @@ The owner reported that he could not delete existing products, and that products
 4. **Verified live end-to-end** through the admin proxy: add commit `5dd2bc8` (test product present on GitHub) → delete/restore commit `2619871` (file byte-identical to the original, `cbb142f`), 8 products, workflow `completed/success`, and `sitemap.xml` still lists exactly 8 product URLs with no test product.
 5. **Still to do**: revoke the two old read-only fine-grained tokens (both were pasted in chat), and consider a longer admin password.
 
+
+### Session 11 (AI — 2026-11-04)
+
+1. **Deploys were blocked**: 31 tests expected the demo products, so deleting them in `/admin` failed every deploy and the owner's edits stayed off the live site. Tests now use `src/test/fixtures/products.json` through a Vitest alias; `static-build.test.ts` and the image-file test still check the real catalogue.
+2. **Password**: the admin password was removed from this file but remains in git history. `scripts/change-admin-password.mjs` asks for a new one (hidden) and uploads the hash and session secret with wrangler.
+
 ---
 
 ## 🌐 Sharing & Deployment Options
@@ -353,7 +359,7 @@ ngrok http 5173
 - [x] **Admin login deployed** (Session 9): `/admin` asks for a username and password. Production secrets `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`, `GITHUB_TOKEN` are set on `bmg-oran`; login, catalogue read and logout verified live.
 - [x] **Write-capable GitHub token** (Session 10): classic `repo` token uploaded; add/delete verified live through the admin proxy.
 - [ ] Revoke the two old read-only fine-grained tokens (both were pasted in chat).
-- [ ] **Urgent**: the old admin password was published in this file (still in git history), so it must be changed. Change the admin password to something longer (regenerate `ADMIN_PASSWORD_HASH` and redeploy).
+- [x] Admin password changed with `scripts/change-admin-password.mjs` (owner still to confirm the login).
 - [ ] Add a Cloudflare rate-limiting rule on `/api/order` and `/api/admin/login`, or Turnstile if spam appears.
 - [ ] Set real address and social links in `site.config.json`, then switch `demoContact` to `false` (phone is already real).
 

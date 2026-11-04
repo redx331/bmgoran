@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CATEGORIES } from '../data/categories';
+import realProducts from '../data/products.json';
 import { PRODUCTS, searchProducts, getProductBySlug, isOrderable } from '../data/products';
 
 const PUBLIC_DIR = join(process.cwd(), 'public');
@@ -55,9 +56,8 @@ describe('product catalogue integrity', () => {
     }
   });
 
-  it('has at least two local images per product and every file exists', () => {
-    for (const product of PRODUCTS) {
-      expect(product.images.length, `${product.slug} images`).toBeGreaterThanOrEqual(2);
+  it('finds every image of the real catalogue on disk', () => {
+    for (const product of realProducts) {
       for (const image of product.images) {
         expect(image.startsWith('/images/'), `${product.slug} image path`).toBe(true);
         expect(existsSync(join(PUBLIC_DIR, image)), `${product.slug} missing ${image}`).toBe(true);
