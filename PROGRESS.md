@@ -2,7 +2,7 @@
 
 > **Purpose of this file**: This document tracks the complete development progress, architectural decisions, current state, and upcoming tasks for the BMG Oran bilingual auto/moto parts storefront. **Any AI assistant resuming this project should read this document first to get full context without redundant exploration.**
 
-> **Last updated**: 2026-11-04 — Session 11 (tests no longer depend on the live catalogue; password change script).
+> **Last updated**: 2026-11-04 — Session 11 (regional office prices; tests independent of the live catalogue; password change script).
 
 ---
 
@@ -318,6 +318,8 @@ The owner reported that he could not delete existing products, and that products
 
 1. **Deploys were blocked**: 31 tests expected the demo products, so deleting them in `/admin` failed every deploy and the owner's edits stayed off the live site. Tests now use `src/test/fixtures/products.json` through a Vitest alias; `static-build.test.ts` and the image-file test still check the real catalogue.
 2. **Password**: the admin password was removed from this file but remains in git history. `scripts/change-admin-password.mjs` asks for a new one (hidden) and uploads the hash and session secret with wrangler.
+
+3. **Office prices set by the owner**: flat north 500, middle 550, south 600 DA for the 25 wilayas where the ZR sheet lists a STOP DESK. The other 33 stay `null`; the owner approved this list. Far-south prices are below the ZR grid (Tamanrasset 1 050, Adrar 900, Béchar 650), so the shop may absorb the difference.
 
 ---
 

@@ -60,7 +60,7 @@ describe('Algerian wilaya shipping configuration', () => {
     expect(desk.ok).toBe(true);
     if (home.ok && desk.ok) {
       expect(home.quote.amount).toBe(400);
-      expect(desk.quote.amount).toBe(300);
+      expect(desk.quote.amount).toBe(500);
       expect(home.quote.isExample).toBe(false);
       expect(home.quote.wilaya.code).toBe('16');
     }

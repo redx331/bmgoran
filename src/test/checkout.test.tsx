@@ -44,15 +44,15 @@ describe('checkout page', () => {
 
     // Changing the delivery method updates shipping and the final total.
     await user.click(screen.getByRole('radio', { name: /Retrait au bureau/ }));
-    expect(summaryValue('Livraison')).toContain(formatPrice(300, 'fr'));
-    expect(summaryValue('Total à payer')).toBe(formatPrice(7300, 'fr'));
+    expect(summaryValue('Livraison')).toContain(formatPrice(500, 'fr'));
+    expect(summaryValue('Total à payer')).toBe(formatPrice(7500, 'fr'));
 
     // Changing the quantity updates the subtotal and the final total.
     const quantity = screen.getByRole('spinbutton', { name: 'Quantité' });
     await user.clear(quantity);
     await user.type(quantity, '3');
     expect(summaryValue('Sous-total')).toBe(formatPrice(10500, 'fr'));
-    expect(summaryValue('Total à payer')).toBe(formatPrice(10800, 'fr'));
+    expect(summaryValue('Total à payer')).toBe(formatPrice(11000, 'fr'));
   });
 
   it('shows verified delivery rates without the example warning', async () => {
