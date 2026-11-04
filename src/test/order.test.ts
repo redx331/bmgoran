@@ -34,8 +34,7 @@ const shipping: ShippingResult = {
 };
 
 const validValues: OrderFormValues = {
-  firstName: 'Mohamed',
-  lastName: 'Benali',
+  name: 'Mohamed Benali',
   phone: '0550 12 34 56',
   wilayaCode: '16',
   deliveryMethod: 'home',
@@ -143,8 +142,7 @@ describe('checkout validation', () => {
   it('requires every customer field', () => {
     const errors = validateOrderFields(
       {
-        firstName: ' ',
-        lastName: '',
+        name: ' ',
         phone: '',
         wilayaCode: '',
         deliveryMethod: '',
@@ -154,8 +152,7 @@ describe('checkout validation', () => {
     );
 
     for (const field of [
-      'firstName',
-      'lastName',
+      'name',
       'phone',
       'wilaya',
       'delivery',
@@ -229,8 +226,7 @@ describe('order message', () => {
       product,
       quantity: 2,
       totals,
-      firstName: 'Mohamed',
-      lastName: 'Benali',
+      name: 'Mohamed Benali',
       phone: '0550 12 34 56',
       wilayaName: 'Alger',
       wilayaCode: '16',
@@ -266,8 +262,7 @@ describe('order message', () => {
       product,
       quantity: 1,
       totals: calculateTotals(product.price, 1, 450),
-      firstName: 'محمد',
-      lastName: 'بن علي',
+      name: 'محمد بن علي',
       phone: '+213550123456',
       wilayaName: 'الجزائر',
       wilayaCode: '16',
@@ -290,8 +285,7 @@ describe('order message', () => {
       product,
       quantity: 1,
       totals,
-      firstName: 'Ahmed',
-      lastName: 'Mansour',
+      name: 'Ahmed Mansour',
       phone: '0550123456',
       wilayaName: 'Oran',
       wilayaCode: '31',

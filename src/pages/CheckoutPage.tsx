@@ -24,15 +24,14 @@ import {
   type DeliveryMethod,
   type ShippingResult,
 } from '../lib/shipping';
-import { Link, useQuery, useRouter } from '../lib/router';
+import { Link, useQuery } from '../lib/router';
 import { usePageMeta } from '../lib/seo';
 import { Icon } from '../components/Icon';
 import { QuantityStepper } from '../components/QuantityStepper';
 import { StockBadge } from '../components/StockBadge';
 
 const FIELD_IDS: Partial<Record<ValidationField, string>> = {
-  firstName: 'checkout-firstName',
-  lastName: 'checkout-lastName',
+  name: 'checkout-name',
   phone: 'checkout-phone',
   wilaya: 'checkout-wilaya',
   delivery: 'checkout-delivery-home',
@@ -53,25 +52,23 @@ function FieldError({ error, id }: { error?: ValidationError; id: string }) {
 export function CheckoutPage({ slug }: { slug: string }) {
   const { t, locale } = useI18n();
   const query = useQuery();
-  const { navigate } = useRouter();
   const product: Product | undefined = getProductBySlug(slug);
 
   const initialQuantity = normalizeQuantity(query.get('qty') ?? '') ?? 1;
   const [quantity, setQuantity] = useState(initialQuantity);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [wilayaCode, setWilayaCode] = useState('');
   const [commune, setCommune] = useState('');
   const [customCommune, setCustomCommune] = useState('');
-  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod | ''>('');
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('home');
   const [attempted, setAttempted] = useState(false);
   const [website, setWebsite] = useState('');
   const [sending, setSending] = useState(false);
   const [sendFailed, setSendFailed] = useState(false);
   const [reference, setReference] = useState<string | null>(null);
 
-  const name = product ? getProductName(product, locale) : '';
+  const productName = product ? getProductName(product, locale) : '';
   const available = product ? product.stockStatus !== 'out_of_stock' : false;
 
   const shipping: ShippingResult | null =
@@ -90,8 +87,7 @@ export function CheckoutPage({ slug }: { slug: string }) {
   const resolvedCommune = commune === '__other__' ? customCommune.trim() : commune;
 
   const values: OrderFormValues = {
-    firstName,
-    lastName,
+    name,
     phone,
     wilayaCode,
     commune: resolvedCommune,
@@ -103,15 +99,14 @@ export function CheckoutPage({ slug }: { slug: string }) {
     : [];
 
   usePageMeta({
-    title: product ? `${t('checkout.title')} — ${name}` : t('checkout.title'),
+    title: product ? `${t('checkout.title')} — ${productName}` : t('checkout.title'),
     description: t('checkout.subtitle'),
     path: `/checkout/${slug}`,
     locale,
     noindex: true,
   });
 
-  const firstNameError = getFieldError(errors, 'firstName');
-  const lastNameError = getFieldError(errors, 'lastName');
+  const nameError = getFieldError(errors, 'name');
   const phoneError = getFieldError(errors, 'phone');
   const wilayaError = getFieldError(errors, 'wilaya');
   const deliveryError = getFieldError(errors, 'delivery');
@@ -121,6 +116,11 @@ export function CheckoutPage({ slug }: { slug: string }) {
     setWilayaCode(code);
     setCommune('');
     setCustomCommune('');
+    // Skip the delivery choice when this wilaya only offers the other method.
+    if (code && !getShippingQuote(code, deliveryMethod).ok) {
+      const other = deliveryMethod === 'home' ? 'desk' : 'home';
+      if (getShippingQuote(code, other).ok) setDeliveryMethod(other);
+    }
   };
 
   const methodQuote = (method: DeliveryMethod) => {
@@ -159,8 +159,7 @@ export function CheckoutPage({ slug }: { slug: string }) {
         await submitOrder({
           productSlug: product.slug,
           quantity: validQuantity,
-          firstName,
-          lastName,
+          name,
           phone,
           wilayaCode,
           commune: resolvedCommune,
@@ -209,12 +208,12 @@ export function CheckoutPage({ slug }: { slug: string }) {
             <div className="unavailable-product">
               <img
                 src={product.images[0] ?? '/images/products/placeholder.svg'}
-                alt={t('checkout.productImageAlt', { name })}
+                alt={t('checkout.productImageAlt', { name: productName })}
                 width={800}
                 height={600}
               />
               <div>
-                <strong>{name}</strong>
+                <strong>{productName}</strong>
                 <span>{formatPrice(product.price, locale)}</span>
               </div>
             </div>
@@ -312,42 +311,23 @@ export function CheckoutPage({ slug }: { slug: string }) {
                 {t('checkout.contactSection')}
               </legend>
               <div className="form-grid">
-                <div className={`field${firstNameError ? ' is-invalid' : ''}`}>
-                  <label htmlFor="checkout-firstName">
-                    {t('checkout.firstName')} <span className="required-mark" aria-hidden="true">*</span>
+                <div className={`field field--full${nameError ? ' is-invalid' : ''}`}>
+                  <label htmlFor="checkout-name">
+                    {t('checkout.name')} <span className="required-mark" aria-hidden="true">*</span>
                   </label>
                   <input
-                    id="checkout-firstName"
-                    name="firstName"
+                    id="checkout-name"
+                    name="name"
                     type="text"
-                    autoComplete="given-name"
-                    placeholder={t('checkout.firstNamePlaceholder')}
-                    value={firstName}
-                    onChange={(event) => setFirstName(event.target.value)}
+                    autoComplete="name"
+                    placeholder={t('checkout.namePlaceholder')}
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
                     aria-required="true"
-                    aria-invalid={Boolean(firstNameError)}
-                    aria-describedby={firstNameError ? 'checkout-firstName-error' : undefined}
+                    aria-invalid={Boolean(nameError)}
+                    aria-describedby={nameError ? 'checkout-name-error' : undefined}
                   />
-                  <FieldError error={firstNameError} id="checkout-firstName-error" />
-                </div>
-
-                <div className={`field${lastNameError ? ' is-invalid' : ''}`}>
-                  <label htmlFor="checkout-lastName">
-                    {t('checkout.lastName')} <span className="required-mark" aria-hidden="true">*</span>
-                  </label>
-                  <input
-                    id="checkout-lastName"
-                    name="lastName"
-                    type="text"
-                    autoComplete="family-name"
-                    placeholder={t('checkout.lastNamePlaceholder')}
-                    value={lastName}
-                    onChange={(event) => setLastName(event.target.value)}
-                    aria-required="true"
-                    aria-invalid={Boolean(lastNameError)}
-                    aria-describedby={lastNameError ? 'checkout-lastName-error' : undefined}
-                  />
-                  <FieldError error={lastNameError} id="checkout-lastName-error" />
+                  <FieldError error={nameError} id="checkout-name-error" />
                 </div>
 
                 <div className={`field field--full${phoneError ? ' is-invalid' : ''}`}>
@@ -530,7 +510,7 @@ export function CheckoutPage({ slug }: { slug: string }) {
             <div className="summary-product">
               <img
                 src={product.images[0] ?? '/images/products/placeholder.svg'}
-                alt={t('checkout.productImageAlt', { name })}
+                alt={t('checkout.productImageAlt', { name: productName })}
                 width={800}
                 height={600}
                 loading="lazy"
@@ -539,7 +519,7 @@ export function CheckoutPage({ slug }: { slug: string }) {
                 <span className="summary-product__category">
                   {getCategoryName(product.category, locale)}
                 </span>
-                <strong>{name}</strong>
+                <strong>{productName}</strong>
                 <span>{formatPrice(product.price, locale)}</span>
               </div>
             </div>
@@ -567,8 +547,6 @@ export function CheckoutPage({ slug }: { slug: string }) {
                 <span className="summary-shipping">
                   {!wilayaCode ? (
                     <span className="summary-muted">{t('checkout.selectWilayaToSeeShipping')}</span>
-                  ) : !deliveryMethod ? (
-                    <span className="summary-muted">{t('checkout.selectMethodToSeeShipping')}</span>
                   ) : shipping?.ok ? (
                     <>
                       {formatPrice(shipping.quote.amount, locale)}
@@ -616,15 +594,6 @@ export function CheckoutPage({ slug }: { slug: string }) {
               <h3>{t('checkout.privacyTitle')}</h3>
               <p>{t('checkout.privacyText')}</p>
             </div>
-
-            <button
-              type="button"
-              className="summary-back"
-              onClick={() => navigate(`/product/${product.slug}`)}
-            >
-              <Icon name="arrow-left" size={15} className="directional-icon" />
-              {t('checkout.backToProduct')}
-            </button>
           </aside>
         </form>
       </div>

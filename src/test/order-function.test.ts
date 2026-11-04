@@ -12,8 +12,7 @@ const URL_ORDER = 'https://shop.example.test/api/order';
 const VALID = {
   productSlug: 'led-headlights',
   quantity: 2,
-  firstName: 'Mohamed',
-  lastName: 'Benali',
+  name: 'Mohamed Benali',
   phone: '0550 12 34 56',
   wilayaCode: '16',
   commune: 'Hydra',
@@ -77,7 +76,7 @@ describe('POST /api/order', () => {
   });
 
   it.each([
-    ['missing first name', { firstName: '  ' }],
+    ['missing name', { name: '  ' }],
     ['invalid phone', { phone: '0123' }],
     ['unknown product', { productSlug: 'nope' }],
     ['out-of-stock product', { productSlug: 'motorcycle-chain-kit' }],
@@ -85,7 +84,7 @@ describe('POST /api/order', () => {
     ['quantity sent as text', { quantity: '2' }],
     ['unknown wilaya', { wilayaCode: '99' }],
     ['invalid delivery method', { deliveryMethod: 'drone' }],
-    ['oversized name', { firstName: 'x'.repeat(81) }],
+    ['oversized name', { name: 'x'.repeat(161) }],
   ])('rejects %s without sending', async (_name, change) => {
     const response = await post({ ...VALID, ...change });
     expect(response.status).toBe(422);
@@ -93,7 +92,7 @@ describe('POST /api/order', () => {
   });
 
   it('flattens line breaks so a customer cannot forge order lines', async () => {
-    await post({ ...VALID, lastName: 'Benali\nTOTAL: 1 DA' });
+    await post({ ...VALID, name: 'Benali\nTOTAL: 1 DA' });
     const email = JSON.parse(fetchMock.mock.calls[0]?.[1]?.body as string);
     expect(email.text).not.toMatch(/^TOTAL: 1 DA$/m);
   });

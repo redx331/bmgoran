@@ -133,10 +133,8 @@ const fr = {
   'checkout.contactSection': 'Vos coordonnées',
   'checkout.requiredNote': 'Les champs marqués * sont obligatoires.',
   'checkout.deliverySection': 'Livraison',
-  'checkout.firstName': 'Prénom',
-  'checkout.firstNamePlaceholder': 'Ex. Mohamed',
-  'checkout.lastName': 'Nom',
-  'checkout.lastNamePlaceholder': 'Ex. Benali',
+  'checkout.name': 'Nom et prénom',
+  'checkout.namePlaceholder': 'Ex. Mohamed Benali',
   'checkout.phone': 'Téléphone',
   'checkout.phonePlaceholder': '05 50 00 00 00',
   'checkout.phoneHint': 'Numéro mobile algérien ou format international (+213…).',
@@ -161,7 +159,6 @@ const fr = {
   'checkout.shipping': 'Livraison',
   'checkout.total': 'Total à payer',
   'checkout.selectWilayaToSeeShipping': 'Sélectionnez une wilaya pour calculer la livraison.',
-  'checkout.selectMethodToSeeShipping': 'Choisissez un mode de livraison pour calculer les frais.',
   'checkout.rateUnavailable':
     'Le tarif de livraison n’est pas configuré pour cette wilaya et ce mode. Choisissez un autre mode ou contactez-nous.',
   'checkout.rateExampleNotice':
@@ -240,8 +237,7 @@ const fr = {
   'footer.noDatabase':
     'Aucun compte client : votre commande est transmise directement au magasin.',
 
-  'validation.firstNameRequired': 'Le prénom est obligatoire.',
-  'validation.lastNameRequired': 'Le nom est obligatoire.',
+  'validation.nameRequired': 'Le nom et le prénom sont obligatoires.',
   'validation.phoneRequired': 'Le numéro de téléphone est obligatoire.',
   'validation.phoneInvalid':
     'Numéro invalide. Utilisez un mobile algérien (05/06/07…) ou le format international (+213…).',
@@ -423,10 +419,8 @@ const ar: Record<TranslationKey, string> = {
   'checkout.contactSection': 'معلوماتك',
   'checkout.requiredNote': 'الحقول المعلّمة بـ * إلزامية.',
   'checkout.deliverySection': 'التوصيل',
-  'checkout.firstName': 'الاسم',
-  'checkout.firstNamePlaceholder': 'مثال: محمد',
-  'checkout.lastName': 'اللقب',
-  'checkout.lastNamePlaceholder': 'مثال: بن علي',
+  'checkout.name': 'الاسم واللقب',
+  'checkout.namePlaceholder': 'مثال: محمد بن علي',
   'checkout.phone': 'الهاتف',
   'checkout.phonePlaceholder': '05 50 00 00 00',
   'checkout.phoneHint': 'رقم هاتف جزائري أو صيغة دولية (+213…).',
@@ -451,7 +445,6 @@ const ar: Record<TranslationKey, string> = {
   'checkout.shipping': 'التوصيل',
   'checkout.total': 'المجموع الكلي',
   'checkout.selectWilayaToSeeShipping': 'اختر ولاية لحساب رسوم التوصيل.',
-  'checkout.selectMethodToSeeShipping': 'اختر طريقة التوصيل لحساب الرسوم.',
   'checkout.rateUnavailable':
     'رسوم التوصيل غير مهيأة لهذه الولاية وهذه الطريقة. اختر طريقة أخرى أو تواصل معنا.',
   'checkout.rateExampleNotice':
@@ -528,8 +521,7 @@ const ar: Record<TranslationKey, string> = {
   'footer.noDatabase':
     'دون حساب عميل: يصل طلبك مباشرة إلى المتجر.',
 
-  'validation.firstNameRequired': 'الاسم مطلوب.',
-  'validation.lastNameRequired': 'اللقب مطلوب.',
+  'validation.nameRequired': 'الاسم واللقب مطلوبان.',
   'validation.phoneRequired': 'رقم الهاتف مطلوب.',
   'validation.phoneInvalid':
     'رقم غير صالح. استخدم رقم هاتف جزائري (05/06/07…) أو صيغة دولية (+213…).',

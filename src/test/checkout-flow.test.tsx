@@ -12,8 +12,7 @@ vi.mock('../config/shipping', async (importOriginal) => {
 const fetchMock = vi.fn<typeof fetch>();
 
 async function fillValidCustomer(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText(/Prénom/), 'Mohamed');
-  await user.type(screen.getByLabelText(/^Nom/), 'Benali');
+  await user.type(screen.getByLabelText(/Nom et prénom/), 'Mohamed Benali');
   await user.type(screen.getByLabelText(/Téléphone/), '0550 12 34 56');
   await user.selectOptions(screen.getByRole('combobox', { name: /Wilaya/ }), '16');
   await user.click(screen.getByRole('radio', { name: /Livraison à domicile/ }));
@@ -32,13 +31,11 @@ describe('placing an order', () => {
 
     await user.click(screen.getByRole('button', { name: 'Passer la commande' }));
 
-    expect(screen.getByText('Le prénom est obligatoire.')).toBeInTheDocument();
-    expect(screen.getByText('Le nom est obligatoire.')).toBeInTheDocument();
+    expect(screen.getByText('Le nom et le prénom sont obligatoires.')).toBeInTheDocument();
     expect(screen.getByText('Le numéro de téléphone est obligatoire.')).toBeInTheDocument();
     expect(screen.getByText('Sélectionnez votre wilaya.')).toBeInTheDocument();
-    expect(screen.getByText('Choisissez un mode de livraison.')).toBeInTheDocument();
     expect(screen.getByText('Veuillez corriger les champs indiqués.')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Prénom/)).toHaveFocus();
+    expect(screen.getByLabelText(/Nom et prénom/)).toHaveFocus();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -83,8 +80,7 @@ describe('placing an order', () => {
     expect(JSON.parse(init?.body as string)).toEqual({
       productSlug: 'led-headlights',
       quantity: 2,
-      firstName: 'Mohamed',
-      lastName: 'Benali',
+      name: 'Mohamed Benali',
       phone: '0550 12 34 56',
       wilayaCode: '16',
       commune: '',
@@ -107,16 +103,39 @@ describe('placing an order', () => {
 
     expect(await screen.findByText(/La commande n’a pas pu être envoyée/)).toBeInTheDocument();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/Prénom/)).toHaveValue('Mohamed');
+    expect(screen.getByLabelText(/Nom et prénom/)).toHaveValue('Mohamed Benali');
     expect(screen.getByRole('button', { name: 'Passer la commande' })).toBeEnabled();
+  });
+
+  it('needs only name, phone and wilaya, with home delivery already selected', async () => {
+    const user = userEvent.setup();
+    renderApp({ path: '/checkout/led-headlights', locale: 'fr' });
+
+    await user.type(screen.getByLabelText(/Nom et prénom/), 'Mohamed Benali');
+    await user.type(screen.getByLabelText(/Téléphone/), '0550123456');
+    await user.selectOptions(screen.getByRole('combobox', { name: /Wilaya/ }), '16');
+    await user.click(screen.getByRole('button', { name: 'Passer la commande' }));
+
+    await screen.findByRole('status');
+    const [, init] = fetchMock.mock.calls[0] ?? [];
+    expect(JSON.parse(init?.body as string).deliveryMethod).toBe('home');
+  });
+
+  it('switches to the method a wilaya offers when the selected one is missing', async () => {
+    const user = userEvent.setup();
+    renderApp({ path: '/checkout/led-headlights', locale: 'fr' });
+
+    await user.click(screen.getByRole('radio', { name: /Retrait au bureau/ }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Wilaya/ }), '06');
+
+    expect(screen.getByRole('radio', { name: /Livraison à domicile/ })).toBeChecked();
   });
 
   it('works in Arabic', async () => {
     const user = userEvent.setup();
     renderApp({ path: '/checkout/led-headlights', locale: 'ar' });
 
-    await user.type(screen.getByLabelText(/^الاسم/), 'محمد');
-    await user.type(screen.getByLabelText(/^اللقب/), 'بن علي');
+    await user.type(screen.getByLabelText(/الاسم واللقب/), 'محمد بن علي');
     await user.type(screen.getByLabelText(/الهاتف/), '+213550123456');
     await user.selectOptions(screen.getByRole('combobox', { name: /الولاية/ }), '16');
     await user.click(screen.getByRole('radio', { name: /التوصيل إلى المنزل/ }));

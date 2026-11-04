@@ -7,8 +7,7 @@ import { formatPrice } from './format';
 export const MAX_QUANTITY = 99;
 
 export interface OrderFormValues {
-  firstName: string;
-  lastName: string;
+  name: string;
   phone: string;
   wilayaCode: string;
   commune?: string;
@@ -17,8 +16,7 @@ export interface OrderFormValues {
 }
 
 export type ValidationField =
-  | 'firstName'
-  | 'lastName'
+  | 'name'
   | 'phone'
   | 'wilaya'
   | 'delivery'
@@ -103,11 +101,8 @@ export function validateOrderFields(
     errors.push({ field: 'form', key: 'validation.productUnavailable' });
   }
 
-  if (!values.firstName.trim()) {
-    errors.push({ field: 'firstName', key: 'validation.firstNameRequired' });
-  }
-  if (!values.lastName.trim()) {
-    errors.push({ field: 'lastName', key: 'validation.lastNameRequired' });
+  if (!values.name.trim()) {
+    errors.push({ field: 'name', key: 'validation.nameRequired' });
   }
 
   if (!normalizePhone(values.phone)) {
@@ -169,8 +164,7 @@ export interface OrderMessageInput {
   product: Product;
   quantity: number;
   totals: OrderTotals;
-  firstName: string;
-  lastName: string;
+  name: string;
   phone: string;
   wilayaName: string;
   wilayaCode: string;
@@ -184,8 +178,7 @@ export interface OrderMessageInput {
 export interface OrderRequest {
   productSlug: string;
   quantity: number;
-  firstName: string;
-  lastName: string;
+  name: string;
   phone: string;
   wilayaCode: string;
   commune: string;
@@ -265,7 +258,7 @@ export function buildOrderMessage(input: OrderMessageInput): string {
     `${labels.unitPrice}: ${formatPrice(input.totals.unitPrice, locale)}`,
     `${labels.subtotal}: ${formatPrice(input.totals.subtotal, locale)}`,
     '',
-    `${labels.customer}: ${input.firstName.trim()} ${input.lastName.trim()}`,
+    `${labels.customer}: ${input.name.trim()}`,
     `${labels.phone}: ${normalizePhone(input.phone)}`,
     `${labels.wilaya}: ${input.wilayaName} (${input.wilayaCode})${
       input.commune?.trim() ? ` · ${input.commune.trim()}` : ''

@@ -325,6 +325,8 @@ The owner reported that he could not delete existing products, and that products
 
 5. **Consent checkbox removed** at the owner's request, in the form and in `/api/order`. The privacy notice on checkout still explains that order details go to the shop.
 
+6. **Shorter checkout**: one `name` field replaces first and last name (client, `/api/order` and email). Home delivery is preselected and switches automatically when a wilaya only offers the other method. Removed the duplicate back button under the summary.
+
 ---
 
 ## 🌐 Sharing & Deployment Options

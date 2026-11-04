@@ -62,8 +62,7 @@ export async function onRequestPost({
   // Honeypot: only bots fill this hidden field, so pretend it worked and send nothing.
   if (body.website) return json(200, { reference: createReference() });
 
-  const firstName = text(body.firstName, 80);
-  const lastName = text(body.lastName, 80);
+  const name = text(body.name, 160);
   const phone = text(body.phone, 30);
   const commune = text(body.commune ?? '', 100);
   const product = typeof body.productSlug === 'string' ? getProductBySlug(body.productSlug) : undefined;
@@ -74,8 +73,7 @@ export async function onRequestPost({
       : null;
 
   if (
-    !firstName ||
-    !lastName ||
+    !name ||
     !phone ||
     !isValidAlgerianPhone(phone) ||
     commune === null ||
@@ -103,8 +101,7 @@ export async function onRequestPost({
     product,
     quantity,
     totals: calculateTotals(product.price, quantity, shipping.quote.amount),
-    firstName,
-    lastName,
+    name,
     phone,
     wilayaName: wilayaName(shipping.quote.wilaya, 'fr'),
     wilayaCode: shipping.quote.wilaya.code,

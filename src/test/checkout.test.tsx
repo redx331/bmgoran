@@ -35,8 +35,6 @@ describe('checkout page', () => {
     expect(summaryValue('Total à payer')).toBe('—');
 
     await user.selectOptions(screen.getByRole('combobox', { name: /Wilaya/ }), '16');
-    expect(summaryValue('Livraison')).toContain('Choisissez un mode de livraison');
-
     await user.click(screen.getByRole('radio', { name: /Livraison à domicile/ }));
     expect(summaryValue('Livraison')).toContain(formatPrice(400, 'fr'));
     expect(summaryValue('Livraison')).not.toContain('Tarif exemple');

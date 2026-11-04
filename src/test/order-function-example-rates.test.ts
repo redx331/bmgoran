@@ -13,8 +13,7 @@ const URL_ORDER = 'https://shop.example.test/api/order';
 const VALID = {
   productSlug: 'led-headlights',
   quantity: 2,
-  firstName: 'Mohamed',
-  lastName: 'Benali',
+  name: 'Mohamed Benali',
   phone: '0550 12 34 56',
   wilayaCode: '16',
   commune: 'Hydra',
