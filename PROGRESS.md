@@ -2,7 +2,7 @@
 
 > **Purpose of this file**: This document tracks the complete development progress, architectural decisions, current state, and upcoming tasks for the BMG Oran bilingual auto/moto parts storefront. **Any AI assistant resuming this project should read this document first to get full context without redundant exploration.**
 
-> **Last updated**: 2026-11-03 — Session 9 (username/password admin login deployed to https://bmg-oran.pages.dev and verified live).
+> **Last updated**: 2026-11-04 — Session 10 (write-capable GitHub token; add/delete verified live end-to-end).
 
 ---
 
@@ -303,6 +303,16 @@ The owner approved the login and asked to deploy.
 5. **Admin password is short** (`akuma`). Login is throttled (5 tries / 10 min / IP), but a stronger password is advisable: regenerate the hash, update `ADMIN_PASSWORD_HASH`, redeploy.
 6. **Token hygiene**: the GitHub token was shared in chat during setup; rotate it if it may have been exposed, then update `GITHUB_TOKEN`.
 
+### Session 10 (AI — 2026-11-04)
+
+The owner reported that he could not delete existing products, and that products he added took a long time and never appeared.
+
+1. **Root cause**: the production `GITHUB_TOKEN` was a fine-grained token with **read-only** Contents. Reads worked (the catalogue loaded), but every write failed at the first blob upload: `403 Resource not accessible by personal access token`, with `x-accepted-github-permissions: contents=write`. On an add, the browser had already resized and uploaded the photos before the failure — hence the long wait and the missing product.
+2. **Fail-fast guard**: `/api/admin/session` now returns `canWrite` from `checkWriteAccess()` — a harmless probe that creates an unreferenced blob (no commit, no ref). `/admin` shows a red “jeton en lecture seule” banner and blocks save/delete **before** any upload. Tests: **190 passed + 1 skipped**.
+3. **Token replaced**: a classic token with the `repo` scope (the simplest reliable route; a fine-grained token with “Contents: Read and write” also works). Uploaded with `wrangler pages secret put GITHUB_TOKEN --project-name bmg-oran`, rebuilt and redeployed (`38797c98`).
+4. **Verified live end-to-end** through the admin proxy: add commit `5dd2bc8` (test product present on GitHub) → delete/restore commit `2619871` (file byte-identical to the original, `cbb142f`), 8 products, workflow `completed/success`, and `sitemap.xml` still lists exactly 8 product URLs with no test product.
+5. **Still to do**: revoke the two old read-only fine-grained tokens (both were pasted in chat), and consider a longer admin password than `akuma`.
+
 ---
 
 ## 🌐 Sharing & Deployment Options
@@ -341,8 +351,9 @@ ngrok http 5173
 ### 1. Pre-Launch Configuration (requires user input)
 - [x] Resend configured on the **bmg-oran** Pages project; live test order ORD-2026-E3529B53 reached the owner’s inbox.
 - [x] **Admin login deployed** (Session 9): `/admin` asks for a username and password. Production secrets `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, `ADMIN_SESSION_SECRET`, `GITHUB_TOKEN` are set on `bmg-oran`; login, catalogue read and logout verified live.
+- [x] **Write-capable GitHub token** (Session 10): classic `repo` token uploaded; add/delete verified live through the admin proxy.
+- [ ] Revoke the two old read-only fine-grained tokens (both were pasted in chat).
 - [ ] Change the admin password to something longer than `akuma` (regenerate `ADMIN_PASSWORD_HASH` and redeploy).
-- [ ] Rotate `GITHUB_TOKEN` if it may have been exposed, then update the secret.
 - [ ] Add a Cloudflare rate-limiting rule on `/api/order` and `/api/admin/login`, or Turnstile if spam appears.
 - [ ] Set real address and social links in `site.config.json`, then switch `demoContact` to `false` (phone is already real).
 
