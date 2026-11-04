@@ -15,36 +15,11 @@
     "descriptionFr": "Paire de phares LED à connecteur H4, pensée pour remplacer une ampoule halogène sans modifier le faisceau d'origine. Lumière blanche 6000K et boîtier compact facilitant l'installation. Produit de démonstration : vérifiez la compatibilité électrique et le type de connecteur de votre véhicule avant commande.",
     "descriptionAr": "زوج من مصابيح LED بموصل H4، مصمم لاستبدال مصباح الهالوجين دون تعديل الشعاع الأصلي. إضاءة بيضاء 6000K وهيكل صغير يسهّل التركيب. منتج تجريبي: تحقق من التوافق الكهربائي ونوع الموصل في سيارتك قبل الطلب.",
     "specifications": [
-      {
-        "labelFr": "Type de douille",
-        "labelAr": "نوع القاعدة",
-        "valueFr": "H4",
-        "valueAr": "H4"
-      },
-      {
-        "labelFr": "Tension",
-        "labelAr": "الجهد",
-        "valueFr": "12 V",
-        "valueAr": "12 فولت"
-      },
-      {
-        "labelFr": "Puissance",
-        "labelAr": "القدرة",
-        "valueFr": "2 × 25 W",
-        "valueAr": "2 × 25 واط"
-      },
-      {
-        "labelFr": "Température de couleur",
-        "labelAr": "درجة حرارة اللون",
-        "valueFr": "6000 K",
-        "valueAr": "6000 كلفن"
-      },
-      {
-        "labelFr": "Contenu",
-        "labelAr": "المحتوى",
-        "valueFr": "2 phares",
-        "valueAr": "مصباحان"
-      }
+      { "labelFr": "Type de douille", "labelAr": "نوع القاعدة", "valueFr": "H4", "valueAr": "H4" },
+      { "labelFr": "Tension", "labelAr": "الجهد", "valueFr": "12 V", "valueAr": "12 فولت" },
+      { "labelFr": "Puissance", "labelAr": "القدرة", "valueFr": "2 × 25 W", "valueAr": "2 × 25 واط" },
+      { "labelFr": "Température de couleur", "labelAr": "درجة حرارة اللون", "valueFr": "6000 K", "valueAr": "6000 كلفن" },
+      { "labelFr": "Contenu", "labelAr": "المحتوى", "valueFr": "2 phares", "valueAr": "مصباحان" }
     ],
     "partNumber": "DEMO-H4-LED-01",
     "compatibility": {
@@ -56,15 +31,7 @@
     "stockStatus": "in_stock",
     "featured": true,
     "isDemo": true,
-    "keywords": [
-      "phare",
-      "led",
-      "h4",
-      "eclairage",
-      "ampoule",
-      "مصباح",
-      "إضاءة"
-    ]
+    "keywords": ["phare", "led", "h4", "eclairage", "ampoule", "مصباح", "إضاءة"]
   },
   {
     "id": "p-002",
@@ -82,36 +49,11 @@
     "descriptionFr": "Support de guidon avec pince réglable et rotation à 360°, conçu pour garder le téléphone visible pendant les trajets. Coque fermée pour protéger l'écran de la pluie et des projections. Produit de démonstration : mesurez le diamètre de votre guidon avant commande.",
     "descriptionAr": "حامل مثبت على المقود مع مشبك قابل للتعديل ودوران 360°، لإبقاء الهاتف ظاهرًا أثناء التنقل. غطاء مغلق يحمي الشاشة من المطر والرشاش. منتج تجريبي: قس قطر مقود دراجتك قبل الطلب.",
     "specifications": [
-      {
-        "labelFr": "Fixation",
-        "labelAr": "نظام التثبيت",
-        "valueFr": "Guidon 22–32 mm",
-        "valueAr": "مقود 22–32 مم"
-      },
-      {
-        "labelFr": "Rotation",
-        "labelAr": "الدوران",
-        "valueFr": "360°",
-        "valueAr": "360°"
-      },
-      {
-        "labelFr": "Protection",
-        "labelAr": "الحماية",
-        "valueFr": "Coque fermée",
-        "valueAr": "غطاء مغلق"
-      },
-      {
-        "labelFr": "Matériau",
-        "labelAr": "المادة",
-        "valueFr": "ABS + silicone",
-        "valueAr": "ABS + سيليكون"
-      },
-      {
-        "labelFr": "Usage",
-        "labelAr": "الاستخدام",
-        "valueFr": "Moto et scooter",
-        "valueAr": "دراجة نارية وسكوتر"
-      }
+      { "labelFr": "Fixation", "labelAr": "نظام التثبيت", "valueFr": "Guidon 22–32 mm", "valueAr": "مقود 22–32 مم" },
+      { "labelFr": "Rotation", "labelAr": "الدوران", "valueFr": "360°", "valueAr": "360°" },
+      { "labelFr": "Protection", "labelAr": "الحماية", "valueFr": "Coque fermée", "valueAr": "غطاء مغلق" },
+      { "labelFr": "Matériau", "labelAr": "المادة", "valueFr": "ABS + silicone", "valueAr": "ABS + سيليكون" },
+      { "labelFr": "Usage", "labelAr": "الاستخدام", "valueFr": "Moto et scooter", "valueAr": "دراجة نارية وسكوتر" }
     ],
     "partNumber": "DEMO-MPH-02",
     "compatibility": {
@@ -123,15 +65,7 @@
     "stockStatus": "in_stock",
     "featured": true,
     "isDemo": true,
-    "keywords": [
-      "telephone",
-      "support",
-      "moto",
-      "scooter",
-      "هاتف",
-      "حامل",
-      "دراجة"
-    ]
+    "keywords": ["telephone", "support", "moto", "scooter", "هاتف", "حامل", "دراجة"]
   },
   {
     "id": "p-003",
@@ -149,36 +83,11 @@
     "descriptionFr": "Jeu de tapis de sol en caoutchouc souple, avec bord relevé pour retenir l'eau et la poussière. Découpe universelle à ajuster selon l'habitacle. Faciles à laver à l'eau. Produit de démonstration : vérifiez les dimensions avant commande.",
     "descriptionAr": "مجموعة دواسات أرضية من مطاط مرن بحواف مرتفعة لاحتواء الماء والغبار. قَصّ عام يمكن تعديله حسب مقصورة السيارة. سهلة الغسل بالماء. منتج تجريبي: تحقق من الأبعاد قبل الطلب.",
     "specifications": [
-      {
-        "labelFr": "Matière",
-        "labelAr": "المادة",
-        "valueFr": "TPE souple",
-        "valueAr": "TPE مرن"
-      },
-      {
-        "labelFr": "Contenu",
-        "labelAr": "المحتوى",
-        "valueFr": "4 tapis",
-        "valueAr": "4 دواسات"
-      },
-      {
-        "labelFr": "Dimensions",
-        "labelAr": "الأبعاد",
-        "valueFr": "70 × 50 cm (environ)",
-        "valueAr": "70 × 50 سم (تقريبًا)"
-      },
-      {
-        "labelFr": "Entretien",
-        "labelAr": "العناية",
-        "valueFr": "Lavage à l'eau",
-        "valueAr": "غسل بالماء"
-      },
-      {
-        "labelFr": "Couleur",
-        "labelAr": "اللون",
-        "valueFr": "Noir",
-        "valueAr": "أسود"
-      }
+      { "labelFr": "Matière", "labelAr": "المادة", "valueFr": "TPE souple", "valueAr": "TPE مرن" },
+      { "labelFr": "Contenu", "labelAr": "المحتوى", "valueFr": "4 tapis", "valueAr": "4 دواسات" },
+      { "labelFr": "Dimensions", "labelAr": "الأبعاد", "valueFr": "70 × 50 cm (environ)", "valueAr": "70 × 50 سم (تقريبًا)" },
+      { "labelFr": "Entretien", "labelAr": "العناية", "valueFr": "Lavage à l'eau", "valueAr": "غسل بالماء" },
+      { "labelFr": "Couleur", "labelAr": "اللون", "valueFr": "Noir", "valueAr": "أسود" }
     ],
     "partNumber": "DEMO-MAT-03",
     "compatibility": {
@@ -190,14 +99,7 @@
     "stockStatus": "in_stock",
     "featured": false,
     "isDemo": true,
-    "keywords": [
-      "tapis",
-      "sol",
-      "interieur",
-      "دواسة",
-      "أرضية",
-      "مقاعد"
-    ]
+    "keywords": ["tapis", "sol", "interieur", "دواسة", "أرضية", "مقاعد"]
   },
   {
     "id": "p-004",
@@ -215,36 +117,11 @@
     "descriptionFr": "Jeu de plaquettes de frein avant à semelle métallique, présenté comme une pièce de remplacement pour usage routier. Produit de démonstration : ne commandez pas sans avoir vérifié la référence d'origine et le modèle exact de votre véhicule.",
     "descriptionAr": "طقم فحمات فرامل أمامية بقاعدة معدنية، يُعرض كقطعة بديلة للاستخدام على الطريق. منتج تجريبي: لا تطلب قبل التحقق من المرجع الأصلي والطراز الدقيق لسيارتك.",
     "specifications": [
-      {
-        "labelFr": "Position",
-        "labelAr": "الموضع",
-        "valueFr": "Essieu avant",
-        "valueAr": "المحور الأمامي"
-      },
-      {
-        "labelFr": "Contenu",
-        "labelAr": "المحتوى",
-        "valueFr": "4 plaquettes",
-        "valueAr": "4 فحمات"
-      },
-      {
-        "labelFr": "Matériau",
-        "labelAr": "المادة",
-        "valueFr": "Semelle métallique",
-        "valueAr": "قاعدة معدنية"
-      },
-      {
-        "labelFr": "Usage",
-        "labelAr": "الاستخدام",
-        "valueFr": "Route",
-        "valueAr": "الطريق"
-      },
-      {
-        "labelFr": "Référence",
-        "labelAr": "المرجع",
-        "valueFr": "DEMO-BP-104",
-        "valueAr": "DEMO-BP-104"
-      }
+      { "labelFr": "Position", "labelAr": "الموضع", "valueFr": "Essieu avant", "valueAr": "المحور الأمامي" },
+      { "labelFr": "Contenu", "labelAr": "المحتوى", "valueFr": "4 plaquettes", "valueAr": "4 فحمات" },
+      { "labelFr": "Matériau", "labelAr": "المادة", "valueFr": "Semelle métallique", "valueAr": "قاعدة معدنية" },
+      { "labelFr": "Usage", "labelAr": "الاستخدام", "valueFr": "Route", "valueAr": "الطريق" },
+      { "labelFr": "Référence", "labelAr": "المرجع", "valueFr": "DEMO-BP-104", "valueAr": "DEMO-BP-104" }
     ],
     "partNumber": "DEMO-BP-104",
     "compatibility": {
@@ -256,13 +133,7 @@
     "stockStatus": "low_stock",
     "featured": false,
     "isDemo": true,
-    "keywords": [
-      "frein",
-      "plaquette",
-      "freinage",
-      "فرامل",
-      "فحمات"
-    ]
+    "keywords": ["frein", "plaquette", "freinage", "فرامل", "فحمات"]
   },
   {
     "id": "p-005",
@@ -280,30 +151,10 @@
     "descriptionFr": "Kit de transmission de démonstration comprenant une chaîne, un pignon et une couronne au pas 428. Destiné aux petites cylindrées, sous réserve de vérification du nombre de dents et du pas d'origine. Produit actuellement indisponible dans cette démonstration.",
     "descriptionAr": "طقم نقل حركة تجريبي يتضمن سلسلة وترسًا صغيرًا وترسًا كبيرًا بمقاس 428. مخصص للدراجات الصغيرة، مع ضرورة التحقق من عدد الأسنان والمقاس الأصلي. المنتج غير متوفر حاليًا في هذا العرض التجريبي.",
     "specifications": [
-      {
-        "labelFr": "Pas de chaîne",
-        "labelAr": "مقاس السلسلة",
-        "valueFr": "428",
-        "valueAr": "428"
-      },
-      {
-        "labelFr": "Contenu",
-        "labelAr": "المحتوى",
-        "valueFr": "Chaîne + pignon + couronne",
-        "valueAr": "سلسلة + ترس صغير + ترس كبير"
-      },
-      {
-        "labelFr": "Maillons",
-        "labelAr": "عدد الحلقات",
-        "valueFr": "132 (à confirmer)",
-        "valueAr": "132 (يجب التأكيد)"
-      },
-      {
-        "labelFr": "Usage",
-        "labelAr": "الاستخدام",
-        "valueFr": "Petites cylindrées",
-        "valueAr": "الدراجات صغيرة السعة"
-      }
+      { "labelFr": "Pas de chaîne", "labelAr": "مقاس السلسلة", "valueFr": "428", "valueAr": "428" },
+      { "labelFr": "Contenu", "labelAr": "المحتوى", "valueFr": "Chaîne + pignon + couronne", "valueAr": "سلسلة + ترس صغير + ترس كبير" },
+      { "labelFr": "Maillons", "labelAr": "عدد الحلقات", "valueFr": "132 (à confirmer)", "valueAr": "132 (يجب التأكيد)" },
+      { "labelFr": "Usage", "labelAr": "الاستخدام", "valueFr": "Petites cylindrées", "valueAr": "الدراجات صغيرة السعة" }
     ],
     "partNumber": "DEMO-CH-428",
     "compatibility": {
@@ -315,14 +166,7 @@
     "stockStatus": "out_of_stock",
     "featured": false,
     "isDemo": true,
-    "keywords": [
-      "chaine",
-      "kit",
-      "transmission",
-      "moto",
-      "سلسلة",
-      "دراجة"
-    ]
+    "keywords": ["chaine", "kit", "transmission", "moto", "سلسلة", "دراجة"]
   },
   {
     "id": "p-006",
@@ -332,44 +176,16 @@
     "nameAr": "فلتر زيت المحرك",
     "category": "vehicle-specific-parts",
     "price": 950,
-    "images": [
-      "/images/products/oil-filter-1.svg",
-      "/images/products/oil-filter-2.svg"
-    ],
+    "images": ["/images/products/oil-filter-1.svg", "/images/products/oil-filter-2.svg"],
     "description": "Filtre à huile à cartouche métallique, proposé comme pièce de remplacement. La référence exacte dépend du moteur : ne commandez qu'après confirmation de la référence d'origine. Produit de démonstration.",
     "descriptionFr": "Filtre à huile à cartouche métallique, proposé comme pièce de remplacement. La référence exacte dépend du moteur : ne commandez qu'après confirmation de la référence d'origine. Produit de démonstration.",
     "descriptionAr": "فلتر زيت بخرطوشة معدنية، يُعرض كقطعة بديلة. يعتمد المرجع الدقيق على المحرك: لا تطلب إلا بعد تأكيد المرجع الأصلي. منتج تجريبي.",
     "specifications": [
-      {
-        "labelFr": "Type",
-        "labelAr": "النوع",
-        "valueFr": "Cartouche vissée",
-        "valueAr": "خرطوشة ملولبة"
-      },
-      {
-        "labelFr": "Hauteur",
-        "labelAr": "الارتفاع",
-        "valueFr": "75 mm (environ)",
-        "valueAr": "75 مم (تقريبًا)"
-      },
-      {
-        "labelFr": "Diamètre",
-        "labelAr": "القطر",
-        "valueFr": "65 mm (environ)",
-        "valueAr": "65 مم (تقريبًا)"
-      },
-      {
-        "labelFr": "Filetage",
-        "labelAr": "اللولب",
-        "valueFr": "À confirmer",
-        "valueAr": "يجب التأكيد"
-      },
-      {
-        "labelFr": "Référence",
-        "labelAr": "المرجع",
-        "valueFr": "DEMO-OF-220",
-        "valueAr": "DEMO-OF-220"
-      }
+      { "labelFr": "Type", "labelAr": "النوع", "valueFr": "Cartouche vissée", "valueAr": "خرطوشة ملولبة" },
+      { "labelFr": "Hauteur", "labelAr": "الارتفاع", "valueFr": "75 mm (environ)", "valueAr": "75 مم (تقريبًا)" },
+      { "labelFr": "Diamètre", "labelAr": "القطر", "valueFr": "65 mm (environ)", "valueAr": "65 مم (تقريبًا)" },
+      { "labelFr": "Filetage", "labelAr": "اللولب", "valueFr": "À confirmer", "valueAr": "يجب التأكيد" },
+      { "labelFr": "Référence", "labelAr": "المرجع", "valueFr": "DEMO-OF-220", "valueAr": "DEMO-OF-220" }
     ],
     "partNumber": "DEMO-OF-220",
     "compatibility": {
@@ -381,13 +197,7 @@
     "stockStatus": "in_stock",
     "featured": true,
     "isDemo": true,
-    "keywords": [
-      "filtre",
-      "huile",
-      "moteur",
-      "زيت",
-      "فلتر"
-    ]
+    "keywords": ["filtre", "huile", "moteur", "زيت", "فلتر"]
   },
   {
     "id": "p-007",
@@ -405,36 +215,11 @@
     "descriptionFr": "Jeu de housses de sièges au tissu respirant, avec élastiques de fixation. Coupe universelle prévue pour la plupart des sièges avant. Produit de démonstration : vérifiez la forme des sièges et la présence d'airbags latéraux.",
     "descriptionAr": "مجموعة أغطية مقاعد من قماش يسمح بالتهوية، مع أربطة مطاطية للتثبيت. قَصّ عام مخصص لمعظم المقاعد الأمامية. منتج تجريبي: تحقق من شكل المقاعد ووجود الوسائد الهوائية الجانبية.",
     "specifications": [
-      {
-        "labelFr": "Contenu",
-        "labelAr": "المحتوى",
-        "valueFr": "2 housses avant",
-        "valueAr": "غطاءان أماميان"
-      },
-      {
-        "labelFr": "Matière",
-        "labelAr": "المادة",
-        "valueFr": "Tissu respirant",
-        "valueAr": "قماش مسامي"
-      },
-      {
-        "labelFr": "Fixation",
-        "labelAr": "التثبيت",
-        "valueFr": "Élastiques",
-        "valueAr": "أربطة مطاطية"
-      },
-      {
-        "labelFr": "Couleur",
-        "labelAr": "اللون",
-        "valueFr": "Noir / gris",
-        "valueAr": "أسود / رمادي"
-      },
-      {
-        "labelFr": "Entretien",
-        "labelAr": "العناية",
-        "valueFr": "Lavage à la main",
-        "valueAr": "غسل يدوي"
-      }
+      { "labelFr": "Contenu", "labelAr": "المحتوى", "valueFr": "2 housses avant", "valueAr": "غطاءان أماميان" },
+      { "labelFr": "Matière", "labelAr": "المادة", "valueFr": "Tissu respirant", "valueAr": "قماش مسامي" },
+      { "labelFr": "Fixation", "labelAr": "التثبيت", "valueFr": "Élastiques", "valueAr": "أربطة مطاطية" },
+      { "labelFr": "Couleur", "labelAr": "اللون", "valueFr": "Noir / gris", "valueAr": "أسود / رمادي" },
+      { "labelFr": "Entretien", "labelAr": "العناية", "valueFr": "Lavage à la main", "valueAr": "غسل يدوي" }
     ],
     "partNumber": "DEMO-SC-07",
     "compatibility": {
@@ -446,14 +231,7 @@
     "stockStatus": "in_stock",
     "featured": false,
     "isDemo": true,
-    "keywords": [
-      "housse",
-      "siege",
-      "interieur",
-      "غطاء",
-      "مقعد",
-      "مقاعد"
-    ]
+    "keywords": ["housse", "siege", "interieur", "غطاء", "مقعد", "مقاعد"]
   },
   {
     "id": "p-008",
@@ -471,36 +249,11 @@
     "descriptionFr": "Paire de clignotants LED compacts à fixation sur tige, avec corps noir mat. Produit de démonstration : vérifiez le diamètre de fixation, la tension et la résistance nécessaire pour votre clignotement.",
     "descriptionAr": "زوج من إشارات LED صغيرة تُثبّت على عمود، بهيكل أسود مطفي. منتج تجريبي: تحقق من قطر التثبيت والجهد والمقاومة اللازمة لعمل الإشارات.",
     "specifications": [
-      {
-        "labelFr": "Contenu",
-        "labelAr": "المحتوى",
-        "valueFr": "2 clignotants",
-        "valueAr": "إشارتان"
-      },
-      {
-        "labelFr": "Tension",
-        "labelAr": "الجهد",
-        "valueFr": "12 V",
-        "valueAr": "12 فولت"
-      },
-      {
-        "labelFr": "Fixation",
-        "labelAr": "التثبيت",
-        "valueFr": "Tige filetée",
-        "valueAr": "عمود ملولب"
-      },
-      {
-        "labelFr": "Couleur",
-        "labelAr": "اللون",
-        "valueFr": "Noir mat / ambre",
-        "valueAr": "أسود مطفي / كهرماني"
-      },
-      {
-        "labelFr": "Usage",
-        "labelAr": "الاستخدام",
-        "valueFr": "Moto 12 V",
-        "valueAr": "دراجة 12 فولت"
-      }
+      { "labelFr": "Contenu", "labelAr": "المحتوى", "valueFr": "2 clignotants", "valueAr": "إشارتان" },
+      { "labelFr": "Tension", "labelAr": "الجهد", "valueFr": "12 V", "valueAr": "12 فولت" },
+      { "labelFr": "Fixation", "labelAr": "التثبيت", "valueFr": "Tige filetée", "valueAr": "عمود ملولب" },
+      { "labelFr": "Couleur", "labelAr": "اللون", "valueFr": "Noir mat / ambre", "valueAr": "أسود مطفي / كهرماني" },
+      { "labelFr": "Usage", "labelAr": "الاستخدام", "valueFr": "Moto 12 V", "valueAr": "دراجة 12 فولت" }
     ],
     "partNumber": "DEMO-TS-08",
     "compatibility": {
@@ -512,77 +265,6 @@
     "stockStatus": "in_stock",
     "featured": true,
     "isDemo": true,
-    "keywords": [
-      "clignotant",
-      "led",
-      "moto",
-      "eclairage",
-      "إشارة",
-      "دراجة"
-    ]
-  },
-  {
-    "id": "p-test-write",
-    "slug": "test-admin-write",
-    "name": "Test admin (a supprimer)",
-    "nameFr": "Test admin (a supprimer)",
-    "nameAr": "اختبار الإدارة (للحذف)",
-    "category": "car-parts",
-    "price": 1,
-    "images": [],
-    "description": "Paire de phares LED à connecteur H4, pensée pour remplacer une ampoule halogène sans modifier le faisceau d'origine. Lumière blanche 6000K et boîtier compact facilitant l'installation. Produit de démonstration : vérifiez la compatibilité électrique et le type de connecteur de votre véhicule avant commande.",
-    "descriptionFr": "Paire de phares LED à connecteur H4, pensée pour remplacer une ampoule halogène sans modifier le faisceau d'origine. Lumière blanche 6000K et boîtier compact facilitant l'installation. Produit de démonstration : vérifiez la compatibilité électrique et le type de connecteur de votre véhicule avant commande.",
-    "descriptionAr": "زوج من مصابيح LED بموصل H4، مصمم لاستبدال مصباح الهالوجين دون تعديل الشعاع الأصلي. إضاءة بيضاء 6000K وهيكل صغير يسهّل التركيب. منتج تجريبي: تحقق من التوافق الكهربائي ونوع الموصل في سيارتك قبل الطلب.",
-    "specifications": [
-      {
-        "labelFr": "Type de douille",
-        "labelAr": "نوع القاعدة",
-        "valueFr": "H4",
-        "valueAr": "H4"
-      },
-      {
-        "labelFr": "Tension",
-        "labelAr": "الجهد",
-        "valueFr": "12 V",
-        "valueAr": "12 فولت"
-      },
-      {
-        "labelFr": "Puissance",
-        "labelAr": "القدرة",
-        "valueFr": "2 × 25 W",
-        "valueAr": "2 × 25 واط"
-      },
-      {
-        "labelFr": "Température de couleur",
-        "labelAr": "درجة حرارة اللون",
-        "valueFr": "6000 K",
-        "valueAr": "6000 كلفن"
-      },
-      {
-        "labelFr": "Contenu",
-        "labelAr": "المحتوى",
-        "valueFr": "2 phares",
-        "valueAr": "مصباحان"
-      }
-    ],
-    "partNumber": "TEST-WRITE-000",
-    "compatibility": {
-      "verified": false,
-      "vehicles": [],
-      "noteFr": "Compatibilité non vérifiée pour ce produit de démonstration. Envoyez-nous la marque, le modèle, l'année et le type de connecteur de votre véhicule avant de commander.",
-      "noteAr": "التوافق غير مؤكد لهذا المنتج التجريبي. أرسل لنا ماركة سيارتك وطرازها وسنتها ونوع الموصل قبل الطلب."
-    },
-    "stockStatus": "in_stock",
-    "featured": false,
-    "isDemo": true,
-    "keywords": [
-      "phare",
-      "led",
-      "h4",
-      "eclairage",
-      "ampoule",
-      "مصباح",
-      "إضاءة"
-    ]
+    "keywords": ["clignotant", "led", "moto", "eclairage", "إشارة", "دراجة"]
   }
 ]
