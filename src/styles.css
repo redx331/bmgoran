@@ -2007,66 +2007,6 @@ ol {
   overflow-wrap: anywhere;
 }
 
-.compatibility--verified {
-  border-color: rgba(67, 192, 122, 0.32);
-  background: var(--success-soft);
-}
-
-.compatibility--unverified {
-  border-color: rgba(232, 176, 74, 0.28);
-  background: var(--warning-soft);
-}
-
-.compatibility__header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.compatibility--verified .compatibility__header > svg {
-  color: var(--success);
-}
-
-.compatibility--unverified .compatibility__header > svg {
-  color: var(--warning);
-}
-
-.compatibility__status {
-  margin-inline-start: auto;
-  color: var(--text-muted);
-  font-size: 10px;
-  font-weight: 650;
-}
-
-.compatibility > p {
-  margin-top: 10px;
-  color: var(--text-muted);
-  font-size: 0.8125rem;
-  line-height: 1.6;
-}
-
-.compatibility__label {
-  color: var(--text) !important;
-  font-weight: 650;
-}
-
-.compatibility__vehicles {
-  margin-top: 6px;
-  padding-inline-start: 14px;
-  list-style: disc;
-  color: var(--text-muted);
-  font-size: 0.8125rem;
-}
-
-.compatibility__vehicles li {
-  margin-top: 3px;
-}
-
-.compatibility__vehicles strong {
-  color: var(--text);
-}
-
 .section--related {
   margin-top: 36px;
   padding-inline: 0;
@@ -3197,12 +3137,7 @@ ol {
     height: 40px;
   }
 
-  .product-details {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
-  }
-
-  .form-section {
+.form-section {
     padding: 24px;
   }
 

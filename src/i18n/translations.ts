@@ -90,7 +90,6 @@ const fr = {
 
   'product.description': 'Description',
   'product.specifications': 'Caractéristiques',
-  'product.compatibility': 'Compatibilité',
   'product.partNumber': 'Référence',
   'product.brand': 'Marque',
   'product.category': 'Catégorie',
@@ -110,12 +109,6 @@ const fr = {
   'product.imageAlt': '{name} — photo {index}',
   'product.galleryPrev': 'Photo précédente',
   'product.galleryNext': 'Photo suivante',
-  'product.compatibilityVerified': 'Compatibilité vérifiée',
-  'product.compatibilityUnverified': 'Compatibilité non vérifiée',
-  'product.compatibilityDefaultNote':
-    'Nous n’avons pas encore confirmé que cette pièce correspond à votre véhicule. Envoyez-nous la marque, le modèle, l’année et la motorisation avant de commander.',
-  'product.noCompatibility': 'Aucune information de compatibilité n’a été fournie pour ce produit.',
-  'product.fitsVehicles': 'Véhicules concernés',
   'product.demoNotice': 'Démonstration : ce produit, ses photos et son prix sont des exemples.',
   'product.related': 'Vous pourriez aussi aimer',
   'product.stockIn': 'En stock',
@@ -377,7 +370,6 @@ const ar: Record<TranslationKey, string> = {
 
   'product.description': 'الوصف',
   'product.specifications': 'المواصفات',
-  'product.compatibility': 'التوافق',
   'product.partNumber': 'المرجع',
   'product.brand': 'الماركة',
   'product.category': 'الفئة',
@@ -396,12 +388,6 @@ const ar: Record<TranslationKey, string> = {
   'product.imageAlt': '{name} — الصورة {index}',
   'product.galleryPrev': 'الصورة السابقة',
   'product.galleryNext': 'الصورة التالية',
-  'product.compatibilityVerified': 'التوافق مؤكد',
-  'product.compatibilityUnverified': 'التوافق غير مؤكد',
-  'product.compatibilityDefaultNote':
-    'لم نؤكد بعد أن هذه القطعة تناسب سيارتك. أرسل لنا الماركة والطراز والسنة ونوع المحرك قبل الطلب.',
-  'product.noCompatibility': 'لا توجد معلومات توافق مقدمة لهذا المنتج.',
-  'product.fitsVehicles': 'السيارات المعنية',
   'product.demoNotice': 'عرض تجريبي: هذا المنتج وصوره وسعره أمثلة.',
   'product.related': 'قد يعجبك أيضًا',
   'product.stockIn': 'متوفر',

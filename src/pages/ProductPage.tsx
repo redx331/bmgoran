@@ -4,7 +4,6 @@ import {
   getProductBySlug,
   getProductDescription,
   getProductName,
-  getProductNote,
   relatedProducts,
 } from '../data/products';
 import { useI18n } from '../i18n/I18nProvider';
@@ -62,7 +61,6 @@ export function ProductPage({ slug }: { slug: string }) {
 
   const categoryName = getCategoryName(product.category, locale);
   const description = getProductDescription(product, locale);
-  const compatibilityNote = getProductNote(product.compatibility, locale);
   const available = product.stockStatus !== 'out_of_stock';
   const quantityIsValid = normalizeQuantity(quantity) !== null;
   const safeQuantity = normalizeQuantity(quantity) ?? 1;
@@ -196,40 +194,6 @@ export function ProductPage({ slug }: { slug: string }) {
                 <dd>{categoryName}</dd>
               </div>
             </dl>
-          </section>
-
-          <section
-            className={`detail-block compatibility ${product.compatibility?.verified ? 'compatibility--verified' : 'compatibility--unverified'}`}
-            aria-labelledby="compatibility-title"
-          >
-            <div className="compatibility__header">
-              <Icon name={product.compatibility?.verified ? 'check' : 'alert'} size={20} />
-              <h2 id="compatibility-title">{t('product.compatibility')}</h2>
-              <span className="compatibility__status">
-                {product.compatibility?.verified
-                  ? t('product.compatibilityVerified')
-                  : t('product.compatibilityUnverified')}
-              </span>
-            </div>
-
-            {product.compatibility?.verified && product.compatibility.vehicles.length > 0 ? (
-              <>
-                <p className="compatibility__label">{t('product.fitsVehicles')}</p>
-                <ul className="compatibility__vehicles">
-                  {product.compatibility.vehicles.map((vehicle) => (
-                    <li key={`${vehicle.make}-${vehicle.model}-${vehicle.years}`}>
-                      <strong>{vehicle.make}</strong> {vehicle.model} · {vehicle.years}
-                    </li>
-                  ))}
-                </ul>
-                {compatibilityNote && <p>{compatibilityNote}</p>}
-              </>
-            ) : (
-              <p>
-                {compatibilityNote ||
-                  (product.compatibility ? t('product.compatibilityDefaultNote') : t('product.noCompatibility'))}
-              </p>
-            )}
           </section>
         </div>
 

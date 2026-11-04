@@ -75,14 +75,6 @@ export function getProductDescription(product: Product, locale: Locale): string 
   return locale === 'ar' ? product.descriptionAr : product.descriptionFr || product.description;
 }
 
-export function getProductNote(
-  note: { noteFr?: string; noteAr?: string } | undefined,
-  locale: Locale,
-): string {
-  if (!note) return '';
-  return (locale === 'ar' ? note.noteAr : note.noteFr) ?? '';
-}
-
 export function isOrderable(product: Product): boolean {
   return product.stockStatus !== 'out_of_stock';
 }
