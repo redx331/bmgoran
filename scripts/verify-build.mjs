@@ -38,7 +38,7 @@ for (const product of products) {
     html.includes(`<link rel="canonical" href="${site.siteUrl.replace(/\/+$/, '')}/product/${product.slug}"`),
     `canonical missing in product/${product.slug}`,
   );
-  check(html.includes(product.nameFr), `Product name missing from static page: ${product.slug}`);
+  check(html.includes(product.nameAr), `Product name missing from static page: ${product.slug}`);
   check(
     redirects.includes(`/product/${product.slug} /product/${product.slug}/index.html 200`),
     `Redirect missing for /product/${product.slug}`,

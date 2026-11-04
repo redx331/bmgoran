@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { SITE } from '../config/business';
 import { PRODUCTS } from '../data/products';
 import { formatPrice } from '../lib/format';
@@ -89,6 +89,20 @@ describe('deep links and routing', () => {
 });
 
 describe('bilingual interface', () => {
+  it('opens a product link in Arabic by default, whatever the browser language', () => {
+    vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR');
+    renderApp({ path: '/product/led-headlights' });
+    expect(document.documentElement.lang).toBe('ar');
+    expect(document.documentElement.dir).toBe('rtl');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('مصابيح LED H4');
+  });
+
+  it('keeps a language the visitor chose', () => {
+    window.localStorage.setItem('autoparts.locale', 'fr');
+    renderApp({ path: '/product/led-headlights' });
+    expect(document.documentElement.lang).toBe('fr');
+  });
+
   it('starts in French with LTR attributes', () => {
     renderApp({ path: '/', locale: 'fr' });
     expect(document.documentElement.lang).toBe('fr');

@@ -33,7 +33,7 @@ const escapeHtml = (value) =>
     .replaceAll('"', '&quot;');
 
 const priceFormatter = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
-const formatPrice = (amount) => `${priceFormatter.format(amount)} DA`;
+const formatPrice = (amount) => `${priceFormatter.format(amount)} دج`;
 
 /** Truncates prose at a word boundary instead of cutting mid-word. */
 function truncateAtWord(text, maxLength) {
@@ -66,8 +66,8 @@ function setCanonical(html, href) {
 
 function productHtml(product, template) {
   const url = `${baseUrl}/product/${product.slug}`;
-  const title = `${product.nameFr} — ${formatPrice(product.price)} | ${site.businessName}`;
-  const description = `${truncateAtWord(product.descriptionFr, 160).replace(/[.,;:!?]$/, '')}. Livraison en Algérie, commande en ligne.`;
+  const title = `${product.nameAr} — ${formatPrice(product.price)} | ${site.businessName}`;
+  const description = `${truncateAtWord(product.descriptionAr.replace(/\s+/g, ' '), 160).replace(/[.,;:!?،؛؟]$/, '')}. التوصيل داخل الجزائر والطلب عبر الإنترنت.`;
   const image = `${baseUrl}/og/${product.slug}.png`;
   let html = template;
   html = setTitle(html, title);
@@ -80,14 +80,14 @@ function productHtml(product, template) {
   html = setMeta(html, 'property', 'og:image:width', '1200');
   html = setMeta(html, 'property', 'og:image:height', '630');
   html = setMeta(html, 'property', 'og:url', url);
-  html = setMeta(html, 'property', 'og:locale', 'fr_DZ');
+  html = setMeta(html, 'property', 'og:locale', 'ar_DZ');
   html = setMeta(html, 'name', 'twitter:card', 'summary_large_image');
   html = setMeta(html, 'name', 'twitter:title', title);
   html = setMeta(html, 'name', 'twitter:description', description);
   html = setMeta(html, 'name', 'twitter:image', image);
   html = setMeta(html, 'name', 'robots', 'index, follow');
   html = setCanonical(html, url);
-  html = html.replace(/<html\s+lang="[^"]*"\s+dir="[^"]*">/, '<html lang="fr" dir="ltr">');
+  html = html.replace(/<html\s+lang="[^"]*"\s+dir="[^"]*">/, '<html lang="ar" dir="rtl">');
 
   if (product.images[0]?.startsWith('/')) {
     html = html.replace(
@@ -99,7 +99,7 @@ function productHtml(product, template) {
 }
 
 // 1. Base page: apply configured URL and business name.
-const homeTitle = `${site.businessName} — Pièces auto & moto en Algérie`;
+const homeTitle = `${site.businessName} — قطع السيارات والدراجات في الجزائر`;
 let indexHtml = baseHtml
   .replaceAll('https://YOUR-PROJECT.pages.dev', baseUrl)
   .replaceAll('AutoParts DZ', site.businessName);

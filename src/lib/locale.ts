@@ -8,10 +8,7 @@ export function getDirection(locale: Locale): Direction {
 
 export const LOCALE_STORAGE_KEY = 'autoparts.locale';
 
-export function detectLocale(
-  stored: string | null,
-  browserLanguage: string | undefined,
-): Locale {
-  if (stored === 'ar' || stored === 'fr') return stored;
-  return browserLanguage?.toLowerCase().startsWith('ar') ? 'ar' : 'fr';
+/** Arabic unless the visitor has explicitly chosen a language on this site. */
+export function detectLocale(stored: string | null): Locale {
+  return stored === 'fr' ? 'fr' : 'ar';
 }

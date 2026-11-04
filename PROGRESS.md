@@ -321,6 +321,8 @@ The owner reported that he could not delete existing products, and that products
 
 3. **Office prices set by the owner**: flat north 500, middle 550, south 600 DA for the 25 wilayas where the ZR sheet lists a STOP DESK. The other 33 stay `null`; the owner approved this list. Far-south prices are below the ZR grid (Tamanrasset 1 050, Adrar 900, Béchar 650), so the shop may absorb the difference.
 
+4. **Arabic is the default**: visitors see Arabic unless they chose French on the site (`detectLocale`, `public/locale-init.js`). Static pages are `lang="ar" dir="rtl"`, and product Open Graph tags use `nameAr`/`descriptionAr` with `ar_DZ`. Share images still show the French name. The admin stays French and LTR.
+
 ---
 
 ## 🌐 Sharing & Deployment Options

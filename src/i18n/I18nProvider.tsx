@@ -28,7 +28,7 @@ function readStoredLocale(): string | null {
 
 function getInitialLocale(initialLocale?: Locale): Locale {
   if (initialLocale) return initialLocale;
-  return detectLocale(readStoredLocale(), navigator.language);
+  return detectLocale(readStoredLocale());
 }
 
 export function I18nProvider({

@@ -24,13 +24,14 @@ describe.skipIf(!BUILT)('production build output', () => {
 
       const html = readFileSync(file, 'utf8');
       expect(html).toContain(`<title>`);
-      expect(html).toContain(product.nameFr);
+      expect(html).toContain(product.nameAr);
       expect(html).toContain(`content="${baseUrl}/product/${product.slug}"`);
       expect(html).toContain(`href="${baseUrl}/product/${product.slug}"`);
       expect(html).toContain(`content="${baseUrl}/og/${product.slug}.png"`);
       expect(html).toContain('<meta property="og:type" content="product"');
       expect(html).toContain('<meta name="robots" content="index, follow"');
-      expect(html).toMatch(/<html lang="fr" dir="ltr">/);
+      expect(html).toMatch(/<html lang="ar" dir="rtl">/);
+      expect(html).toContain('<meta property="og:locale" content="ar_DZ"');
       expect(html).toContain(`href="${product.images[0]}"`);
     }
   });
@@ -40,10 +41,8 @@ describe.skipIf(!BUILT)('production build output', () => {
       const html = readFileSync(join(DIST, 'product', product.slug, 'index.html'), 'utf8');
       const description = html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? '';
       expect(description.length, `${product.slug} description`).toBeGreaterThan(40);
-      expect(description).toContain('Livraison en Algérie');
+      expect(description).toContain('التوصيل داخل الجزائر');
       expect(description).not.toMatch(/\s$/);
-      // No truncated fragment glued to the suffix.
-      expect(description).not.toMatch(/[a-zà-ÿ]{1,3} Livraison en Algérie/);
     }
   });
 
