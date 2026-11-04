@@ -2517,29 +2517,6 @@ ol {
   white-space: nowrap;
 }
 
-.consent {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  margin-top: 12px;
-  color: var(--text-muted);
-  font-size: 10px;
-  line-height: 1.5;
-  cursor: pointer;
-}
-
-.consent input {
-  flex: 0 0 auto;
-  width: 17px;
-  height: 17px;
-  margin: 1px 0 0;
-  accent-color: var(--accent);
-}
-
-.consent.is-invalid {
-  color: #ffc2bf;
-}
-
 .order-summary .btn {
   margin-top: 14px;
 }

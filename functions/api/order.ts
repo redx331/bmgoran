@@ -82,8 +82,7 @@ export async function onRequestPost({
     !product ||
     product.stockStatus === 'out_of_stock' ||
     quantity === null ||
-    !shipping?.ok ||
-    body.consent !== true
+    !shipping?.ok
   ) {
     return json(422, { error: 'invalid-order' });
   }

@@ -323,6 +323,8 @@ The owner reported that he could not delete existing products, and that products
 
 4. **Arabic is the default**: visitors see Arabic unless they chose French on the site (`detectLocale`, `public/locale-init.js`). Static pages are `lang="ar" dir="rtl"`, and product Open Graph tags use `nameAr`/`descriptionAr` with `ar_DZ`. Share images still show the French name. The admin stays French and LTR.
 
+5. **Consent checkbox removed** at the owner's request, in the form and in `/api/order`. The privacy notice on checkout still explains that order details go to the shop.
+
 ---
 
 ## 🌐 Sharing & Deployment Options

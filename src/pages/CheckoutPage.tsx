@@ -37,7 +37,6 @@ const FIELD_IDS: Partial<Record<ValidationField, string>> = {
   wilaya: 'checkout-wilaya',
   delivery: 'checkout-delivery-home',
   quantity: 'checkout-quantity',
-  consent: 'checkout-consent',
 };
 
 function FieldError({ error, id }: { error?: ValidationError; id: string }) {
@@ -66,7 +65,6 @@ export function CheckoutPage({ slug }: { slug: string }) {
   const [commune, setCommune] = useState('');
   const [customCommune, setCustomCommune] = useState('');
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod | ''>('');
-  const [consent, setConsent] = useState(false);
   const [attempted, setAttempted] = useState(false);
   const [website, setWebsite] = useState('');
   const [sending, setSending] = useState(false);
@@ -99,7 +97,6 @@ export function CheckoutPage({ slug }: { slug: string }) {
     commune: resolvedCommune,
     deliveryMethod,
     quantity,
-    consent,
   };
   const errors = attempted
     ? validateOrderFields(values, { product, shipping })
@@ -119,7 +116,6 @@ export function CheckoutPage({ slug }: { slug: string }) {
   const wilayaError = getFieldError(errors, 'wilaya');
   const deliveryError = getFieldError(errors, 'delivery');
   const quantityError = getFieldError(errors, 'quantity');
-  const consentError = getFieldError(errors, 'consent');
 
   const handleWilayaChange = (code: string) => {
     setWilayaCode(code);
@@ -169,7 +165,6 @@ export function CheckoutPage({ slug }: { slug: string }) {
           wilayaCode,
           commune: resolvedCommune,
           deliveryMethod: currentShipping.quote.method,
-          consent,
           website,
         }),
       );
@@ -591,20 +586,6 @@ export function CheckoutPage({ slug }: { slug: string }) {
                 <strong>{totals ? formatPrice(totals.total, locale) : '—'}</strong>
               </div>
             </div>
-
-            <label className={`consent${consentError ? ' is-invalid' : ''}`}>
-              <input
-                id="checkout-consent"
-                type="checkbox"
-                checked={consent}
-                onChange={(event) => setConsent(event.target.checked)}
-                aria-required="true"
-                aria-invalid={Boolean(consentError)}
-                aria-describedby={consentError ? 'checkout-consent-error' : undefined}
-              />
-              <span>{t('checkout.consent')}</span>
-            </label>
-            <FieldError error={consentError} id="checkout-consent-error" />
 
             {sendFailed && (
               <div className="notice notice--error" role="alert">

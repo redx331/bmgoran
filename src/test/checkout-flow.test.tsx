@@ -17,7 +17,6 @@ async function fillValidCustomer(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText(/Téléphone/), '0550 12 34 56');
   await user.selectOptions(screen.getByRole('combobox', { name: /Wilaya/ }), '16');
   await user.click(screen.getByRole('radio', { name: /Livraison à domicile/ }));
-  await user.click(screen.getByRole('checkbox'));
 }
 
 describe('placing an order', () => {
@@ -38,9 +37,6 @@ describe('placing an order', () => {
     expect(screen.getByText('Le numéro de téléphone est obligatoire.')).toBeInTheDocument();
     expect(screen.getByText('Sélectionnez votre wilaya.')).toBeInTheDocument();
     expect(screen.getByText('Choisissez un mode de livraison.')).toBeInTheDocument();
-    expect(
-      screen.getByText('Veuillez accepter la transmission de vos informations au magasin.'),
-    ).toBeInTheDocument();
     expect(screen.getByText('Veuillez corriger les champs indiqués.')).toBeInTheDocument();
     expect(screen.getByLabelText(/Prénom/)).toHaveFocus();
     expect(fetchMock).not.toHaveBeenCalled();
@@ -93,7 +89,6 @@ describe('placing an order', () => {
       wilayaCode: '16',
       commune: '',
       deliveryMethod: 'home',
-      consent: true,
       website: '',
     });
 
@@ -125,7 +120,6 @@ describe('placing an order', () => {
     await user.type(screen.getByLabelText(/الهاتف/), '+213550123456');
     await user.selectOptions(screen.getByRole('combobox', { name: /الولاية/ }), '16');
     await user.click(screen.getByRole('radio', { name: /التوصيل إلى المنزل/ }));
-    await user.click(screen.getByRole('checkbox'));
     await user.click(screen.getByRole('button', { name: 'أكّد الطلب' }));
 
     expect(await screen.findByRole('status')).toHaveTextContent('تم إرسال الطلب');

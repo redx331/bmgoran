@@ -19,7 +19,6 @@ const VALID = {
   wilayaCode: '16',
   commune: 'Hydra',
   deliveryMethod: 'home',
-  consent: true,
   website: '',
 };
 

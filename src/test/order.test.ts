@@ -40,7 +40,6 @@ const validValues: OrderFormValues = {
   wilayaCode: '16',
   deliveryMethod: 'home',
   quantity: 2,
-  consent: true,
 };
 
 describe('Algerian phone validation', () => {
@@ -141,7 +140,7 @@ describe('checkout validation', () => {
     ).toContainEqual({ field: 'form', key: 'validation.rateNotVerified' });
   });
 
-  it('requires every customer field and the consent checkbox', () => {
+  it('requires every customer field', () => {
     const errors = validateOrderFields(
       {
         firstName: ' ',
@@ -150,7 +149,6 @@ describe('checkout validation', () => {
         wilayaCode: '',
         deliveryMethod: '',
         quantity: 0,
-        consent: false,
       },
       { product, shipping: null },
     );
@@ -162,7 +160,6 @@ describe('checkout validation', () => {
       'wilaya',
       'delivery',
       'quantity',
-      'consent',
     ] as const) {
       expect(hasFieldError(errors, field), `missing error for ${field}`).toBe(true);
     }

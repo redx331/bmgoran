@@ -174,8 +174,6 @@ const fr = {
   'checkout.buyButtonDisabled': 'Commande indisponible',
   'checkout.orderHint':
     'Le magasin vous appellera au numéro indiqué pour confirmer la commande.',
-  'checkout.consent':
-    'J’accepte que mes coordonnées soient transmises au magasin pour traiter ma commande.',
   'checkout.privacyTitle': 'Confidentialité',
   'checkout.privacyText':
     'Ce site ne possède ni compte client ni base de données. Vos informations sont transmises au magasin via notre hébergeur et un service d’envoi de messages, uniquement pour traiter votre commande.',
@@ -252,7 +250,6 @@ const fr = {
   'validation.deliveryRequired': 'Choisissez un mode de livraison.',
   'validation.quantityInvalid': 'La quantité doit être un nombre entier supérieur à zéro.',
   'validation.quantityMax': 'La quantité maximale est de {max}.',
-  'validation.consentRequired': 'Veuillez accepter la transmission de vos informations au magasin.',
   'validation.rateMissing': 'Le tarif de livraison n’est pas configuré pour cette wilaya.',
   'validation.rateNotVerified':
     'Les frais de livraison ne sont pas encore confirmés. Les commandes ouvriront dès qu’ils le seront.',
@@ -467,8 +464,6 @@ const ar: Record<TranslationKey, string> = {
   'checkout.buyButtonDisabled': 'الطلب غير متاح',
   'checkout.orderHint':
     'سيتصل بك المتجر على الرقم المدخل لتأكيد الطلب.',
-  'checkout.consent':
-    'أوافق على إرسال معلوماتي إلى المتجر لمعالجة طلبي.',
   'checkout.privacyTitle': 'الخصوصية',
   'checkout.privacyText':
     'لا يوجد في هذا الموقع حساب عميل ولا قاعدة بيانات. تُنقل معلوماتك إلى المتجر عبر خدمة الاستضافة وخدمة إرسال الرسائل، فقط لمعالجة طلبك.',
@@ -543,7 +538,6 @@ const ar: Record<TranslationKey, string> = {
   'validation.deliveryRequired': 'اختر طريقة التوصيل.',
   'validation.quantityInvalid': 'يجب أن تكون الكمية عددًا صحيحًا أكبر من صفر.',
   'validation.quantityMax': 'الكمية القصوى هي {max}.',
-  'validation.consentRequired': 'يُرجى الموافقة على إرسال معلوماتك إلى المتجر.',
   'validation.rateMissing': 'رسوم التوصيل غير مهيأة لهذه الولاية.',
   'validation.rateNotVerified':
     'رسوم التوصيل لم تُؤكَّد بعد. سيفتح الطلب بمجرد تأكيدها.',

@@ -18,7 +18,6 @@ const VALID = {
   wilayaCode: '16',
   commune: 'Hydra',
   deliveryMethod: 'home',
-  consent: true,
   website: '',
 };
 
@@ -86,7 +85,6 @@ describe('POST /api/order', () => {
     ['quantity sent as text', { quantity: '2' }],
     ['unknown wilaya', { wilayaCode: '99' }],
     ['invalid delivery method', { deliveryMethod: 'drone' }],
-    ['missing consent', { consent: false }],
     ['oversized name', { firstName: 'x'.repeat(81) }],
   ])('rejects %s without sending', async (_name, change) => {
     const response = await post({ ...VALID, ...change });

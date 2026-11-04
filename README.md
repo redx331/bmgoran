@@ -97,7 +97,7 @@ plus assertions on the production build in `dist/`:
 - product URLs, generated static pages, Open Graph tags, `_redirects`, sitemap and robots
 - search, category filters, quantity / wilaya / delivery-method changes and live totals
 - missing shipping rates blocking checkout with an explanation
-- field validation (names, Algerian/international phone, wilaya, method, consent, quantity)
+- field validation (names, Algerian/international phone, wilaya, method, quantity)
 - unavailable products not being orderable
 - order function validation, price recalculation and email content
 - French LTR and Arabic RTL rendering, plus persisted language choice

@@ -14,7 +14,6 @@ export interface OrderFormValues {
   commune?: string;
   deliveryMethod: DeliveryMethod | '';
   quantity: number;
-  consent: boolean;
 }
 
 export type ValidationField =
@@ -24,7 +23,6 @@ export type ValidationField =
   | 'wilaya'
   | 'delivery'
   | 'quantity'
-  | 'consent'
   | 'form';
 
 export interface ValidationError {
@@ -148,10 +146,6 @@ export function validateOrderFields(
     }
   }
 
-  if (!values.consent) {
-    errors.push({ field: 'consent', key: 'validation.consentRequired' });
-  }
-
   return errors;
 }
 
@@ -196,7 +190,6 @@ export interface OrderRequest {
   wilayaCode: string;
   commune: string;
   deliveryMethod: DeliveryMethod;
-  consent: boolean;
   /** Honeypot: stays empty for real customers. */
   website: string;
 }
