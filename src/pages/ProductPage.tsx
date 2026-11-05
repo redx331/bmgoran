@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getCategoryName } from '../data/categories';
 import {
   getProductBySlug,
@@ -8,6 +8,7 @@ import {
 } from '../data/products';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatPrice } from '../lib/format';
+import { productParams, trackPixel } from '../lib/pixel';
 import { Link, useRouter } from '../lib/router';
 import { usePageMeta } from '../lib/seo';
 import { MAX_QUANTITY, normalizeQuantity } from '../lib/order';
@@ -39,6 +40,10 @@ export function ProductPage({ slug }: { slug: string }) {
     locale,
     noindex: !product,
   });
+
+  useEffect(() => {
+    if (product) trackPixel('ViewContent', productParams(product));
+  }, [product]);
 
   if (!product) {
     return (

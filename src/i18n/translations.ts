@@ -164,6 +164,8 @@ const fr = {
   'checkout.buyButtonDisabled': 'Commande indisponible',
   'checkout.orderHint':
     'Le magasin vous appellera au numéro indiqué pour confirmer la commande.',
+  'privacy.pixelNotice':
+    'Ce site utilise le pixel Meta pour mesurer les visites et les commandes issues des publicités. Votre nom et votre téléphone ne lui sont pas transmis.',
   'checkout.privacyTitle': 'Confidentialité',
   'checkout.privacyText':
     'Ce site ne possède ni compte client ni base de données. Vos informations sont transmises au magasin via notre hébergeur et un service d’envoi de messages, uniquement pour traiter votre commande.',
@@ -443,6 +445,8 @@ const ar: Record<TranslationKey, string> = {
   'checkout.buyButtonDisabled': 'الطلب غير متاح',
   'checkout.orderHint':
     'سيتصل بك المتجر على الرقم المدخل لتأكيد الطلب.',
+  'privacy.pixelNotice':
+    'يستخدم هذا الموقع بكسل Meta لقياس الزيارات والطلبات القادمة من الإعلانات. لا يُرسل إليه اسمك ولا رقم هاتفك.',
   'checkout.privacyTitle': 'الخصوصية',
   'checkout.privacyText':
     'لا يوجد في هذا الموقع حساب عميل ولا قاعدة بيانات. تُنقل معلوماتك إلى المتجر عبر خدمة الاستضافة وخدمة إرسال الرسائل، فقط لمعالجة طلبك.',

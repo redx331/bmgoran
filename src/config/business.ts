@@ -17,6 +17,7 @@ export const SITE = {
   demoContact: siteConfig.demoContact,
   repository: siteConfig.repository,
   branch: siteConfig.branch,
+  metaPixelId: siteConfig.metaPixelId,
   siteUrl: siteConfig.siteUrl.replace(/\/+$/, ''),
   phoneDisplay: siteConfig.phoneDisplay,
   phoneHref: siteConfig.phoneHref,

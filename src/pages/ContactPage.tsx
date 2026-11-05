@@ -93,6 +93,7 @@ export function ContactPage() {
             <div className="privacy-panel" id="privacy">
               <h2>{t('contact.privacyTitle')}</h2>
               <p>{t('contact.privacyText')}</p>
+              {SITE.metaPixelId && <p>{t('privacy.pixelNotice')}</p>}
             </div>
           </div>
         </div>

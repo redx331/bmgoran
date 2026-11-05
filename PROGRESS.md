@@ -329,6 +329,8 @@ The owner reported that he could not delete existing products, and that products
 
 7. **Compatibility section removed** from the product page at the owner's request. The `compatibility` data stays in the catalogue and admin, but is no longer displayed.
 
+8. **Meta Pixel built, off until configured**: `src/lib/pixel.ts` sends PageView, ViewContent, InitiateCheckout and Purchase (DZD, no customer details), never on `/admin`. Set `metaPixelId` in `site.config.json` to turn it on; the privacy notice line appears with it. Not yet tested with a real ID in Meta's Test Events.
+
 ---
 
 ## 🌐 Sharing & Deployment Options

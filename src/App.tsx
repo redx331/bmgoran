@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { Layout } from './components/Layout';
+import { trackPixel } from './lib/pixel';
 import { useRouter } from './lib/router';
 import { AdminPage } from './pages/AdminPage';
 import { CheckoutPage } from './pages/CheckoutPage';
@@ -44,6 +46,10 @@ function AppRoutes() {
 
 export function App() {
   const { path } = useRouter();
+
+  useEffect(() => {
+    if (path !== '/admin') trackPixel('PageView');
+  }, [path]);
 
   // The admin area is standalone: no storefront header, footer or demo bar.
   if (path === '/admin') return <AdminPage />;

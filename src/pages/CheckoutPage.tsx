@@ -1,4 +1,5 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { SITE } from '../config/business';
 import { WILAYAS } from '../config/shipping';
 import { getCategoryName } from '../data/categories';
 import { getCommunesForWilaya, formatCommuneName } from '../data/communes';
@@ -9,6 +10,7 @@ import {
 } from '../data/products';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatPrice } from '../lib/format';
+import { productParams, trackPixel } from '../lib/pixel';
 import {
   calculateTotals,
   getFieldError,
@@ -106,6 +108,12 @@ export function CheckoutPage({ slug }: { slug: string }) {
     noindex: true,
   });
 
+  useEffect(() => {
+    if (product && available) {
+      trackPixel('InitiateCheckout', productParams(product, product.price * initialQuantity));
+    }
+  }, [product, available, initialQuantity]);
+
   const nameError = getFieldError(errors, 'name');
   const phoneError = getFieldError(errors, 'phone');
   const wilayaError = getFieldError(errors, 'wilaya');
@@ -155,18 +163,21 @@ export function CheckoutPage({ slug }: { slug: string }) {
 
     setSending(true);
     try {
-      setReference(
-        await submitOrder({
-          productSlug: product.slug,
-          quantity: validQuantity,
-          name,
-          phone,
-          wilayaCode,
-          commune: resolvedCommune,
-          deliveryMethod: currentShipping.quote.method,
-          website,
-        }),
+      const orderReference = await submitOrder({
+        productSlug: product.slug,
+        quantity: validQuantity,
+        name,
+        phone,
+        wilayaCode,
+        commune: resolvedCommune,
+        deliveryMethod: currentShipping.quote.method,
+        website,
+      });
+      trackPixel(
+        'Purchase',
+        productParams(product, calculateTotals(product.price, validQuantity, currentShipping.quote.amount).total),
       );
+      setReference(orderReference);
       window.scrollTo({ top: 0 });
     } catch {
       setSendFailed(true);
@@ -593,6 +604,7 @@ export function CheckoutPage({ slug }: { slug: string }) {
             <div className="privacy-note">
               <h3>{t('checkout.privacyTitle')}</h3>
               <p>{t('checkout.privacyText')}</p>
+              {SITE.metaPixelId && <p>{t('privacy.pixelNotice')}</p>}
             </div>
           </aside>
         </form>
