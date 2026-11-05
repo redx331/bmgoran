@@ -48,7 +48,7 @@ const fr = {
   'home.heroText':
     'Pièces et accessoires pour voitures et motos. Choisissez votre produit, vérifiez le prix et la livraison, puis commandez en quelques secondes.',
   'home.heroCta': 'Voir les produits',
-  'home.heroNote': 'Aucun compte requis · 58 wilayas · Commande en ligne',
+  'home.heroNote': 'Aucun compte requis · 69 wilayas · Commande en ligne',
   'home.categoriesTitle': 'Parcourir par catégorie',
   'home.categoriesSubtitle': 'Trouvez rapidement la pièce ou l’accessoire dont vous avez besoin.',
   'home.categoryCount': '{count} produit(s)',
@@ -65,7 +65,7 @@ const fr = {
   'home.step3Text': 'Remplissez le formulaire et validez. Le magasin vous appelle pour confirmer.',
   'home.trust1Title': 'Sans compte',
   'home.trust1Text': 'Aucune inscription, aucun mot de passe. Vous commandez directement.',
-  'home.trust2Title': '58 wilayas',
+  'home.trust2Title': '69 wilayas',
   'home.trust2Text': 'Livraison à domicile ou retrait au bureau, avec le tarif affiché avant l’envoi.',
   'home.trust3Title': 'Conseil avant achat',
   'home.trust3Text': 'Un doute sur la compatibilité ? Écrivez-nous avant de commander.',
@@ -184,7 +184,7 @@ const fr = {
   'checkout.exampleShort': 'exemple',
   'checkout.productImageAlt': 'Photo de {name}',
 
-  'delivery.title': 'Livraison dans les 58 wilayas',
+  'delivery.title': 'Livraison dans les 69 wilayas',
   'delivery.subtitle':
     'Deux options : à domicile ou retrait au bureau du transporteur. Tarifs de livraison depuis Oran, par wilaya.',
   'delivery.noticeTitle': 'Tarifs d’exemple',
@@ -250,13 +250,13 @@ const fr = {
 
   'seo.homeTitle': 'Pièces auto & moto en Algérie — Commande en ligne',
   'seo.homeDescription':
-    'Pièces et accessoires pour voitures et motos. Prix, photos et livraison dans les 58 wilayas. Commandez directement en ligne, sans compte.',
+    'Pièces et accessoires pour voitures et motos. Prix, photos et livraison dans les 69 wilayas. Commandez directement en ligne, sans compte.',
   'seo.shopTitle': 'Boutique — Pièces auto & moto',
   'seo.shopDescription':
     'Tous les produits : pièces auto, pièces moto et accessoires universels. Livraison en Algérie, commande en ligne.',
-  'seo.deliveryTitle': 'Livraison et tarifs — 58 wilayas',
+  'seo.deliveryTitle': 'Livraison et tarifs — 69 wilayas',
   'seo.deliveryDescription':
-    'Tarifs de livraison à domicile et en bureau pour les 58 wilayas d’Algérie.',
+    'Tarifs de livraison à domicile et en bureau pour les 69 wilayas d’Algérie.',
   'seo.contactTitle': 'Contact — BMG Oran',
   'seo.contactDescription':
     'Contactez le magasin pour vérifier une pièce ou préparer votre commande.',
@@ -330,7 +330,7 @@ const ar: Record<TranslationKey, string> = {
   'home.heroText':
     'قطع وإكسسوارات للسيارات والدراجات النارية. اختر منتجك، تحقق من السعر والتوصيل، ثم اطلب في ثوانٍ.',
   'home.heroCta': 'تصفّح المنتجات',
-  'home.heroNote': 'دون إنشاء حساب · 58 ولاية · طلب عبر الإنترنت',
+  'home.heroNote': 'دون إنشاء حساب · 69 ولاية · طلب عبر الإنترنت',
   'home.categoriesTitle': 'تصفّح حسب الفئة',
   'home.categoriesSubtitle': 'اعثر بسرعة على القطعة أو الإكسسوار الذي تحتاجه.',
   'home.categoryCount': '{count} منتج',
@@ -347,7 +347,7 @@ const ar: Record<TranslationKey, string> = {
   'home.step3Text': 'املأ الاستمارة وأكّد الطلب. سيتصل بك المتجر للتأكيد.',
   'home.trust1Title': 'دون حساب',
   'home.trust1Text': 'لا تسجيل ولا كلمة مرور. اطلب مباشرة.',
-  'home.trust2Title': '58 ولاية',
+  'home.trust2Title': '69 ولاية',
   'home.trust2Text': 'توصيل إلى المنزل أو الاستلام من المكتب، مع عرض السعر قبل الإرسال.',
   'home.trust3Title': 'استشارة قبل الشراء',
   'home.trust3Text': 'لديك شك في التوافق؟ راسلنا قبل الطلب.',
@@ -464,7 +464,7 @@ const ar: Record<TranslationKey, string> = {
   'checkout.exampleShort': 'تجريبي',
   'checkout.productImageAlt': 'صورة {name}',
 
-  'delivery.title': 'التوصيل إلى 58 ولاية',
+  'delivery.title': 'التوصيل إلى 69 ولاية',
   'delivery.subtitle':
     'خياران: إلى المنزل أو الاستلام من مكتب شركة النقل. أسعار التوصيل انطلاقًا من وهران، حسب الولاية.',
   'delivery.noticeTitle': 'أسعار تجريبية',
@@ -529,12 +529,12 @@ const ar: Record<TranslationKey, string> = {
 
   'seo.homeTitle': 'قطع السيارات والدراجات في الجزائر — الطلب عبر الإنترنت',
   'seo.homeDescription':
-    'قطع وإكسسوارات للسيارات والدراجات النارية. الأسعار والصور والتوصيل إلى 58 ولاية. اطلب عبر الإنترنت دون حساب.',
+    'قطع وإكسسوارات للسيارات والدراجات النارية. الأسعار والصور والتوصيل إلى 69 ولاية. اطلب عبر الإنترنت دون حساب.',
   'seo.shopTitle': 'المتجر — قطع السيارات والدراجات',
   'seo.shopDescription':
     'كل المنتجات: قطع سيارات، قطع دراجات وإكسسوارات عامة. التوصيل داخل الجزائر والطلب عبر الإنترنت.',
-  'seo.deliveryTitle': 'التوصيل والأسعار — 58 ولاية',
-  'seo.deliveryDescription': 'أسعار التوصيل إلى المنزل وإلى المكتب في 58 ولاية جزائرية.',
+  'seo.deliveryTitle': 'التوصيل والأسعار — 69 ولاية',
+  'seo.deliveryDescription': 'أسعار التوصيل إلى المنزل وإلى المكتب في 69 ولاية جزائرية.',
   'seo.contactTitle': 'اتصل بنا — بي إم جي وهران',
   'seo.contactDescription': 'تواصل مع المتجر للتحقق من قطعة أو تحضير طلبك.',
   'seo.productTitle': '{name} — {price}',

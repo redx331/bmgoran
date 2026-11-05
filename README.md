@@ -20,7 +20,7 @@ Everything below is **placeholder content**, not verified business information:
 | Order email | Configured — Resend secrets are set on the `bmg-oran` Pages project and a real test order arrived |
 | Products, prices, part numbers, specs | 8 fictional demo products, marked “démo” in the UI |
 | Product photos | Generated SVG placeholders, not real photos |
-| Delivery rates (all 58 wilayas) | Real ZR Express grid (departure Oran); wilayas ZR does not serve block checkout |
+| Delivery rates (all 69 wilayas) | Real ZR Express grid (departure Oran); wilayas ZR does not serve block checkout |
 | Product compatibility | Not claimed anywhere (`verified: false`, no vehicle list) |
 | Site URL | `https://YOUR-PROJECT.pages.dev` placeholder |
 
@@ -41,7 +41,7 @@ be mistaken for a real quote. Replace the data before launch — see
   its own `<title>`, description, canonical and Open Graph tags, plus an SPA fallback.
 - **Checkout** (`/checkout/<slug>?qty=N`): guest form (first name, last name, phone, wilaya,
   delivery method), inline validation in the active language, live subtotal / shipping / total.
-- **All 58 wilayas**, each with separate home-delivery and desk-delivery prices.
+- **All 69 wilayas**, each with separate home-delivery and desk-delivery prices.
   A missing rate blocks the order instead of silently becoming `0`.
 - **Email orders**: the customer submits the form on the site, and the server recalculates the
   price and emails reference, product, quantity, totals and customer details to the shop.
@@ -115,7 +115,7 @@ Run `npm run build` before `npm test` so the static-build assertions inspect the
 | File | What it controls |
 | --- | --- |
 | `site.config.json` | Business name (FR/AR), brand initials, deployed URL, phone, address, opening hours, social links, `demoContact` flag |
-| `src/config/shipping.ts` | The 58 wilayas, both delivery prices, and `SHIPPING_RATES_ARE_EXAMPLES` |
+| `src/config/shipping.ts` | The 69 wilayas, both delivery prices, and `SHIPPING_RATES_ARE_EXAMPLES` |
 | `src/data/products.json` | The entire catalogue (texts, prices, specs, images, stock, part numbers) |
 | `src/data/categories.ts` | The 4 category names, descriptions and icons |
 | `src/i18n/translations.ts` | Every French and Arabic interface string |
@@ -173,7 +173,7 @@ autoparts-store/
 │  └─ generate-og.mjs
 ├─ src/
 │  ├─ components/             Header, footer, product card, gallery, quantity stepper, …
-│  ├─ config/                 business.ts (site config), shipping.ts (58 wilayas)
+│  ├─ config/                 business.ts (site config), shipping.ts (69 wilayas)
 │  ├─ data/                   products.json + typed helpers, categories
 │  ├─ i18n/                   I18nProvider + FR/AR dictionaries
 │  ├─ lib/                    router, seo, order math/validation/message, shipping quote

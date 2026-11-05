@@ -4,7 +4,7 @@
  *
  * This is the ONLY file you need to edit to change delivery prices.
  *
- * 1. Every one of the 58 wilayas has TWO independently configurable prices:
+ * 1. Every one of the 69 wilayas has TWO independently configurable prices:
  *      - homeDeliveryPrice : delivery to the customer's home  (DZD)
  *      - deskDeliveryPrice : pickup at the courier's office      (DZD)
  *
@@ -35,7 +35,7 @@
  */
 
 export interface WilayaShipping {
-  /** Official wilaya code, two digits: "01" … "58". */
+  /** Official wilaya code, two digits: "01" … "69". */
   code: string;
   nameFr: string;
   nameAr: string;
@@ -105,4 +105,16 @@ export const WILAYAS: WilayaShipping[] = [
   { code: '56', nameFr: 'Djanet', nameAr: 'جانت', homeDeliveryPrice: null, deskDeliveryPrice: null },
   { code: '57', nameFr: "El M'Ghair", nameAr: 'المغير', homeDeliveryPrice: 800, deskDeliveryPrice: null },
   { code: '58', nameFr: 'El Meniaa', nameAr: 'المنيعة', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  // Created by law 26-06 (JO n° 25, 2026-04-05). No ZR stop desk confirmed yet: home only.
+  { code: '59', nameFr: 'Aflou', nameAr: 'أفلو', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  { code: '60', nameFr: 'Barika', nameAr: 'بريكة', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  { code: '61', nameFr: 'El Kantara', nameAr: 'القنطرة', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  { code: '62', nameFr: 'Bir El Ater', nameAr: 'بئر العاتر', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  { code: '63', nameFr: 'El Aricha', nameAr: 'العريشة', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  { code: '64', nameFr: 'Ksar Chellala', nameAr: 'قصر الشلالة', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  { code: '65', nameFr: 'Aïn Oussera', nameAr: 'عين وسارة', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  { code: '66', nameFr: 'Messaad', nameAr: 'مسعد', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  { code: '67', nameFr: 'Ksar El Boukhari', nameAr: 'قصر البخاري', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  { code: '68', nameFr: 'Bou Saâda', nameAr: 'بوسعادة', homeDeliveryPrice: 800, deskDeliveryPrice: null },
+  { code: '69', nameFr: 'El Abiodh Sidi Cheikh', nameAr: 'الأبيض سيدي الشيخ', homeDeliveryPrice: 800, deskDeliveryPrice: null },
 ];

@@ -23,10 +23,10 @@ const SAMPLE = (overrides: Partial<WilayaShipping> = {}): WilayaShipping => ({
 });
 
 describe('Algerian wilaya shipping configuration', () => {
-  it('covers all 58 wilayas exactly once, in official order', () => {
-    expect(WILAYAS).toHaveLength(58);
+  it('covers all 69 wilayas exactly once, in official order', () => {
+    expect(WILAYAS).toHaveLength(69);
     expect(WILAYAS.map((wilaya) => wilaya.code)).toEqual(
-      Array.from({ length: 58 }, (_, index) => String(index + 1).padStart(2, '0')),
+      Array.from({ length: 69 }, (_, index) => String(index + 1).padStart(2, '0')),
     );
   });
 

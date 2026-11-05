@@ -6,7 +6,7 @@ export interface Commune {
 }
 
 /**
- * Communes of Algeria organized by Wilaya code (01 - 58).
+ * Communes of Algeria organized by Wilaya code (01 - 69).
  * Covers the main municipalities, including all daïras and key communes per wilaya.
  */
 export const COMMUNES_BY_WILAYA: Record<string, Commune[]> = {
@@ -637,10 +637,22 @@ export const COMMUNES_BY_WILAYA: Record<string, Commune[]> = {
     { nameFr: 'Hassi Gara', nameAr: 'حاسي القارة' },
     { nameFr: 'Hassi Fehal', nameAr: 'حاسي الفحل' },
   ],
+  // New wilayas (law 26-06): seat only; customers can type another commune.
+  '59': [{ nameFr: 'Aflou', nameAr: 'أفلو' }],
+  '60': [{ nameFr: 'Barika', nameAr: 'بريكة' }],
+  '61': [{ nameFr: 'El Kantara', nameAr: 'القنطرة' }],
+  '62': [{ nameFr: 'Bir El Ater', nameAr: 'بئر العاتر' }],
+  '63': [{ nameFr: 'El Aricha', nameAr: 'العريشة' }],
+  '64': [{ nameFr: 'Ksar Chellala', nameAr: 'قصر الشلالة' }],
+  '65': [{ nameFr: 'Aïn Oussera', nameAr: 'عين وسارة' }],
+  '66': [{ nameFr: 'Messaad', nameAr: 'مسعد' }],
+  '67': [{ nameFr: 'Ksar El Boukhari', nameAr: 'قصر البخاري' }],
+  '68': [{ nameFr: 'Bou Saâda', nameAr: 'بوسعادة' }],
+  '69': [{ nameFr: 'El Abiodh Sidi Cheikh', nameAr: 'الأبيض سيدي الشيخ' }],
 };
 
 /**
- * Returns the list of communes for a given wilaya code (01 - 58).
+ * Returns the list of communes for a given wilaya code (01 - 69).
  */
 export function getCommunesForWilaya(wilayaCode: string): Commune[] {
   return COMMUNES_BY_WILAYA[wilayaCode] ?? [];

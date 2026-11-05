@@ -75,7 +75,7 @@ launch, one of those is still set.
 ## 4. Delivery rates
 
 - [ ] You have your courier's real grid (zones or per-wilaya prices) for **home** and **desk**.
-- [ ] All 58 wilayas you serve have a real price for each method you offer.
+- [ ] All 69 wilayas you serve have a real price for each method you offer.
 - [ ] Wilayas you do **not** serve have `null` for both methods.
 - [ ] No price is left as an example; `SHIPPING_RATES_ARE_EXAMPLES = false`.
 - [ ] You decided whether shipping is flat per order (current model) or should depend on

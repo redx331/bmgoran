@@ -113,7 +113,7 @@ function html({ title, subtitle, price, priceNote = 'Prix en dinars algériens �
     </div>
   </div>
   <div class="visual"><img src="${imageUrl}" alt=""></div>
-  <div class="activity">Pièces auto &amp; moto · 58 wilayas</div>
+  <div class="activity">Pièces auto &amp; moto · 69 wilayas</div>
   <div class="domain">${escapeHtml(domain)}</div>
 </body>
 </html>`;
@@ -147,10 +147,10 @@ const brand = { mark: site.brandMark, name: site.businessName, tag: 'Pièces aut
 
 screenshot(
   html({
-    title: { eyebrow: 'Commande en ligne · 58 wilayas', value: 'La bonne pièce, livrée partout en Algérie.' },
+    title: { eyebrow: 'Commande en ligne · 69 wilayas', value: 'La bonne pièce, livrée partout en Algérie.' },
     subtitle:
       'Pièces et accessoires pour voitures et motos. Prix, photos, disponibilité et livraison affichés avant la commande.',
-    price: '58 wilayas',
+    price: '69 wilayas',
     priceNote: 'Livraison à domicile ou au bureau',
     image: '/images/products/led-headlights-1.svg',
     demo: false,
@@ -163,7 +163,7 @@ screenshot(
 for (const product of products) {
   screenshot(
     html({
-      title: { eyebrow: `${product.category.replaceAll('-', ' ')} · 58 WILAYAS`, value: product.nameFr },
+      title: { eyebrow: `${product.category.replaceAll('-', ' ')} · 69 WILAYAS`, value: product.nameFr },
       subtitle: product.descriptionFr.slice(0, 150).trim() + (product.descriptionFr.length > 150 ? '…' : ''),
       price: `${priceFormatter.format(product.price)} DA`,
       image: product.images[0] ?? '/images/products/placeholder.svg',

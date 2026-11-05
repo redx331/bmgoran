@@ -144,11 +144,11 @@ describe('bilingual interface', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('La bonne pièce,');
   });
 
-  it('translates the 58-wilaya delivery table', () => {
+  it('translates the 69-wilaya delivery table', () => {
     const { unmount } = renderApp({ path: '/delivery', locale: 'fr' });
     expect(screen.queryAllByText('Tarifs d’exemple')).toHaveLength(0);
     const frenchRows = document.querySelectorAll('.rates-table tbody tr');
-    expect(frenchRows.length).toBe(58);
+    expect(frenchRows.length).toBe(69);
     expect(frenchRows[15]).toHaveTextContent('Alger');
     unmount();
 
@@ -157,7 +157,7 @@ describe('bilingual interface', () => {
     expect(screen.queryAllByText('أسعار تجريبية')).toHaveLength(0);
 
     const arabicRows = document.querySelectorAll('.rates-table tbody tr');
-    expect(arabicRows.length).toBe(58);
+    expect(arabicRows.length).toBe(69);
     expect(arabicRows[15]).toHaveTextContent('الجزائر');
   });
 

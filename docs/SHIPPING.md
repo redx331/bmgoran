@@ -1,7 +1,7 @@
 # Delivery & wilaya rates
 
 Delivery pricing is **one file**: [`src/config/shipping.ts`](../src/config/shipping.ts).
-It contains all **58 Algerian wilayas**, each with two independent prices, plus a global flag
+It contains all **69 Algerian wilayas**, each with two independent prices, plus a global flag
 that marks the whole table as example data.
 
 ```
@@ -125,7 +125,7 @@ Do not rename wilayas to match a courier's internal labels: customers know the o
 
 | Test file | What it covers |
 | --- | --- |
-| `src/test/shipping.test.ts` | 58 wilayas present, unique codes, home/desk resolution, `null` never becomes `0`, unknown wilaya, free (`0`) delivery |
+| `src/test/shipping.test.ts` | 69 wilayas present, unique codes, home/desk resolution, `null` never becomes `0`, unknown wilaya, free (`0`) delivery |
 | `src/test/order.test.ts` | Subtotal/shipping/total arithmetic, quantity validation |
 | `src/test/checkout-flow.test.tsx` | Totals update live when wilaya, method and quantity change |
 | `src/test/checkout-missing-rate.test.tsx` | Missing rate blocks the order and explains why |
