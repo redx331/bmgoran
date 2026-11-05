@@ -52,14 +52,14 @@ describe('Algerian wilaya shipping configuration', () => {
     }
   });
 
-  it('resolves a different quote for home and desk delivery', () => {
+  it('resolves the flat home and desk prices', () => {
     const home = getShippingQuote('16', 'home');
     const desk = getShippingQuote('16', 'desk');
 
     expect(home.ok).toBe(true);
     expect(desk.ok).toBe(true);
     if (home.ok && desk.ok) {
-      expect(home.quote.amount).toBe(400);
+      expect(home.quote.amount).toBe(800);
       expect(desk.quote.amount).toBe(500);
       expect(home.quote.isExample).toBe(false);
       expect(home.quote.wilaya.code).toBe('16');

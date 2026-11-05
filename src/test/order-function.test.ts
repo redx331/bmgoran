@@ -72,7 +72,7 @@ describe('POST /api/order', () => {
   it('ignores prices sent by the browser', async () => {
     await post({ ...VALID, price: 1, total: 1, shipping: 0 });
     const email = JSON.parse(fetchMock.mock.calls[0]?.[1]?.body as string);
-    expect(email.text).toMatch(/7\D?400/);
+    expect(email.text).toMatch(/7\D?800/);
   });
 
   it.each([

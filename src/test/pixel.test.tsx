@@ -55,7 +55,7 @@ describe('Meta Pixel events', () => {
     expect(lastEvent('Purchase')?.[2]).toEqual({
       content_ids: ['led-headlights'],
       content_type: 'product',
-      value: 7400,
+      value: 7800,
       currency: 'DZD',
     });
     const sent = JSON.stringify(sentEvents());

@@ -36,9 +36,9 @@ describe('checkout page', () => {
 
     await user.selectOptions(screen.getByRole('combobox', { name: /Wilaya/ }), '16');
     await user.click(screen.getByRole('radio', { name: /Livraison à domicile/ }));
-    expect(summaryValue('Livraison')).toContain(formatPrice(400, 'fr'));
+    expect(summaryValue('Livraison')).toContain(formatPrice(800, 'fr'));
     expect(summaryValue('Livraison')).not.toContain('Tarif exemple');
-    expect(summaryValue('Total à payer')).toBe(formatPrice(7400, 'fr'));
+    expect(summaryValue('Total à payer')).toBe(formatPrice(7800, 'fr'));
 
     // Changing the delivery method updates shipping and the final total.
     await user.click(screen.getByRole('radio', { name: /Retrait au bureau/ }));
