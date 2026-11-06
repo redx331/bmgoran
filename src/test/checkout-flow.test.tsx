@@ -126,7 +126,7 @@ describe('placing an order', () => {
     renderApp({ path: '/checkout/led-headlights', locale: 'fr' });
 
     await user.click(screen.getByRole('radio', { name: /Retrait au bureau/ }));
-    await user.selectOptions(screen.getByRole('combobox', { name: /Wilaya/ }), '06');
+    await user.selectOptions(screen.getByRole('combobox', { name: /Wilaya/ }), '50');
 
     expect(screen.getByRole('radio', { name: /Livraison à domicile/ })).toBeChecked();
   });

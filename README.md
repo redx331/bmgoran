@@ -20,7 +20,7 @@ Everything below is **placeholder content**, not verified business information:
 | Order email | Configured — Resend secrets are set on the `bmg-oran` Pages project and a real test order arrived |
 | Products, prices, part numbers, specs | 8 fictional demo products, marked “démo” in the UI |
 | Product photos | Generated SVG placeholders, not real photos |
-| Delivery rates (all 69 wilayas) | Real ZR Express grid (departure Oran); wilayas ZR does not serve block checkout |
+| Delivery rates (all 69 wilayas) | Real Yalidine fees from the shop account (departure Oran), refreshed with `node scripts/yalidine-fees.mjs` |
 | Product compatibility | Not claimed anywhere (`verified: false`, no vehicle list) |
 | Site URL | `https://YOUR-PROJECT.pages.dev` placeholder |
 

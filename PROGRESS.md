@@ -331,6 +331,7 @@ The owner reported that he could not delete existing products, and that products
 
 8. **Meta Pixel built, off until configured**: `src/lib/pixel.ts` sends PageView, ViewContent, InitiateCheckout and Purchase (DZD, no customer details), never on `/admin`. Set `metaPixelId` in `site.config.json` to turn it on; the privacy notice line appears with it. Not yet tested with a real ID in Meta's Test Events.
 9. **Pixel live (2026-11-05)**: ID `1616894326585515`; CSP also allows `form-action`/`frame-src` for `https://www.facebook.com` (events with product data were blocked). **Flat delivery**: home 800 DA, office 500 DA everywhere a method exists. **69 wilayas**: added 59–69 (law 26-06, JO n° 25 of 2026-04-05), home delivery only and seat commune only; their communes still also appear under the parent wilayas. Run `npm run og` to refresh share images ("69 wilayas").
+10. **Yalidine prices (2026-11-06)**: `scripts/yalidine-fees.mjs` asks for the Yalidine API ID/token (never saved) and writes `.tmp/yalidine-fees.json` (fees from Oran). Wilayas 01–58 now use those fees (seat commune, express); all 69 wilayas are served. Bordj Badji Mokhtar has no stop desk. Ouled Djellal (51, rate-limited) and 59–69 (not in Yalidine yet) keep 800 DA home only: rerun the script later to fill them.
 
 ---
 

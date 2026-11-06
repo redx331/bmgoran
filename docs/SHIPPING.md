@@ -23,7 +23,7 @@ export interface WilayaShipping {
   deskDeliveryPrice: number | null;   // pickup at the courier's agency, in DA
 }
 
-export const SHIPPING_RATES_ARE_EXAMPLES = false; // real ZR Express grid, 2026-11-02
+export const SHIPPING_RATES_ARE_EXAMPLES = false; // real Yalidine fees, 2026-11-06
 
 export const WILAYAS: WilayaShipping[] = [
   { code: '16', nameFr: 'Alger', nameAr: 'الجزائر', homeDeliveryPrice: 400, deskDeliveryPrice: 300 },
@@ -31,11 +31,11 @@ export const WILAYAS: WilayaShipping[] = [
 ];
 ```
 
-The current table is the **ZR Express** grid supplied by the shop (departure Oran, W31):
-`homeDeliveryPrice` = ZR “TARIF”, `deskDeliveryPrice` = ZR “STOP DESK”. The sheet is mapped
-**by wilaya name**, because its numbering diverges from official codes from row 49
-(sheet 54 = Timimoun = official 49). ZR “ANNULE RETOUR” is not modelled. Illizi (33),
-Tindouf (37), Bordj Badji Mokhtar (50) and Djanet (56) are absent from the sheet → `null`.
+The current table holds the shop's **Yalidine** express fees (departure Oran, W31), downloaded with
+`node scripts/yalidine-fees.mjs` (asks for the Yalidine API ID and token, never saves them, writes
+`.tmp/yalidine-fees.json`). Home = `express_home`, office = `express_desk` of each wilaya's seat commune.
+Bordj Badji Mokhtar (50) has no stop desk → `null`. Ouled Djellal (51) and the new wilayas 59–69 had
+no Yalidine fee yet and keep a flat 800 DA home price.
 
 Both prices are **integers in dinars**. Shipping is charged **once per order**, not per item:
 `total = (unit price × quantity) + shipping`.
@@ -53,7 +53,7 @@ delivery. This is enforced in `getShippingQuote()` and covered by tests.
 
 ### The example flag
 
-The flag is currently `false`: the table holds verified ZR Express rates. Setting it to `true`
+The flag is currently `false`: the table holds verified Yalidine rates. Setting it to `true`
 makes the interface label every shipping amount as an example (`exemple`), and checkout plus
 `/api/order` refuse orders with `409 rates-not-verified`. Use `true` only while testing, or
 temporarily if a new grid has not been confirmed yet.
