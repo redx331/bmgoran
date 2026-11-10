@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { ProductGallery } from '../components/ProductGallery';
 import { SITE } from '../config/business';
 import { WILAYAS } from '../config/shipping';
 import { getCategoryName } from '../data/categories';
@@ -283,13 +284,8 @@ export function CheckoutPage({ slug }: { slug: string }) {
           <h1>{t('checkout.title')}</h1>
           {/* Visitors from ads land here directly: show what they are ordering before the form. */}
           <div className="checkout-product">
-            <img
-              src={product.images[0] ?? '/images/products/placeholder.svg'}
-              alt={t('checkout.productImageAlt', { name: productName })}
-              width={800}
-              height={600}
-            />
-            <div>
+            <ProductGallery product={product} />
+            <div className="checkout-product__info">
               <strong>{productName}</strong>
               <span className="checkout-product__price">{formatPrice(product.price, locale)}</span>
               <span className="checkout-product__trust">{t('checkout.trustLine')}</span>

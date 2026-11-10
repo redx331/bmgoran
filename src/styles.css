@@ -2086,23 +2086,16 @@ ol {
 
 .checkout-product {
   display: flex;
-  align-items: center;
-  gap: 14px;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 560px;
   margin-top: 14px;
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: 4px;
 }
 
-.checkout-product img {
-  flex: 0 0 auto;
-  width: 112px;
-  height: 84px;
-  border-radius: 2px;
-  object-fit: cover;
-}
-
-.checkout-product div {
+.checkout-product__info {
   display: flex;
   flex-direction: column;
   gap: 4px;

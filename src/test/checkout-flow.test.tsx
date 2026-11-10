@@ -150,7 +150,8 @@ describe('placing an order', () => {
     const top = document.querySelector('.checkout-product');
     const form = screen.getByLabelText(/الاسم واللقب/);
     expect(top).toHaveTextContent('الدفع عند الاستلام');
-    expect(top?.querySelector('img')).toBeInTheDocument();
+    // Every product photo is browsable above the form, not just the first one.
+    expect(top?.querySelectorAll('.product-gallery__slide img').length).toBeGreaterThan(1);
     // The product block must come before the first form field.
     expect(top!.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
