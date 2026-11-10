@@ -143,4 +143,15 @@ describe('placing an order', () => {
 
     expect(await screen.findByRole('status')).toHaveTextContent('تم إرسال الطلب');
   });
+
+  it('shows the product, price and cash on delivery above the form', () => {
+    renderApp({ path: '/checkout/led-headlights', locale: 'ar' });
+
+    const top = document.querySelector('.checkout-product');
+    const form = screen.getByLabelText(/الاسم واللقب/);
+    expect(top).toHaveTextContent('الدفع عند الاستلام');
+    expect(top?.querySelector('img')).toBeInTheDocument();
+    // The product block must come before the first form field.
+    expect(top!.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
 });

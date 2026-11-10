@@ -123,6 +123,7 @@ const fr = {
 
   'checkout.title': 'Finaliser la commande',
   'checkout.subtitle': 'Aucun compte requis. Votre commande est transmise directement au magasin.',
+  'checkout.trustLine': '💵 Paiement à la livraison · 🚚 Livraison dans les 69 wilayas',
   'checkout.contactSection': 'Vos coordonnées',
   'checkout.requiredNote': 'Les champs marqués * sont obligatoires.',
   'checkout.deliverySection': 'Livraison',
@@ -404,6 +405,7 @@ const ar: Record<TranslationKey, string> = {
 
   'checkout.title': 'إتمام الطلب',
   'checkout.subtitle': 'دون إنشاء حساب. يصل طلبك مباشرة إلى المتجر.',
+  'checkout.trustLine': '💵 الدفع عند الاستلام · 🚚 التوصيل لـ 69 ولاية',
   'checkout.contactSection': 'معلوماتك',
   'checkout.requiredNote': 'الحقول المعلّمة بـ * إلزامية.',
   'checkout.deliverySection': 'التوصيل',

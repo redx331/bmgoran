@@ -281,7 +281,20 @@ export function CheckoutPage({ slug }: { slug: string }) {
             {t('checkout.backToProduct')}
           </Link>
           <h1>{t('checkout.title')}</h1>
-          <p>{t('checkout.subtitle')}</p>
+          {/* Visitors from ads land here directly: show what they are ordering before the form. */}
+          <div className="checkout-product">
+            <img
+              src={product.images[0] ?? '/images/products/placeholder.svg'}
+              alt={t('checkout.productImageAlt', { name: productName })}
+              width={800}
+              height={600}
+            />
+            <div>
+              <strong>{productName}</strong>
+              <span className="checkout-product__price">{formatPrice(product.price, locale)}</span>
+              <span className="checkout-product__trust">{t('checkout.trustLine')}</span>
+            </div>
+          </div>
           <p className="required-note">{t('checkout.requiredNote')}</p>
         </div>
 
