@@ -1674,7 +1674,9 @@ ol {
 .product-gallery__slide img {
   width: 100%;
   aspect-ratio: 4 / 3;
-  object-fit: cover;
+  /* Show the whole photo: square or tall uploads keep their text instead of being cropped. */
+  object-fit: contain;
+  background: #fff;
 }
 
 .product-gallery__arrow {
